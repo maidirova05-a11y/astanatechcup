@@ -101,6 +101,12 @@ and forty kilobytes of JavaScript for fifteen glyphs is a bad trade.
 
 ## Design system
 
+> **`DESIGN.md` is the design contract.** It states the palette, type scale,
+> spacing, motion and component rules in the [DESIGN.md](DESIGN.md) format that
+> AI agents and designers both read. Change the primitive layer in
+> `globals.css` and update that file in the same pass, or the two drift.
+
+
 Three token layers in `src/app/globals.css`, in strict order:
 
 1. **Primitive** — the only place a hex code may appear.
