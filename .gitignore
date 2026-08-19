@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — never commit real values
 .env*
+# ...except the template, which documents every variable and contains none.
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +41,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Re-stated because `vercel env pull` appends `.env*` here and the LAST
+# matching pattern wins — without this negation the template would silently
+# stop being tracked.
+.env*
+!.env.example
+
+.vercel

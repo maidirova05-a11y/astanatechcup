@@ -1,0 +1,553 @@
+{
+  "meta": {
+    "title": "AstanaTechCup {year} — National Robotics & Tech Championship of Kazakhstan",
+    "titleShort": "AstanaTechCup {year}",
+    "description": "The 3rd national technology championship of Kazakhstan. Robotics, drones, programming and esports. 2,500 participants, 720 teams. Winners represent Kazakhstan at the international RobotChallenge.",
+    "ogAlt": "AstanaTechCup — national robotics championship of Kazakhstan"
+  },
+
+  "common": {
+    "tbd": "to be confirmed",
+    "loading": "Loading…",
+    "close": "Close",
+    "open": "Open",
+    "back": "Back",
+    "next": "Next",
+    "years": "{count, plural, one {# year} other {# years}}",
+    "ageRange": "ages {min}–{max}",
+    "people": "{count, plural, one {# participant} other {# participants}}",
+    "upToPeople": "{count, plural, one {up to # participant} other {up to # participants}}",
+    "offline": "In person",
+    "required": "required",
+    "optional": "optional",
+    "skipToContent": "Skip to content",
+    "menu": "Menu",
+    "language": "Language",
+    "scrollDown": "Scroll down"
+  },
+
+  "nav": {
+    "disciplines": "Disciplines",
+    "journey": "How to enter",
+    "prizes": "Prizes",
+    "faq": "FAQ",
+    "contacts": "Contact",
+    "register": "Enter now",
+    "home": "Home"
+  },
+
+  "hero": {
+    "badge": "3rd national championship · {year}",
+    "titleLine1": "Build a robot.",
+    "titleLine2": "Beat the best.",
+    "titleLine3": "Represent Kazakhstan.",
+    "subtitle": "AstanaTechCup is Kazakhstan's national technology championship for school and university students. Six disciplines, teams from every region of the country, and a place at the international RobotChallenge for the winners.",
+    "ctaPrimary": "Enter your team",
+    "ctaSecondary": "See the disciplines",
+    "ctaTrailer": "Watch the trailer",
+    "dates": "{start}–{end} {month}",
+    "datesLabel": "Championship dates",
+    "venue": "Astana · L. N. Gumilyov Eurasian National University",
+    "venueLabel": "Venue",
+    "deadlineLabel": "Entries close in",
+    "deadlineDate": "Entries close on {date}",
+    "closed": "Entries are closed",
+    "closedNote": "Registration for the {year} championship has closed. Leave your details and we will tell you when the next season opens.",
+    "organizedBy": "Organiser",
+    "coOrganizedBy": "Co-organiser"
+  },
+
+  "countdown": {
+    "days": "{count, plural, one {day} other {days}}",
+    "hours": "{count, plural, one {hour} other {hours}}",
+    "minutes": "{count, plural, one {minute} other {minutes}}",
+    "seconds": "{count, plural, one {second} other {seconds}}",
+    "expired": "Time is up",
+    "ariaLabel": "{days} days, {hours} hours and {minutes} minutes left until entries close"
+  },
+
+  "stats": {
+    "title": "The championship in numbers",
+    "subtitle": "Figures from last season",
+    "participants": "participants",
+    "teams": "teams",
+    "regions": "regions of Kazakhstan",
+    "edition": "third edition",
+    "note": "Figures from the previous championship, held at L. N. Gumilyov Eurasian National University."
+  },
+
+  "flagship": {
+    "eyebrow": "Flagship discipline",
+    "title": "RoboSumo",
+    "lead": "Two robots. A ring less than a metre across. Whoever leaves it first loses.",
+    "body": "The most spectacular discipline of the championship, and the easiest one for a newcomer to grasp: the rules take a minute to explain, and winning comes down to engineering rather than budget. Several weight and size classes run in parallel, from simple builds for beginners to autonomous machines fielded by experienced teams.",
+    "point1Title": "Rules in a minute",
+    "point1Body": "Push your opponent out of the ring. Everything else is regulation detail.",
+    "point2Title": "A class for everyone",
+    "point2Body": "Size and weight classes mean a first-timer and a seasoned team never meet in the same bracket.",
+    "point3Title": "A crowd-puller",
+    "point3Body": "Bouts run over several rounds and draw the largest audience of the championship.",
+    "cta": "Enter RoboSumo",
+    "provisionalNote": "Age categories, team size and weight classes will be confirmed in the regulations."
+  },
+
+  "disciplines": {
+    "eyebrow": "Disciplines",
+    "title": "Six disciplines — pick yours",
+    "subtitle": "Each discipline has its own age categories and team size. Full technical requirements are in the championship regulations.",
+    "labelAge": "Age",
+    "labelTeam": "Team",
+    "labelFormat": "Format",
+    "flagshipTag": "Flagship",
+    "provisionalTag": "To be confirmed",
+    "cta": "Enter now",
+    "regulationsCta": "Download the regulations",
+    "regulationsMissing": "The regulations will be published before entries open.",
+    "items": {
+      "robosumo": {
+        "name": "RoboSumo",
+        "tagline": "Robot sumo",
+        "description": "Two robots face off in a circular ring. The one that pushes its opponent out wins. Several weight and size classes."
+      },
+      "vex": {
+        "name": "VEX",
+        "tagline": "Competitive robotics",
+        "description": "The international VEX Robotics platform: build, program and drive a robot as a team to complete this season's game challenges."
+      },
+      "lego": {
+        "name": "LEGO",
+        "tagline": "A first step into robotics",
+        "description": "Building and programming robots on the LEGO platform. The best starting point for younger students and anyone trying competition for the first time."
+      },
+      "arduino": {
+        "name": "Arduino",
+        "tagline": "Electronics and circuit design",
+        "description": "Building microcontroller devices: your own circuit, soldering, sensors and code. For anyone who wants to understand how it all works underneath."
+      },
+      "drones": {
+        "name": "Drones",
+        "tagline": "Piloting and autonomous flight",
+        "description": "Course racing, precision piloting and autonomous flight tasks. Reaction speed plus solid engineering on the airframe."
+      },
+      "esports": {
+        "name": "Esports",
+        "tagline": "Team competition",
+        "description": "Team esports tournaments with a group stage and play-offs. The largest teams in the championship."
+      }
+    }
+  },
+
+  "journey": {
+    "eyebrow": "Your route",
+    "title": "From entry to podium — seven steps",
+    "subtitle": "No hidden stages. You always know what comes next and what to prepare.",
+    "stepLabel": "Step {number}",
+    "steps": {
+      "application": {
+        "title": "Entry",
+        "body": "Register your team in your chosen discipline and pay the entry fee. It takes a few minutes."
+      },
+      "confirmation": {
+        "title": "Confirmation",
+        "body": "The organising committee checks your team's details and emails you confirmation along with the discipline regulations."
+      },
+      "preparation": {
+        "title": "Preparation",
+        "body": "Build your robot and write your program to the regulations. Answers to technical questions and breakdowns of previous seasons are published before the start."
+      },
+      "techCheck": {
+        "title": "Technical inspection",
+        "body": "On site, judges check your robot against the regulations: dimensions, weight, safety. Minor issues can be fixed within a grace period."
+      },
+      "qualification": {
+        "title": "Qualifying",
+        "body": "Qualifying runs and bouts within your category. The result sets your position in the bracket."
+      },
+      "final": {
+        "title": "Final",
+        "body": "Decisive bouts in every category, in front of the hall and the judging panel."
+      },
+      "awards": {
+        "title": "Awards",
+        "body": "Diplomas, medals and prizes. The strongest robotics teams get their shot at a place in Beijing."
+      }
+    }
+  },
+
+  "prizes": {
+    "eyebrow": "Awards",
+    "title": "The top prize isn't a trophy",
+    "lead": "Winners of the robotics disciplines earn the chance to represent Kazakhstan at the international RobotChallenge.",
+    "city": "Beijing",
+    "internationalTitle": "RobotChallenge · {city}",
+    "internationalMonth": "Final — {month} {year}",
+    "internationalBody": "The international stage takes place in Beijing. For championship teams it is a direct route to the world stage and opponents from dozens of countries.",
+    "items": {
+      "medals": {
+        "title": "Medals and trophies",
+        "body": "For the podium in every category of every discipline."
+      },
+      "diplomas": {
+        "title": "Diplomas and certificates",
+        "body": "A certificate for every participant, and letters of commendation for the schools and clubs that prepared teams."
+      },
+      "special": {
+        "title": "Special awards",
+        "body": "Separate prizes for unconventional engineering and standout results."
+      },
+      "valuable": {
+        "title": "Prizes",
+        "body": "Winners and runners-up receive commemorative and valuable prizes from the organisers and partners."
+      }
+    }
+  },
+
+  "audiences": {
+    "eyebrow": "Who it's for",
+    "title": "Choose your role",
+    "subtitle": "The championship is more than the teams on the floor. Find the route that fits you.",
+    "cta": "Go",
+    "roles": {
+      "participant": {
+        "title": "Competitor",
+        "body": "A school or university student ready to compete. Put a team together and pick your discipline.",
+        "cta": "Register a team"
+      },
+      "parent": {
+        "title": "Parent",
+        "body": "Want to enter your child but not sure where to start? Answers to the common questions about cost, travel and the level required.",
+        "cta": "Questions from parents"
+      },
+      "teacher": {
+        "title": "Teacher or club",
+        "body": "Preparing several teams from a school or club? Register them and receive a commendation for your organisation.",
+        "cta": "Enter as an organisation"
+      },
+      "spectator": {
+        "title": "Spectator",
+        "body": "Come and watch. Admission details and the bout schedule are published shortly before the championship.",
+        "cta": "Plan your visit"
+      },
+      "volunteer": {
+        "title": "Volunteer",
+        "body": "Help us run the championship: team registration, judging support, looking after guests.",
+        "cta": "Become a volunteer"
+      },
+      "sponsor": {
+        "title": "Sponsor or partner",
+        "body": "Thousands of participants, their families and their teachers across the country. Let's talk about partnership formats.",
+        "cta": "Request a proposal"
+      },
+      "media": {
+        "title": "Press",
+        "body": "Accreditation, photo and video material, and comment from the organisers.",
+        "cta": "Request accreditation"
+      }
+    }
+  },
+
+  "registration": {
+    "eyebrow": "Registration",
+    "title": "Enter your team",
+    "subtitle": "Fill in the form, pay the entry fee, and your team is on the list.",
+    "feeLabel": "Entry fee",
+    "feeValue": "{amount} {currency}",
+    "feePer": "per team, one-off",
+    "feeIncludesTitle": "What's included",
+    "feeIncludes1": "Your team's participation in every stage of the chosen discipline",
+    "feeIncludes2": "Certificates for participants and a commendation for your organisation",
+    "feeIncludes3": "Access to the venue, the pit area and technical support",
+    "deadlineNote": "Entries close on {date}",
+
+    "sectionTeam": "About the team",
+    "sectionMembers": "Team members",
+    "sectionContact": "Contact person",
+    "sectionConsent": "Consent",
+
+    "fieldTeamName": "Team name",
+    "fieldTeamNameHint": "How your team will be announced at the venue",
+    "fieldDiscipline": "Discipline",
+    "fieldDisciplinePlaceholder": "Choose a discipline",
+    "fieldOrganization": "School, club or college",
+    "fieldOrganizationHint": "The organisation your team represents",
+    "fieldRegion": "Region",
+    "fieldRegionPlaceholder": "Choose a region",
+    "fieldCity": "City or town",
+
+    "memberLabel": "Member {number}",
+    "fieldMemberName": "Full name",
+    "fieldMemberAge": "Age",
+    "addMember": "Add a member",
+    "removeMember": "Remove member {number}",
+    "teamSizeHint": "This discipline allows up to {max} members",
+    "teamSizeHintUnknown": "Team size will be confirmed in the regulations",
+    "ageHint": "This discipline is for ages {min}–{max}",
+
+    "fieldContactName": "Full name",
+    "fieldContactRole": "You are",
+    "fieldContactRolePlaceholder": "Choose your role",
+    "roleParticipant": "A member of the team",
+    "roleParent": "A parent or legal guardian",
+    "roleTeacher": "A teacher, coach or club leader",
+    "fieldContactEmail": "Email",
+    "fieldContactEmailHint": "We'll send your confirmation here",
+    "fieldContactPhone": "Phone",
+    "fieldContactPhoneHint": "Format: +7 700 000 00 00",
+    "fieldComment": "Note for the organising committee",
+
+    "consentData": "I consent to the processing of the team members' personal data in accordance with the privacy policy.",
+    "consentDataLink": "privacy policy",
+    "consentGuardian": "I am the legal guardian of the under-age members of this team, or I hold their written consent to this entry.",
+    "consentMedia": "I allow the team to be photographed and filmed at the venue, and those materials to be published in event coverage.",
+    "consentMediaOptional": "Optional. It has no bearing on your entry.",
+    "consentRules": "I have read the championship regulations and the terms of participation.",
+
+    "submit": "Submit entry and continue to payment",
+    "submitNoPayment": "Submit entry",
+    "submitting": "Submitting…",
+    "closed": "Entries are closed",
+    "closedBody": "Entries for the {year} championship are no longer being accepted. Watch out for the announcement of the next season.",
+
+    "successTitle": "Entry received",
+    "successBody": "We've sent confirmation to {email}. Your reference is {reference}. Keep it — you'll need it when contacting the organising committee.",
+    "successPayment": "All that's left is the entry fee. Payment is handled on the payment provider's secure page.",
+    "successPaymentCta": "Continue to payment",
+    "paymentDeferredBody": "Online payment of the entry fee isn't available yet. The organising committee will be in touch with a payment link.",
+    "successAnother": "Submit another entry",
+
+    "errorTitle": "Entry not submitted",
+    "errorGeneric": "Something went wrong. Please try again in a minute.",
+    "errorRateLimit": "Too many attempts. Please wait a moment and try again.",
+    "errorCaptcha": "We couldn't confirm you're human. Please refresh the page and try again.",
+    "errorDeadline": "Entries have already closed.",
+    "errorDuplicate": "An entry with this email and team name has already been submitted.",
+    "errorValidation": "Please check the highlighted fields.",
+
+    "validation": {
+      "teamNameRequired": "Enter a team name",
+      "teamNameShort": "That name is too short",
+      "teamNameLong": "That name is longer than {max} characters",
+      "disciplineRequired": "Choose a discipline",
+      "disciplineUnknown": "That discipline doesn't exist",
+      "organizationRequired": "Enter your school, club or college",
+      "regionRequired": "Choose a region",
+      "cityRequired": "Enter your city",
+      "membersMin": "Add at least one team member",
+      "membersMax": "This discipline allows no more than {max} members",
+      "memberNameRequired": "Enter the member's name",
+      "memberAgeRequired": "Enter an age",
+      "memberAgeRange": "Age must be between {min} and {max}",
+      "memberAgeDiscipline": "This discipline is for ages {min}–{max}",
+      "contactNameRequired": "Enter the contact person's name",
+      "contactRoleRequired": "Choose your role",
+      "emailRequired": "Enter an email address",
+      "emailInvalid": "Check the email address",
+      "phoneRequired": "Enter a phone number",
+      "phoneInvalid": "Check the phone number",
+      "commentLong": "That note is longer than {max} characters",
+      "consentDataRequired": "We can't accept the entry without consent to process the data",
+      "consentGuardianRequired": "Please confirm legal guardianship of the under-age members",
+      "consentRulesRequired": "Please confirm you have read the regulations"
+    }
+  },
+
+  "faq": {
+    "eyebrow": "Frequently asked",
+    "title": "Answered in advance",
+    "subtitle": "The things competitors, parents and teachers ask us most.",
+    "items": {
+      "cost": {
+        "q": "What does it cost to take part?",
+        "a": "The entry fee is {amount} {currency} per team, not per person. It covers participation in every stage of your chosen discipline, certificates and access to the venue. Everything else — travel, accommodation and building your robot — the team plans for itself."
+      },
+      "travel": {
+        "q": "We're from another region. How do we get there?",
+        "a": "The championship is held in Astana. Teams usually plan to arrive the day before so they can get through technical inspection without rushing. The exact venue address, directions and recommended arrival time are sent to confirmed teams along with the regulations."
+      },
+      "accommodation": {
+        "q": "Is there help with accommodation for teams from out of town?",
+        "a": "Accommodation is being confirmed with the organising committee. Mention it when you submit your entry, with your city and the number of people, and we'll suggest options near the venue and tell you whether any special rates apply for teams."
+      },
+      "skillLevel": {
+        "q": "We've never competed before. Should we still enter?",
+        "a": "Yes. The championship is open to teams at any level, from students building their first robot to experienced university teams. Every discipline has age categories, and RoboSumo adds weight classes on top, so beginners never face champions."
+      },
+      "rules": {
+        "q": "Where can we read the rules and technical requirements?",
+        "a": "The full regulations are published before entries open and can be downloaded from this page. They cover robot dimensions and weight, permitted components, the format of bouts, and the judging criteria for each discipline."
+      },
+      "selection": {
+        "q": "How are teams selected for the international stage?",
+        "a": "Places at RobotChallenge go to the strongest robotics teams based on the final. The selection criteria and the number of places are published in the regulations before the championship begins — nothing is decided behind closed doors afterwards."
+      },
+      "teamChanges": {
+        "q": "Can we change the team line-up after entering?",
+        "a": "Yes. Until entries close, changes are made by writing to the organising committee with your reference. After the deadline, substitutions are considered individually and only for good reason."
+      },
+      "refund": {
+        "q": "What if our team can't make it?",
+        "a": "Let the organising committee know as early as you can, quoting your reference. The refund terms for the entry fee, and whether the place can be passed to another team from your organisation, are set out in the terms of participation."
+      },
+      "equipment": {
+        "q": "Do we need to bring our own equipment?",
+        "a": "Yes. Teams bring their own robot, tools and spare parts. There is a pit area at the venue with workbenches and power; what the organiser provides is listed in each discipline's regulations."
+      },
+      "deadline": {
+        "q": "When is the entry deadline?",
+        "a": "{date}, inclusive. We'd suggest not leaving it late: places in some categories are limited, and no entries are accepted after the deadline."
+      }
+    },
+    "stillQuestions": "Didn't find your answer?",
+    "askUs": "Write to the organising committee and we'll reply."
+  },
+
+  "gallery": {
+    "eyebrow": "Last time out",
+    "title": "Last season's championship",
+    "subtitle": "720 teams, six arenas and two days of competition.",
+    "watchTrailer": "Watch the trailer",
+    "empty": "Photos and video from previous championships will be published here."
+  },
+
+  "partners": {
+    "eyebrow": "Behind the championship",
+    "title": "Organisers and partners",
+    "organizer": "Organiser",
+    "coOrganizer": "Co-organiser",
+    "partnersTitle": "Partners",
+    "empty": "Partner logos will be published here.",
+    "sponsorTitle": "Become a partner",
+    "sponsorBody": "The championship brings together thousands of school and university students, their parents and their teachers from across the country. We're happy to discuss partnership formats, from backing a single discipline to headline partnership.",
+    "sponsorCta": "Discuss partnership"
+  },
+
+  "contacts": {
+    "eyebrow": "Get in touch",
+    "title": "Organising committee",
+    "subtitle": "We'll answer questions about registration, the regulations and partnership.",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "email": "Email",
+    "address": "Venue",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+    "website": "Website",
+    "openMap": "Open in maps",
+    "empty": "Contact details for the organising committee will be published here."
+  },
+
+  "footer": {
+    "tagline": "Kazakhstan's national technology championship.",
+    "sections": "Sections",
+    "legal": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms of participation",
+    "rights": "© {year} {organizer}. All rights reserved.",
+    "madeFor": "AstanaTechCup · Astana, Kazakhstan"
+  },
+
+  "consent": {
+    "title": "We use cookies",
+    "body": "Essential cookies keep the registration form working and protect it from spam. Analytics cookies help us understand which parts of the site are useful — you can turn those off.",
+    "accept": "Accept all",
+    "reject": "Essential only",
+    "more": "Learn more"
+  },
+
+  "payment": {
+    "successTitle": "Payment received",
+    "successBody": "The entry fee has been received. Entry {reference} is confirmed and the details are on their way to your inbox.",
+    "successCta": "Back to the home page",
+    "cancelTitle": "Payment not completed",
+    "cancelBody": "The payment was cancelled and nothing was charged. Entry {reference} has been saved — you can complete payment later using the link in your email.",
+    "cancelCta": "Back to your entry",
+    "unavailableTitle": "Payment temporarily unavailable",
+    "unavailableBody": "Your entry has been saved. The organising committee will be in touch with a link to pay the entry fee."
+  },
+
+  "notFound": {
+    "title": "Page not found",
+    "body": "That page doesn't seem to exist. Head back to the home page — everything about the championship is there.",
+    "cta": "Home page"
+  },
+
+  "error": {
+    "title": "Something went wrong",
+    "body": "We already know about the problem. Try reloading the page.",
+    "cta": "Reload"
+  },
+
+  "privacy": {
+    "title": "Privacy policy",
+    "updated": "Last updated: {date}",
+    "intro": "This policy explains what personal data is processed when you enter the AstanaTechCup championship, why, and how long it is kept.",
+    "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel before publication, including for compliance with the Law of the Republic of Kazakhstan No. 94-V on personal data and its protection.",
+    "s1Title": "1. Who processes the data",
+    "s1Body": "The data controller is the championship organiser, {organizer}. Contact details for data protection enquiries are published in the Contact section.",
+    "s2Title": "2. What we collect",
+    "s2Body": "When you submit an entry: the team and organisation name, region and city, the names and ages of team members, and the contact person's name, email, phone number and note. When you pay the entry fee, payment details are handled by the payment provider — this site neither receives nor stores card details.",
+    "s3Title": "3. Why we process it",
+    "s3Body": "To register your team and admit it to the competition, to confirm the entry and stay in touch, to produce results and award documents, and to keep the service secure and free from abuse.",
+    "s4Title": "4. Data about minors",
+    "s4Body": "The championship's main audience is schoolchildren. Data about participants under 18 is submitted by a legal guardian or with their consent; confirming this is a mandatory condition of entry.",
+    "s5Title": "5. How long we keep it",
+    "s5Body": "Entry data is retained for the duration of the championship and the reporting period that follows, after which it is deleted or anonymised. Specific periods are set out in the controller's internal policy.",
+    "s6Title": "6. Who it is shared with",
+    "s6Body": "Data is never sold, and never passed to third parties for advertising. Limited access is held by the service providers needed to run the site: hosting, email delivery, the payment provider and the bot-protection service.",
+    "s7Title": "7. Your rights",
+    "s7Body": "You may request a copy of your data, ask for it to be corrected or deleted, and withdraw your consent to processing. Contact the organising committee quoting your entry reference.",
+    "s8Title": "8. Cookies",
+    "s8Body": "Essential cookies keep the registration form working and protect against request forgery. Analytics cookies are set only after explicit consent and can be declined without losing any site functionality.",
+    "s9Title": "9. Security",
+    "s9Body": "Data is transmitted over an encrypted connection, access to it is restricted, and actions on entries are logged. Personal data is never written to service logs in the clear."
+  },
+
+  "terms": {
+    "title": "Terms of participation",
+    "updated": "Last updated: {date}",
+    "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel and aligned with the official competition regulations.",
+    "s1Title": "1. General",
+    "s1Body": "These terms govern entry to and participation in the AstanaTechCup national technology championship. The organiser is {organizer}; the co-organiser is {coOrganizer}.",
+    "s2Title": "2. Who may take part",
+    "s2Body": "Teams of school and university students who meet the age categories of their chosen discipline may take part. Age limits and maximum team size are stated in each discipline's description and checked when the entry is submitted.",
+    "s3Title": "3. Entries and deadlines",
+    "s3Body": "Entries are submitted through the form on this site up to and including {deadline}. An entry is accepted once the organising committee has confirmed it and the entry fee has been received.",
+    "s4Title": "4. Entry fee",
+    "s4Body": "The fee is {amount} {currency} per team, paid through the payment provider's secure page. Refund terms are set by the competition regulations; a team withdrawing should notify the organising committee in good time.",
+    "s5Title": "5. Regulations and technical inspection",
+    "s5Body": "Participants must follow their discipline's regulations. Robots undergo a technical inspection against the requirements for dimensions, weight and safety. Non-compliance may result in exclusion until the issues are resolved.",
+    "s6Title": "6. Judging and results",
+    "s6Body": "Results are determined by the judging panel according to the criteria published in the regulations. The procedure for lodging and hearing appeals is set out in the competition regulations.",
+    "s7Title": "7. Photography and filming",
+    "s7Body": "Photography and filming take place at the venue. Consent to publish material featuring your team is requested separately and has no bearing on admission to the competition.",
+    "s8Title": "8. Changes",
+    "s8Body": "The organiser may adjust the dates, venue and regulations, giving registered teams timely notice through the contact details provided in their entry."
+  },
+
+  "regions": {
+    "label": "Region",
+    "abai": "Abai Region",
+    "akmola": "Akmola Region",
+    "aktobe": "Aktobe Region",
+    "almaty_region": "Almaty Region",
+    "almaty_city": "Almaty (city)",
+    "astana": "Astana (city)",
+    "atyrau": "Atyrau Region",
+    "east_kazakhstan": "East Kazakhstan Region",
+    "zhambyl": "Zhambyl Region",
+    "zhetysu": "Jetisu Region",
+    "west_kazakhstan": "West Kazakhstan Region",
+    "karaganda": "Karaganda Region",
+    "kostanay": "Kostanay Region",
+    "kyzylorda": "Kyzylorda Region",
+    "mangystau": "Mangystau Region",
+    "pavlodar": "Pavlodar Region",
+    "north_kazakhstan": "North Kazakhstan Region",
+    "turkistan": "Turkistan Region",
+    "ulytau": "Ulytau Region",
+    "shymkent": "Shymkent (city)",
+    "other": "Another region or country"
+  }
+}

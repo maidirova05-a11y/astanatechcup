@@ -1,26 +1,411 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   AstanaTechCup — Design System
+   ══════════════════════════════════════════════════════════════════════════
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+   Three token layers, in this order:
 
-@media (prefers-color-scheme: dark) {
+     1. PRIMITIVE  — raw values. The only place a hex code may appear.
+     2. SEMANTIC   — role names (surface, text, accent). Components use these.
+     3. UTILITIES  — the Tailwind classes generated from layers 1 and 2.
+
+   Swapping the brandbook = editing layer 1 only. No component file contains a
+   colour. `.on-dark` re-points the *semantic* layer, so every component inside
+   a dark section adapts with zero component-level dark-mode branching.
+
+   ART DIRECTION — "Bright Tech". The brief asks for "bright and friendly for
+   children" (Q16) while the event must read as a serious, high-tier technology
+   championship to sponsors and media. Resolution: a light-dominant page whose
+   premium quality comes from layout rigour, typographic scale and generous
+   whitespace — with dark sections used as deliberate punctuation (the RoboSumo
+   flagship, the RobotChallenge prize) so they read as "the arena".
+
+   ⚠ The palette below is a documented PLACEHOLDER. The brief confirms a
+   brandbook and brand colours exist but they were not supplied. Replace the
+   primitive layer and the whole site re-skins.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@layer theme {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* ── 1. PRIMITIVE ─────────────────────────────────────────────────── */
+
+    /* Brand — "Astana night sky" blue. Trust, depth, the tech backbone. */
+    --blue-50: #f1f6fe;
+    --blue-100: #e2ecfd;
+    --blue-200: #bfd5fa;
+    --blue-300: #8db4f5;
+    --blue-400: #5a8dec;
+    --blue-500: #326ada;
+    --blue-600: #234fb4;
+    --blue-700: #1b3c8c;
+    --blue-800: #142a61;
+    --blue-900: #0d1c40;
+    --blue-950: #060e22;
+
+    /* Energy — cyan → violet. Motion, circuitry, the "tech" register. */
+    --cyan-300: #6ee7f7;
+    --cyan-400: #22d3ee;
+    --cyan-500: #06b6d4;
+    --violet-300: #c4b5fd;
+    --violet-400: #a78bfa;
+    --violet-500: #8b5cf6;
+
+    /* Signal — reserved EXCLUSIVELY for primary CTAs and deadline urgency.
+       Nothing else on the page may use this hue. That is what makes the
+       primary action unambiguous on every screen. */
+    --signal-300: #ffb494;
+    --signal-400: #ff8c61;
+    --signal-500: #ff6b35;
+    --signal-600: #e8500f;
+    --signal-700: #bd3d06;
+
+    /* Neutrals */
+    --neutral-0: #ffffff;
+    --neutral-50: #f8f9fb;
+    --neutral-100: #eef1f6;
+    --neutral-200: #e0e5ed;
+    --neutral-300: #c7cfdc;
+    --neutral-400: #9ba6b8;
+    --neutral-500: #6f7b8d;
+    --neutral-600: #515b6b;
+    --neutral-700: #3b434f;
+    --neutral-800: #262c35;
+    --neutral-900: #151a21;
+
+    /* Status */
+    --green-500: #16a34a;
+    --green-50: #f0fdf4;
+    --red-500: #dc2626;
+    --red-50: #fef2f2;
+    --amber-600: #b45309;
+    --amber-50: #fffbeb;
+
+    /* Section rhythm — gives the page a consistent heartbeat. */
+    --space-section: clamp(4rem, 8vw, 7.5rem);
+    --space-section-tight: clamp(2.5rem, 5vw, 4.5rem);
+
+    /* ── 2. SEMANTIC ──────────────────────────────────────────────────── */
+
+    --surface: var(--neutral-0);
+    --surface-muted: var(--blue-50);
+    --surface-raised: var(--neutral-0);
+    --surface-sunken: var(--neutral-50);
+
+    --text: var(--neutral-900);
+    --text-muted: var(--neutral-600);
+    --text-subtle: var(--neutral-400);
+
+    --brand: var(--blue-700);
+    --brand-strong: var(--blue-900);
+    --on-brand: var(--neutral-0);
+
+    --accent: var(--signal-500);
+    --accent-hover: var(--signal-600);
+    --on-accent: var(--neutral-0);
+
+    --border: var(--neutral-200);
+    --border-strong: var(--neutral-300);
+
+    --focus-ring: var(--blue-500);
+
+    --success: var(--green-500);
+    --success-surface: var(--green-50);
+    --danger: var(--red-500);
+    --danger-surface: var(--red-50);
+    --warning: var(--amber-600);
+    --warning-surface: var(--amber-50);
+
+    /* Light page: tell the browser not to auto-invert form controls. */
+    color-scheme: light;
+  }
+
+  /*
+   * Dark punctuation sections. Applying `.on-dark` re-points the semantic
+   * layer; every nested component follows automatically. This is the entire
+   * dark-section implementation — no per-component `dark:` variants.
+   */
+  .on-dark {
+    --surface: var(--blue-950);
+    --surface-muted: var(--blue-900);
+    --surface-raised: color-mix(in oklab, var(--blue-900) 70%, var(--blue-800));
+    --surface-sunken: #030711;
+
+    --text: var(--neutral-0);
+    --text-muted: var(--blue-200);
+    --text-subtle: color-mix(in oklab, var(--blue-200) 62%, transparent);
+
+    --brand: var(--cyan-400);
+    --brand-strong: var(--neutral-0);
+    --on-brand: var(--blue-950);
+
+    --border: color-mix(in oklab, var(--blue-200) 20%, transparent);
+    --border-strong: color-mix(in oklab, var(--blue-200) 34%, transparent);
+
+    --focus-ring: var(--cyan-300);
+
+    --warning: #fbbf24;
+    --warning-surface: color-mix(in oklab, #fbbf24 14%, transparent);
+
+    color-scheme: dark;
+    background-color: var(--surface);
+    color: var(--text);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── 3a. Emitted theme values ────────────────────────────────────────────
+   Plain `@theme` (not `inline`), so these become real CSS variables that the
+   component layer below can also reference. Values are literal — a token that
+   pointed at a same-named variable would be circular and resolve to nothing. */
+@theme {
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+
+  /* Elevation tinted with the brand hue, never neutral grey. */
+  --shadow-sm: 0 1px 2px rgb(13 28 64 / 0.06), 0 1px 3px rgb(13 28 64 / 0.08);
+  --shadow-md: 0 4px 6px -1px rgb(13 28 64 / 0.07), 0 2px 4px -2px rgb(13 28 64 / 0.06);
+  --shadow-lg: 0 12px 20px -6px rgb(13 28 64 / 0.12), 0 4px 8px -4px rgb(13 28 64 / 0.08);
+  --shadow-xl: 0 24px 48px -12px rgb(13 28 64 / 0.18);
+  --shadow-signal: 0 8px 24px -6px rgb(255 107 53 / 0.45);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  /* Typography. Families come from next/font, which self-hosts the files —
+     no third-party font request, which keeps the CSP tight and leaks nothing. */
+  --font-display: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
+
+  /* Fluid modular scale — 1.25 at mobile widening to 1.333 at desktop. */
+  --text-2xs: clamp(0.6875rem, 0.66rem + 0.14vw, 0.75rem);
+  --text-xs: clamp(0.75rem, 0.72rem + 0.16vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.85rem + 0.13vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1.06rem + 0.32vw, 1.25rem);
+  --text-xl: clamp(1.3125rem, 1.2rem + 0.55vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.32rem + 0.9vw, 2rem);
+  --text-3xl: clamp(1.875rem, 1.55rem + 1.6vw, 2.75rem);
+  --text-4xl: clamp(2.25rem, 1.72rem + 2.6vw, 3.75rem);
+  --text-5xl: clamp(2.75rem, 1.9rem + 4.2vw, 5rem);
+}
+
+/* ── 3b. Semantic colour mapping ─────────────────────────────────────────
+   `inline` so utilities resolve through the semantic vars at the point of use —
+   that is what makes `.on-dark` cascade into `bg-surface` / `text-muted`. */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-content: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-on-brand: var(--on-brand);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+
+  --color-cyan-accent: var(--cyan-400);
+  --color-violet-accent: var(--violet-400);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+
+@layer base {
+  * {
+    min-width: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* The sticky header must not cover an in-page anchor target. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Russian and Kazakh set better with these on. */
+    font-feature-settings: "kern", "liga", "calt";
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+
+  p, li {
+    text-wrap: pretty;
+  }
+
+  /* One visible, consistent focus indicator everywhere. Never removed. */
+  :focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* Respect the OS setting. Every animation in the app is gated on this. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ── Component-layer primitives ─────────────────────────────────────────── */
+
+@layer components {
+  /* Numerals in the countdown and stat counters must not jitter as they tick. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  .container-page {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .container-wide {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .container-prose {
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .section {
+    padding-block: var(--space-section);
+  }
+
+  .section-tight {
+    padding-block: var(--space-section-tight);
+  }
+
+  /* Accessible skip link — visible only when focused. */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100%;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 600;
+    transition: top 150ms var(--ease-out-expo);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  /* Circuit-board texture for dark sections. Pure CSS: no image request, no
+     CSP exception, no layout cost. */
+  .grid-texture {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--cyan-400) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--cyan-400) 8%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 78%);
+  }
+
+  /* Soft brand glow behind hero and flagship art. */
+  .aurora {
+    background:
+      radial-gradient(40rem 24rem at 18% 14%, color-mix(in oklab, var(--cyan-400) 26%, transparent), transparent 62%),
+      radial-gradient(34rem 22rem at 84% 26%, color-mix(in oklab, var(--violet-400) 24%, transparent), transparent 64%),
+      radial-gradient(30rem 20rem at 52% 96%, color-mix(in oklab, var(--signal-500) 16%, transparent), transparent 66%);
+    filter: blur(6px);
+  }
+
+  .text-gradient-brand {
+    background: linear-gradient(100deg, var(--cyan-400), var(--violet-400) 58%, var(--signal-400));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hairline that fades at both ends — the section divider. */
+  .rule-fade {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+    border: 0;
+  }
+
+  /* Off-screen but still submitted: the honeypot field. `display: none` is
+     skipped by some bots, which is exactly the ones we want to catch. */
+  .honeypot {
+    position: absolute !important;
+    left: -9999px !important;
+    top: auto !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+@layer utilities {
+  /* Per-discipline accent, driven by the `hue` field in src/config/event.ts.
+     One controlled hue rotation keeps six cards feeling like one family. */
+  .discipline-accent {
+    --d-accent: hsl(var(--discipline-hue) 82% 46%);
+    --d-accent-soft: hsl(var(--discipline-hue) 84% 96%);
+    --d-accent-ring: hsl(var(--discipline-hue) 82% 52% / 0.3);
+  }
+
+  .on-dark .discipline-accent {
+    --d-accent: hsl(var(--discipline-hue) 88% 68%);
+    --d-accent-soft: hsl(var(--discipline-hue) 60% 18%);
+    --d-accent-ring: hsl(var(--discipline-hue) 88% 68% / 0.35);
+  }
 }

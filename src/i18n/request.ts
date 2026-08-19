@@ -1,0 +1,21 @@
+import { getRequestConfig } from "next-intl/server";
+import { hasLocale } from "next-intl";
+import { routing } from "./routing";
+
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale;
+
+  // `hasLocale` validates against the allow-list. An attacker-supplied segment
+  // can therefore never reach the dynamic import below — no path traversal
+  // into arbitrary JSON via something like /../../secrets.
+  const locale = hasLocale(routing.locales, requested)
+    ? requested
+    : routing.defaultLocale;
+
+  return {
+    locale,
+    messages: (await import(`../messages/${locale}.json`)).default,
+    timeZone: "Asia/Almaty",
+    now: new Date(),
+  };
+});
