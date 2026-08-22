@@ -4,7 +4,8 @@ import { Section, SectionHeader } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { buttonClasses, EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
 import { ArrowRight } from "@/components/ui/icons";
-import { CONTACTS, EVENT, PARTNERS } from "@/config/event";
+import { BRAND_ASSETS, CONTACTS, EVENT, PARTNERS } from "@/config/event";
+import { OrganiserLogo } from "@/components/layout/Logo";
 
 /**
  * Organisers, partners, and the "become a sponsor" entry point.
@@ -27,15 +28,17 @@ export async function Partners({ locale }: { locale: string }) {
 
       <div className="mt-12 grid gap-4 sm:grid-cols-2">
         {[
-          { label: t("organizer"), name: EVENT.organizer },
-          { label: t("coOrganizer"), name: EVENT.coOrganizer },
+          { label: t("organizer"), name: EVENT.organizer, asset: BRAND_ASSETS.organizer },
+          { label: t("coOrganizer"), name: EVENT.coOrganizer, asset: BRAND_ASSETS.coOrganizer },
         ].map((entry, index) => (
           <Reveal key={entry.name} index={index}>
-            <div className="flex flex-col gap-1.5 rounded-lg border border-line bg-surface-raised p-6">
+            <div className="tile flex h-full flex-col gap-5 p-6">
               <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
                 {entry.label}
               </p>
-              <p className="font-display text-2xl font-extrabold">{entry.name}</p>
+              {/* The mark carries the name, so the alt text is the name and no
+                  duplicate text label is rendered beside it. */}
+              <OrganiserLogo asset={entry.asset} className="h-14" />
             </div>
           </Reveal>
         ))}

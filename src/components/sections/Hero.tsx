@@ -3,9 +3,10 @@ import { buttonClasses } from "@/components/ui/Button";
 import { Countdown } from "@/components/ui/Countdown";
 import { ArrowRight, ArrowDown, Calendar, MapPin, Play } from "@/components/ui/icons";
 import { RobotHero, RobotDrone } from "@/components/ui/robots";
+import { OrganiserLogo } from "@/components/layout/Logo";
 import {
+  BRAND_ASSETS,
   COUNTDOWN_TARGET,
-  EVENT,
   EVENT_YEAR,
   QUALIFIER_START,
   QUALIFIER_END,
@@ -111,11 +112,23 @@ export async function Hero({ locale }: { locale: string }) {
               )}
             </div>
 
-            <p className="text-sm text-subtle">
-              {t("organizedBy")}: <strong className="font-semibold text-muted">{EVENT.organizer}</strong>
-              {" · "}
-              {t("coOrganizedBy")}: <strong className="font-semibold text-muted">{EVENT.coOrganizer}</strong>
-            </p>
+            {/* Credits carried by the marks themselves. Each logo's alt text is
+                the organisation's name, and the visible label says which role
+                it plays, so nothing is lost without images. */}
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
+                  {t("organizedBy")}
+                </span>
+                <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-9" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
+                  {t("coOrganizedBy")}
+                </span>
+                <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-6" />
+              </div>
+            </div>
           </div>
 
           {/* Deadline card, with the championship mascot leaning on it. The
@@ -125,7 +138,7 @@ export async function Hero({ locale }: { locale: string }) {
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -top-16 -right-2 z-10 hidden text-[7rem] sm:block lg:-top-20 lg:text-[8.5rem]"
-              style={{ "--r-accent": "var(--berry-400)" } as React.CSSProperties}
+              style={{ "--r-accent": "var(--electric-500)" } as React.CSSProperties}
             >
               <RobotHero className="animate-float drop-shadow-[0_6px_0_rgba(20,23,42,0.12)]" />
             </div>
@@ -133,7 +146,7 @@ export async function Hero({ locale }: { locale: string }) {
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -bottom-10 -left-8 z-10 hidden text-6xl lg:block"
-              style={{ "--r-accent": "var(--sky-400)" } as React.CSSProperties}
+              style={{ "--r-accent": "var(--magenta-500)" } as React.CSSProperties}
             >
               <RobotDrone className="animate-float-slow" />
             </div>

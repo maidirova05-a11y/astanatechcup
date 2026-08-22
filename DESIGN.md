@@ -1,38 +1,36 @@
 ---
 version: alpha
 name: AstanaTechCup-design-system
-description: "A white championship canvas in a toy language executed with precision. One saturated signal red (#d92211) that only ever means act now, indigo-tinted ink (#14172a) used as a solid 2px outline on every card and button, and hard bottom-edge shadows so a control reads as a physical key rather than a rectangle with a blur behind it. Six original robot mascots — one per discipline — carry the friendliness the brief asks for; grid discipline, a fluid modular scale and generous whitespace carry the credibility sponsors need. Display type is Manrope 800 at -0.028em. Two near-black indigo sections punctuate the page and read as the arena. Discipline hues come from one controlled rotation at fixed saturation, so six cards look like a family rather than a sticker sheet."
+description: "A white championship canvas whose entire palette is sampled from the event logo, so the site and the mark cannot drift apart. The logo runs deep navy #00243c into electric blue #0024a8 into magenta #a800b4, with a gold #fcd800 trophy; those four are the whole system. Deep navy is the ink, the 2px outline on every card and mascot, and the dark-section canvas — a dark section is literally the logo plate enlarged. Magenta is reserved for the primary action, electric blue for structure, gold for the arena. Hard bottom-edge shadows make controls read as physical keys, and six original robot mascots carry the friendliness the brief asks for while grid discipline and a fluid modular scale carry the credibility sponsors need."
 
 colors:
-  primary: "#0b66c3"
+  primary: "#0024a8"
   on-primary: "#ffffff"
-  primary-strong: "#14172a"
-  accent: "#d92211"
-  accent-hover: "#ab1a0d"
-  accent-edge: "#7d130a"
+  primary-strong: "#00243c"
+  accent: "#a800b4"
+  accent-hover: "#8a0094"
+  accent-edge: "#6b0074"
   on-accent: "#ffffff"
-  ink: "#14172a"
-  ink-muted: "#4c5478"
-  ink-subtle: "#949cc4"
+  ink: "#00243c"
+  ink-muted: "#47576f"
+  ink-subtle: "#8d9db4"
   canvas: "#ffffff"
-  surface-muted: "#f7f8fd"
-  surface-sunken: "#eef0f9"
-  hairline: "#dfe3f2"
-  hairline-strong: "#c2c8e4"
-  focus-ring: "#1385f0"
-  berry-bright: "#f43a2b"
-  sky: "#3aa5ff"
-  sun: "#ffd54a"
-  mint: "#16b877"
-  grape: "#a07dff"
-  inverse-canvas: "#14172a"
-  inverse-surface: "#21263d"
+  surface-muted: "#eef2ff"
+  surface-sunken: "#edf1f7"
+  hairline: "#dde4ee"
+  hairline-strong: "#bfcadb"
+  focus-ring: "#1f47f0"
+  electric-bright: "#3d68ff"
+  magenta-bright: "#d940e6"
+  gold: "#fcd800"
+  inverse-canvas: "#00243c"
+  inverse-surface: "#073152"
   inverse-ink: "#ffffff"
-  inverse-ink-muted: "#dfe3f2"
-  inverse-brand: "#ffd54a"
+  inverse-ink-muted: "#b8c7ff"
+  inverse-brand: "#fcd800"
   semantic-success: "#0e9460"
-  semantic-danger: "#d92211"
-  semantic-warning: "#b45309"
+  semantic-danger: "#d02216"
+  semantic-warning: "#96601a"
 
 typography:
   display-xl:
@@ -138,19 +136,21 @@ childish, but a great deal of it is child-friendly.
 Dark sections are used as deliberate punctuation — two of them, no more — so
 they read as "the arena" rather than as a theme.
 
-> ⚠ **The palette is a documented placeholder.** The organiser's brandbook
-> exists but has not been supplied. Replace the primitive layer in
-> `src/app/globals.css` and the entire site re-skins without touching a single
-> component. Update the `colors` block above in the same pass so the two never
-> drift.
+> **The palette is sampled from the supplied logo**, not invented. Every hex in
+> the `colors` block above was measured out of
+> `/public/brand/astanatechcup.png`. If the mark is ever revised, re-sample
+> rather than eyeball: edit the primitive layer in `src/app/globals.css` and
+> update the block above in the same pass, or the two drift.
 
 ## Colors
 
 Three layers, in strict order. **Layer 1 is the only place a hex code may
 appear.** Components never reference a primitive.
 
-**1. Primitive** — raw ramps: `--berry-50…800` (the signal), `--ink-0…900`
-(indigo-tinted neutrals), `--sky-*`, `--sun-*`, `--mint-*`, `--grape-*`.
+**1. Primitive** — raw ramps, every one sampled from the logo:
+`--deep-950…600` (the navy of the mark), `--electric-50…900` (its blue run),
+`--magenta-50…900` (its purple run), `--gold-100…600` (the trophy), and
+`--ink-0…900` neutrals tinted toward the navy so nothing reads as flat grey.
 
 **2. Semantic** — role names that components consume: `--surface`, `--text`,
 `--brand`, `--accent`, `--border`, `--focus-ring`.
@@ -160,26 +160,31 @@ appear.** Components never reference a primitive.
 
 ### The signal colour rule
 
-`--accent` (#d92211) is reserved **exclusively** for the primary call to action
-and for deadline urgency. Nothing else on the page may use that hue. That one
+`--accent` (#a800b4, the magenta of the logo) is reserved **exclusively** for
+the primary call to action and for deadline urgency. Nothing else on the page may use that hue. That one
 constraint is what makes the primary action unambiguous on every screen without
 any other element having to shout.
 
 If two accent-coloured buttons are visible at once, one of them is wrong.
 
-**Why #d92211 and not the brighter #f43a2b.** White on the brighter red measures
-3.83:1, which fails WCAG AA for normal-size text — and `sm`/`md` button labels
-are normal-size. #d92211 measures 5.02:1 and is still unmistakably red. The
-brighter 400/500 steps remain available for mascot bodies and glows, where the
-3:1 graphics threshold applies and every shape carries a dark outline anyway.
-Measured on the rendered buttons, not assumed from the tokens.
+**Why magenta and not the blue of the logo.** Magenta is the one hue in the
+mark that is neither the structural blue nor the gold, so a CTA can never be
+mistaken for a heading or a medal. It also measures 6.32:1 against white —
+comfortably past WCAG AA for normal-size text, which the `sm` and `md` button
+labels are. Measured on the rendered buttons, not assumed from the tokens.
+
+The brighter `--magenta-500` and `--electric-500` steps stay available for
+mascot bodies and glows, where the 3:1 graphics threshold applies and every
+shape carries a dark outline anyway.
 
 ### Dark sections
 
-Applying `.on-dark` re-points the semantic layer — surfaces invert, `--brand`
-becomes warm gold (floodlights and medals, not another blue), borders become
-translucent white, and `--ink` deliberately stays dark so mascot outlines still
-read against their light chips. Every nested component adapts
+Applying `.on-dark` re-points the semantic layer — the canvas becomes
+`--deep-900` (#00243c), which is *the plate border of the logo itself*, so a
+dark section reads as the mark enlarged rather than as a generic dark theme.
+`--brand` becomes gold, borders become translucent electric blue, and `--ink`
+deliberately stays dark so mascot outlines still read against their light
+chips. Every nested component adapts
 automatically. **This is the entire dark-section implementation; there are no
 per-component `dark:` variants and there must not be any.**
 
@@ -189,8 +194,12 @@ prize block. Both are moments of drama, and both earn it.
 ### Discipline accents
 
 Six disciplines each carry a `hue` value in `src/config/event.ts`, rendered
-through one controlled rotation at fixed saturation and lightness. Six related
-hues read as one family; six arbitrary brand colours read as a sticker sheet.
+through one controlled rotation at fixed saturation and lightness.
+
+The arc is chosen to sit inside the range of the logo rather than to span the
+colour wheel: gold 45° (RoboSumo, the flagship — the trophy hue), cyan 190°,
+teal 160°, electric 220°, violet 265°, magenta 305°. Six related hues read as
+one family; six arbitrary brand colours read as a sticker sheet.
 
 ## Typography
 
@@ -264,6 +273,33 @@ input looks like a joke.
 **solid** 5px bottom edge instead of a blur. `.tile-interactive` lifts it to 8px
 on hover and sinks it to 2px on press. That press physics is what makes a card
 feel like an object rather than a drawing of one.
+
+## Logos
+
+Three supplied marks live in `/public/brand`, registered with their intrinsic
+dimensions in `BRAND_ASSETS` (`src/config/event.ts`) so `next/image` reserves
+the right box and nothing shifts while they load.
+
+| Asset | Used in |
+| --- | --- |
+| `astanatechcup.png` | Header, footer, admin shell, admin login |
+| `smarthub.png` | Hero credits, partners grid, footer |
+| `azgroup.png` | Hero credits, partners grid, footer |
+
+**The plate rule.** The championship mark is drawn as a white plate with a
+#00243c border — the same navy the dark sections use. Dropped straight onto the
+footer it loses its outline entirely and the pixel letters sit on nothing. So
+`<Logo plate />` renders it on its own white panel. That is not a workaround; it
+is how the mark is constructed. The organiser marks are dark-on-transparent and
+need the same treatment on any `.on-dark` surface.
+
+Sizing is by height only (`h-9`, `h-11`); width follows from the intrinsic
+aspect ratio, so a mark can never be stretched. Mind that AZ Group is roughly
+7.7:1 — at `h-14` it is over 400px wide, which is why it is given a smaller
+height than SmartHub wherever the two sit side by side.
+
+Each `alt` is the name of the organisation and the visible label states the role
+(Organiser, Co-organiser), so the credit survives with images off.
 
 ## Mascots
 
@@ -416,8 +452,9 @@ form option, the validation rules and the terms all follow automatically.
 
 ## Known Gaps
 
-- Brandbook, logo and brand colours were not supplied — the palette and the
-  wordmark are placeholders.
+- Logos are supplied and in place, and the palette is derived from them. A full
+  brandbook (typography rules, spacing, print specs) has still not been seen, so
+  the type choices remain ours rather than those of the organiser.
 - No photography or video: the gallery renders correctly-sized placeholders, so
   dropping real assets in changes no geometry.
 - Partner logos not supplied; the wall renders an honest note rather than fake

@@ -25,7 +25,7 @@ export default async function AdminLoginPage() {
     <div className="flex min-h-dvh items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo className="h-8 w-auto" />
+          <Logo className="h-8" />
         </div>
 
         <div className="rounded-xl border border-line bg-surface p-7 shadow-lg">

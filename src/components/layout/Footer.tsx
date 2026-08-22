@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Logo } from "./Logo";
-import { EVENT, EVENT_YEAR, CONTACTS } from "@/config/event";
+import { Logo, OrganiserLogo } from "./Logo";
+import { BRAND_ASSETS, EVENT, EVENT_YEAR, CONTACTS } from "@/config/event";
 import { EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
 
 const NAV = [
@@ -32,11 +32,14 @@ export async function Footer({ locale }: { locale: string }) {
       <div className="container-page py-16">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
           <div className="flex flex-col gap-4">
-            <Logo className="h-9 w-auto" />
+            <Logo className="h-11" plate />
             <p className="max-w-sm text-muted">{t("tagline")}</p>
-            <p className="text-sm text-subtle">
-              {EVENT.organizer} · {EVENT.coOrganizer}
-            </p>
+            {/* Both marks are dark-on-transparent, so on this dark surface
+                they need the same white plate the championship mark uses. */}
+            <div className="flex flex-wrap items-center gap-3">
+              <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-10" plate />
+              <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-10" plate />
+            </div>
           </div>
 
           <nav aria-label={t("sections")} className="flex flex-col gap-3">

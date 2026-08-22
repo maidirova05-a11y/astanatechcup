@@ -1,38 +1,95 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { BRAND_ASSETS } from "@/config/event";
 
 /**
- * Wordmark placeholder.
+ * The championship wordmark — the real supplied asset, not a stand-in.
  *
- * ⚠ The brief confirms a logo and brandbook exist (section 12) but they were
- * not supplied. This is a typographic stand-in built from the design system's
- * own tokens so the header is not empty — NOT a proposed identity. Drop the
- * real asset in `/public` and replace the body of this component; nothing else
- * imports the mark directly.
+ * ── Why the `plate` prop exists ──────────────────────────────────────────
+ * The mark is drawn as a white plate with a deep-navy border (#00243c), and
+ * that navy is the same colour as the site's dark sections. Dropped straight
+ * onto the footer it would lose its outline entirely and the pixel letters
+ * would sit on nothing.
+ *
+ * `plate` renders it on its own white rounded panel, which is not a
+ * workaround — it is how the mark is constructed. Use it on any `.on-dark`
+ * surface.
+ * ─────────────────────────────────────────────────────────────────────────
+ *
+ * Sizing: the caller sets a height (`h-9`, `h-8`) and the width follows from
+ * the intrinsic aspect ratio, so the mark can never be stretched.
  */
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  plate = false,
+  priority = false,
+}: {
+  className?: string;
+  /** Render on a white panel. Required on dark surfaces. */
+  plate?: boolean;
+  /** Set on the header logo: it is above the fold on every page. */
+  priority?: boolean;
+}) {
+  const image = (
+    <Image
+      src={BRAND_ASSETS.championship.src}
+      alt={BRAND_ASSETS.championship.alt}
+      width={BRAND_ASSETS.championship.width}
+      height={BRAND_ASSETS.championship.height}
+      priority={priority}
+      className={cn("h-full w-auto object-contain", plate && "p-1")}
+    />
+  );
+
+  if (!plate) {
+    return <span className={cn("inline-flex items-center", className)}>{image}</span>;
+  }
+
   return (
     <span
-      className={cn("inline-flex items-baseline gap-1.5 font-display", className)}
-      aria-hidden="true"
+      className={cn(
+        "inline-flex items-center rounded-md bg-white px-2 py-1",
+        className,
+      )}
     >
-      <span className="flex items-center gap-1.5">
-        {/* Three stacked bars — a nod to a podium and to a circuit trace. */}
-        <svg
-          viewBox="0 0 22 22"
-          className="h-[1.15em] w-[1.15em] shrink-0"
-          fill="none"
-          aria-hidden="true"
-        >
-          <rect x="1" y="12" width="5.5" height="9" rx="1.5" fill="var(--cyan-400)" />
-          <rect x="8.25" y="6" width="5.5" height="15" rx="1.5" fill="var(--brand)" />
-          <rect x="15.5" y="1" width="5.5" height="20" rx="1.5" fill="var(--accent)" />
-        </svg>
-        <span className="text-[1.05em] font-extrabold leading-none tracking-tight">
-          Astana
-          <span className="text-brand">Tech</span>
-          Cup
-        </span>
-      </span>
+      {image}
+    </span>
+  );
+}
+
+/**
+ * Organiser and partner marks. Both are supplied as dark-on-transparent, so
+ * on a dark surface they need the same white-plate treatment as the
+ * championship mark.
+ */
+export function OrganiserLogo({
+  asset,
+  className,
+  plate = false,
+}: {
+  asset: { src: string; alt: string; width: number; height: number };
+  className?: string;
+  plate?: boolean;
+}) {
+  const image = (
+    <Image
+      src={asset.src}
+      alt={asset.alt}
+      width={asset.width}
+      height={asset.height}
+      className="h-full w-auto object-contain"
+    />
+  );
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center",
+        plate && "rounded-md bg-white px-3 py-2",
+        className,
+      )}
+    >
+      {image}
     </span>
   );
 }

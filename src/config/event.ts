@@ -132,7 +132,7 @@ export const DISCIPLINES: readonly Discipline[] = [
     format: "offline",
     provisional: true,
     flagship: true,
-    hue: 12,
+    hue: 45,
   },
   {
     id: "vex",
@@ -142,7 +142,7 @@ export const DISCIPLINES: readonly Discipline[] = [
     format: "offline",
     provisional: false,
     flagship: false,
-    hue: 205,
+    hue: 220,
   },
   {
     id: "lego",
@@ -152,7 +152,7 @@ export const DISCIPLINES: readonly Discipline[] = [
     format: "offline",
     provisional: false,
     flagship: false,
-    hue: 45,
+    hue: 190,
   },
   {
     id: "arduino",
@@ -182,7 +182,7 @@ export const DISCIPLINES: readonly Discipline[] = [
     format: "offline",
     provisional: false,
     flagship: false,
-    hue: 320,
+    hue: 305,
   },
 ] as const;
 
@@ -286,6 +286,38 @@ export const CONTACTS: ContactChannels = {
   address: null,
   mapsUrl: null,
 };
+
+/* ── Brand assets ───────────────────────────────────────────────────────── */
+
+/**
+ * Supplied marks, trimmed of their original padding and capped at 1200px on
+ * the long edge. Intrinsic dimensions are recorded so `next/image` can reserve
+ * the right box and never shift the layout while the file loads.
+ *
+ * The championship mark is a white plate with a #00243c border — the same navy
+ * the dark sections use — so on any `.on-dark` surface it must be rendered
+ * with `plate`. See src/components/layout/Logo.tsx.
+ */
+export const BRAND_ASSETS = {
+  championship: {
+    src: "/brand/astanatechcup.png",
+    alt: "AstanaTechCup",
+    width: 1200,
+    height: 506,
+  },
+  organizer: {
+    src: "/brand/smarthub.png",
+    alt: "SmartHub — Robotics & Drone Academy",
+    width: 1200,
+    height: 506,
+  },
+  coOrganizer: {
+    src: "/brand/azgroup.png",
+    alt: "AZ Group",
+    width: 1200,
+    height: 155,
+  },
+} as const;
 
 /** Partner logos: drop files in /public/partners and list them here. */
 export const PARTNERS: readonly { name: string; logo: string; url?: string }[] = [];

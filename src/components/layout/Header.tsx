@@ -73,7 +73,7 @@ export function Header({ locale }: { locale: string }) {
           className="inline-flex min-h-11 shrink-0 items-center rounded-sm"
           aria-label={t("home")}
         >
-          <Logo className="h-9 w-auto" />
+          <Logo className="h-9" priority />
         </a>
 
         <nav aria-label={tc("menu")} className="hidden items-center gap-1 lg:flex">

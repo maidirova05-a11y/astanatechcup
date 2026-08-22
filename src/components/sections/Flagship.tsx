@@ -41,10 +41,10 @@ export async function Flagship({ locale }: { locale: string }) {
         aria-hidden="true"
         className="pointer-events-none absolute right-4 top-8 hidden gap-2 opacity-90 lg:flex"
       >
-        <span className="text-[5.5rem]" style={{ "--r-accent": "var(--berry-400)" } as React.CSSProperties}>
+        <span className="text-[5.5rem]" style={{ "--r-accent": "var(--magenta-500)" } as React.CSSProperties}>
           <RobotSumo className="animate-float" />
         </span>
-        <span className="text-[5.5rem] -scale-x-100" style={{ "--r-accent": "var(--sky-400)" } as React.CSSProperties}>
+        <span className="text-[5.5rem] -scale-x-100" style={{ "--r-accent": "var(--electric-500)" } as React.CSSProperties}>
           <RobotSumo className="animate-float-slow" />
         </span>
       </div>
@@ -81,7 +81,7 @@ export async function Flagship({ locale }: { locale: string }) {
               <div className="flex gap-5 rounded-lg border border-line bg-surface-raised/60 p-6 backdrop-blur-sm">
                 <span
                   className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand/15 text-3xl"
-                  style={{ "--r-accent": "var(--sun-300)" } as React.CSSProperties}
+                  style={{ "--r-accent": "var(--gold-400)" } as React.CSSProperties}
                 >
                   <RobotSumo />
                 </span>
