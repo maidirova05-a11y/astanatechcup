@@ -1,20 +1,10 @@
-import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Section, SectionHeader, Pill } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { buttonClasses, EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
-import {
-  ArrowRight,
-  Blocks,
-  Chip,
-  Download,
-  Drone,
-  Gamepad,
-  Robot,
-  Trophy,
-  Users,
-} from "@/components/ui/icons";
-import { DISCIPLINES, REGULATIONS_PDF, type DisciplineId } from "@/config/event";
+import { ArrowRight, Download, Users } from "@/components/ui/icons";
+import { DISCIPLINE_ROBOTS } from "@/components/ui/robots";
+import { DISCIPLINES, REGULATIONS_PDF } from "@/config/event";
 
 /**
  * The disciplines grid.
@@ -30,15 +20,6 @@ import { DISCIPLINES, REGULATIONS_PDF, type DisciplineId } from "@/config/event"
  * a family; six arbitrary brand colours read as a sticker sheet.
  */
 
-const ICONS: Record<DisciplineId, ReactNode> = {
-  robosumo: <Robot />,
-  vex: <Trophy />,
-  lego: <Blocks />,
-  arduino: <Chip />,
-  drones: <Drone />,
-  esports: <Gamepad />,
-};
-
 export async function Disciplines({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "disciplines" });
   const tc = await getTranslations({ locale, namespace: "common" });
@@ -53,18 +34,23 @@ export async function Disciplines({ locale }: { locale: string }) {
       />
 
       <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {DISCIPLINES.map((discipline, index) => (
+        {DISCIPLINES.map((discipline, index) => {
+          const Mascot = DISCIPLINE_ROBOTS[discipline.id];
+
+          return (
           <Reveal as="li" key={discipline.id} index={index}>
             <article
-              className="discipline-accent group flex h-full flex-col gap-5 rounded-xl border border-line bg-surface-raised p-6 transition-[box-shadow,border-color,transform] duration-300 ease-out-expo hover:-translate-y-1 hover:border-(--d-accent-ring) hover:shadow-lg"
+              className="discipline-accent tile tile-interactive group flex h-full flex-col gap-5 p-6"
               style={{ "--discipline-hue": String(discipline.hue) } as React.CSSProperties}
             >
               <div className="flex items-start justify-between gap-3">
+                {/* The mascot reads its body colour from --r-accent, which
+                    `.discipline-accent` points at this card's hue. */}
                 <span
-                  className="flex size-12 items-center justify-center rounded-lg bg-(--d-accent-soft) text-2xl text-(--d-accent)"
+                  className="flex size-20 items-center justify-center rounded-lg bg-(--d-accent-soft) text-5xl"
                   aria-hidden="true"
                 >
-                  {ICONS[discipline.id]}
+                  <Mascot className="transition-transform duration-300 ease-spring group-hover:scale-110 group-hover:-rotate-3" />
                 </span>
 
                 <div className="flex flex-wrap justify-end gap-1.5">
@@ -117,7 +103,8 @@ export async function Disciplines({ locale }: { locale: string }) {
               </a>
             </article>
           </Reveal>
-        ))}
+          );
+        })}
       </ul>
 
       <div className="mt-12 flex flex-col items-start gap-3">

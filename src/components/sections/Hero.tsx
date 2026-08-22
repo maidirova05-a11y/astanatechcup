@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { buttonClasses } from "@/components/ui/Button";
 import { Countdown } from "@/components/ui/Countdown";
 import { ArrowRight, ArrowDown, Calendar, MapPin, Play } from "@/components/ui/icons";
+import { RobotHero, RobotDrone } from "@/components/ui/robots";
 import {
   COUNTDOWN_TARGET,
   EVENT,
@@ -117,9 +118,27 @@ export async function Hero({ locale }: { locale: string }) {
             </p>
           </div>
 
-          {/* Deadline card. On mobile it follows the CTA; on desktop it sits
-              beside the headline where the eye lands second. */}
-          <aside className="w-full rounded-xl border border-line bg-surface-raised/85 p-6 shadow-lg backdrop-blur-md sm:p-8">
+          {/* Deadline card, with the championship mascot leaning on it. The
+              robots are decorative: aria-hidden, and pointer-events-none so
+              they can never intercept a tap meant for the CTA. */}
+          <div className="relative w-full">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-16 -right-2 z-10 hidden text-[7rem] sm:block lg:-top-20 lg:text-[8.5rem]"
+              style={{ "--r-accent": "var(--berry-400)" } as React.CSSProperties}
+            >
+              <RobotHero className="animate-float drop-shadow-[0_6px_0_rgba(20,23,42,0.12)]" />
+            </div>
+
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-10 -left-8 z-10 hidden text-6xl lg:block"
+              style={{ "--r-accent": "var(--sky-400)" } as React.CSSProperties}
+            >
+              <RobotDrone className="animate-float-slow" />
+            </div>
+
+          <aside className="relative w-full tile bg-surface-raised p-6 sm:p-8">
             {open ? (
               <>
                 <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
@@ -141,6 +160,7 @@ export async function Hero({ locale }: { locale: string }) {
               </>
             )}
           </aside>
+          </div>
         </div>
       </div>
     </section>

@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { buttonClasses } from "@/components/ui/Button";
-import { ArrowRight, Robot, Info } from "@/components/ui/icons";
+import { ArrowRight, Info } from "@/components/ui/icons";
+import { RobotSumo } from "@/components/ui/robots";
 import { getDiscipline } from "@/config/event";
 
 /**
@@ -34,6 +35,20 @@ export async function Flagship({ locale }: { locale: string }) {
         className="grid-texture pointer-events-none absolute inset-0 -z-10"
       />
 
+      {/* Two sumo bots squaring up behind the copy — the section's subject,
+          rendered rather than described. Decorative and non-interactive. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-4 top-8 hidden gap-2 opacity-90 lg:flex"
+      >
+        <span className="text-[5.5rem]" style={{ "--r-accent": "var(--berry-400)" } as React.CSSProperties}>
+          <RobotSumo className="animate-float" />
+        </span>
+        <span className="text-[5.5rem] -scale-x-100" style={{ "--r-accent": "var(--sky-400)" } as React.CSSProperties}>
+          <RobotSumo className="animate-float-slow" />
+        </span>
+      </div>
+
       <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-20">
         <div className="flex flex-col items-start gap-7">
           <SectionHeader
@@ -64,8 +79,11 @@ export async function Flagship({ locale }: { locale: string }) {
           {points.map((point, index) => (
             <Reveal as="li" key={point.title} index={index} direction="right">
               <div className="flex gap-5 rounded-lg border border-line bg-surface-raised/60 p-6 backdrop-blur-sm">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand/15 text-xl text-brand">
-                  <Robot />
+                <span
+                  className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand/15 text-3xl"
+                  style={{ "--r-accent": "var(--sun-300)" } as React.CSSProperties}
+                >
+                  <RobotSumo />
                 </span>
                 <div className="flex flex-col gap-1.5">
                   <h3 className="text-lg">{point.title}</h3>

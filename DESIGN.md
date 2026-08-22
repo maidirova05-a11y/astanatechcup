@@ -1,33 +1,37 @@
 ---
 version: alpha
 name: AstanaTechCup-design-system
-description: "A light-dominant championship canvas built on white (#ffffff) with an Astana night-sky blue (#1b3c8c) as the structural brand and a single reserved signal orange (#ff6b35) that appears only on primary actions and deadline urgency. The system resolves a deliberate tension: the brief asks for something bright and friendly to children, while sponsors and press must read a serious national technology event. The answer is not decoration but discipline — premium quality comes from layout rigour, a fluid modular type scale and generous whitespace, with near-black blue (#060e22) sections used as sparing punctuation so they read as the arena. Display type is Manrope 800 with tight negative tracking; body is Inter. Cards are white panels on a pale blue wash (#f1f6fe) with hairline borders and blue-tinted shadows — never neutral grey. Six discipline accents are derived from one controlled hue rotation so they read as a family rather than a sticker sheet."
+description: "A white championship canvas in a toy language executed with precision. One saturated signal red (#d92211) that only ever means act now, indigo-tinted ink (#14172a) used as a solid 2px outline on every card and button, and hard bottom-edge shadows so a control reads as a physical key rather than a rectangle with a blur behind it. Six original robot mascots — one per discipline — carry the friendliness the brief asks for; grid discipline, a fluid modular scale and generous whitespace carry the credibility sponsors need. Display type is Manrope 800 at -0.028em. Two near-black indigo sections punctuate the page and read as the arena. Discipline hues come from one controlled rotation at fixed saturation, so six cards look like a family rather than a sticker sheet."
 
 colors:
-  primary: "#1b3c8c"
+  primary: "#0b66c3"
   on-primary: "#ffffff"
-  primary-strong: "#0d1c40"
-  accent: "#ff6b35"
-  accent-hover: "#e8500f"
+  primary-strong: "#14172a"
+  accent: "#d92211"
+  accent-hover: "#ab1a0d"
+  accent-edge: "#7d130a"
   on-accent: "#ffffff"
-  ink: "#151a21"
-  ink-muted: "#515b6b"
-  ink-subtle: "#9ba6b8"
+  ink: "#14172a"
+  ink-muted: "#4c5478"
+  ink-subtle: "#949cc4"
   canvas: "#ffffff"
-  surface-muted: "#f1f6fe"
-  surface-sunken: "#f8f9fb"
-  hairline: "#e0e5ed"
-  hairline-strong: "#c7cfdc"
-  focus-ring: "#326ada"
-  energy-cyan: "#22d3ee"
-  energy-violet: "#a78bfa"
-  inverse-canvas: "#060e22"
-  inverse-surface: "#0d1c40"
+  surface-muted: "#f7f8fd"
+  surface-sunken: "#eef0f9"
+  hairline: "#dfe3f2"
+  hairline-strong: "#c2c8e4"
+  focus-ring: "#1385f0"
+  berry-bright: "#f43a2b"
+  sky: "#3aa5ff"
+  sun: "#ffd54a"
+  mint: "#16b877"
+  grape: "#a07dff"
+  inverse-canvas: "#14172a"
+  inverse-surface: "#21263d"
   inverse-ink: "#ffffff"
-  inverse-ink-muted: "#bfd5fa"
-  inverse-brand: "#22d3ee"
-  semantic-success: "#16a34a"
-  semantic-danger: "#dc2626"
+  inverse-ink-muted: "#dfe3f2"
+  inverse-brand: "#ffd54a"
+  semantic-success: "#0e9460"
+  semantic-danger: "#d92211"
   semantic-warning: "#b45309"
 
 typography:
@@ -35,26 +39,25 @@ typography:
     fontFamily: Manrope
     fontSize: clamp(44px, 30px + 4.2vw, 80px)
     fontWeight: 800
-    lineHeight: 1.08
-    letterSpacing: -0.022em
+    lineHeight: 1.06
+    letterSpacing: -0.028em
   display-lg:
     fontFamily: Manrope
     fontSize: clamp(36px, 27px + 2.6vw, 60px)
     fontWeight: 800
-    lineHeight: 1.08
-    letterSpacing: -0.022em
+    lineHeight: 1.06
+    letterSpacing: -0.028em
   display-md:
     fontFamily: Manrope
     fontSize: clamp(30px, 25px + 1.6vw, 44px)
     fontWeight: 800
-    lineHeight: 1.08
-    letterSpacing: -0.022em
+    lineHeight: 1.06
+    letterSpacing: -0.028em
   headline:
     fontFamily: Manrope
     fontSize: clamp(24px, 21px + 0.9vw, 32px)
     fontWeight: 800
     lineHeight: 1.10
-    letterSpacing: -0.02em
   card-title:
     fontFamily: Manrope
     fontSize: clamp(21px, 19px + 0.55vw, 24px)
@@ -70,6 +73,9 @@ typography:
     fontSize: clamp(14px, 13.6px + 0.13vw, 15px)
     fontWeight: 400
     lineHeight: 1.60
+  button:
+    fontFamily: Inter
+    fontWeight: 700
   eyebrow:
     fontFamily: Inter
     fontSize: clamp(11px, 10.6px + 0.14vw, 12px)
@@ -86,12 +92,18 @@ spacing:
   container-prose: 736px
 
 radius:
-  xs: 6px
-  sm: 8px
-  md: 14px
-  lg: 20px
-  xl: 28px
+  xs: 8px
+  sm: 12px
+  md: 18px
+  lg: 24px
+  xl: 32px
   full: 9999px
+
+elevation:
+  tile: 0 5px 0 0 var(--ink)
+  tile-hover: 0 8px 0 0 var(--ink)
+  tile-press: 0 2px 0 0 var(--ink)
+  button-accent: 0 5px 0 0 var(--accent-edge)
 
 motion:
   ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1)
@@ -99,6 +111,7 @@ motion:
   duration-fast: 150ms
   duration-base: 260ms
   duration-slow: 520ms
+  robot-float: 4.5s ease-spring infinite
 ---
 
 # AstanaTechCup — DESIGN.md
@@ -115,12 +128,15 @@ has to convince sponsors and national press that this is a serious technology
 event. Resolving that with decoration produces a page that is childish to
 sponsors and corporate to children.
 
-The resolution is **"Bright Tech"**: a light-dominant page whose premium
-quality comes from layout rigour, typographic scale and whitespace rather than
-from visual effects. Playfulness lives in colour, motion and illustration.
-Credibility lives in grid discipline and type. Dark sections are used as
-deliberate punctuation — two of them, no more — so they read as "the arena"
-rather than as a theme.
+The resolution is **"Playful Arena"**: a toy language executed with precision.
+Chunky rounded shapes, solid dark outlines and hard bottom-edge shadows make
+controls look like objects you can press; six original robot mascots give the
+page a cast. That is where the friendliness lives. The credibility lives in
+grid discipline, a strict type scale and generous whitespace — nothing here is
+childish, but a great deal of it is child-friendly.
+
+Dark sections are used as deliberate punctuation — two of them, no more — so
+they read as "the arena" rather than as a theme.
 
 > ⚠ **The palette is a documented placeholder.** The organiser's brandbook
 > exists but has not been supplied. Replace the primitive layer in
@@ -133,8 +149,8 @@ rather than as a theme.
 Three layers, in strict order. **Layer 1 is the only place a hex code may
 appear.** Components never reference a primitive.
 
-**1. Primitive** — raw ramps: `--blue-50…950`, `--cyan-300…500`,
-`--violet-300…500`, `--signal-300…700`, `--neutral-0…900`, plus status hues.
+**1. Primitive** — raw ramps: `--berry-50…800` (the signal), `--ink-0…900`
+(indigo-tinted neutrals), `--sky-*`, `--sun-*`, `--mint-*`, `--grape-*`.
 
 **2. Semantic** — role names that components consume: `--surface`, `--text`,
 `--brand`, `--accent`, `--border`, `--focus-ring`.
@@ -144,17 +160,26 @@ appear.** Components never reference a primitive.
 
 ### The signal colour rule
 
-`--accent` (#ff6b35) is reserved **exclusively** for the primary call to action
+`--accent` (#d92211) is reserved **exclusively** for the primary call to action
 and for deadline urgency. Nothing else on the page may use that hue. That one
 constraint is what makes the primary action unambiguous on every screen without
 any other element having to shout.
 
 If two accent-coloured buttons are visible at once, one of them is wrong.
 
+**Why #d92211 and not the brighter #f43a2b.** White on the brighter red measures
+3.83:1, which fails WCAG AA for normal-size text — and `sm`/`md` button labels
+are normal-size. #d92211 measures 5.02:1 and is still unmistakably red. The
+brighter 400/500 steps remain available for mascot bodies and glows, where the
+3:1 graphics threshold applies and every shape carries a dark outline anyway.
+Measured on the rendered buttons, not assumed from the tokens.
+
 ### Dark sections
 
 Applying `.on-dark` re-points the semantic layer — surfaces invert, `--brand`
-becomes cyan, borders become translucent white. Every nested component adapts
+becomes warm gold (floodlights and medals, not another blue), borders become
+translucent white, and `--ink` deliberately stays dark so mascot outlines still
+read against their light chips. Every nested component adapts
 automatically. **This is the entire dark-section implementation; there are no
 per-component `dark:` variants and there must not be any.**
 
@@ -225,11 +250,50 @@ sections, radial-masked). No image request, no CSP exception, no layout cost.
 
 ## Shapes
 
-`--radius-xs` 6px · `--radius-sm` 8px · `--radius-md` 14px · `--radius-lg` 20px
-· `--radius-xl` 28px. Buttons and pills are fully rounded.
+`--radius-xs` 8px · `--radius-sm` 12px · `--radius-md` 18px · `--radius-lg` 24px
+· `--radius-xl` 32px. Buttons and pills are fully rounded.
 
-Rule of thumb: the larger the surface, the larger the radius. A 6px radius on a
-hero panel looks like a mistake; a 28px radius on an input looks like a toy.
+Radius is the single strongest lever on how "toy" the page reads, which is why
+this scale is generous. Rule of thumb: the larger the surface, the larger the
+radius. An 8px radius on a hero panel looks like a mistake; a 32px radius on an
+input looks like a joke.
+
+### The tile
+
+`.tile` is the signature treatment: a 2px `--ink` outline, `radius-lg`, and a
+**solid** 5px bottom edge instead of a blur. `.tile-interactive` lifts it to 8px
+on hover and sinks it to 2px on press. That press physics is what makes a card
+feel like an object rather than a drawing of one.
+
+## Mascots
+
+Six original robot characters live in `src/components/ui/robots.tsx`, one per
+discipline, plus a larger waving hero robot.
+
+**They are original work.** Drawn from primitives, not traced from any existing
+character. A national championship must not ship someone else's mascot, however
+the brief gets interpreted.
+
+Construction rules that keep them a set rather than six drawings:
+
+- One 96×96 viewBox, one 2.4px outline weight, one shared `Eyes` component with
+  a highlight dot — that highlight is most of what makes them read as alive.
+- Body colour comes from `--r-accent`, which `.discipline-accent` points at the
+  card's own hue. A card drives its robot; no robot carries its own palette.
+- Outlines always use `--ink`, never `currentColor`, so they stay dark on a
+  light chip inside a dark section.
+- Sized in `em`, so a parent's `font-size` scales the whole character.
+
+Every mascot is decorative: `aria-hidden`, `focusable="false"`, and carrying no
+meaning that is not already in adjacent text. Where they are absolutely
+positioned they also get `pointer-events-none`, so a robot can never swallow a
+tap meant for the CTA behind it.
+
+Inline SVG, no image requests — which keeps `img-src 'self'` honest, costs no
+round trip, and stays sharp on a 3× phone screen.
+
+On mobile the hero mascots are hidden below `sm`/`lg`. At 375px they would
+crowd the headline, and the discipline cards already supply the cast.
 
 ## Components
 

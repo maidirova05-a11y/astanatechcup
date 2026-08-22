@@ -18,33 +18,48 @@ const BASE = [
   // their English equivalents ("Подать заявку и перейти к оплате" is 402px at
   // one line), and a non-wrapping button overflows a 375px viewport. Labels
   // wrap and the height grows instead.
-  "font-semibold text-center text-balance",
+  // Heavier weight than a typical UI button: at this scale and radius, 600
+  // reads as timid next to the mascots.
+  "font-bold text-center text-balance",
   "max-w-full min-h-11 py-2",
   "rounded-full",
   "transition-[transform,background-color,border-color,box-shadow,color]",
   "duration-200 ease-out-expo",
-  // Hover lift is disabled by the global reduced-motion rule.
-  "hover:-translate-y-0.5 active:translate-y-0",
-  "disabled:pointer-events-none disabled:opacity-55 disabled:translate-y-0",
+  // Press physics: the button rises on hover and sinks INTO its own shadow on
+  // press, which is what makes a solid bottom edge read as a physical key
+  // rather than a drawing of one. Both are disabled by the global
+  // reduced-motion rule.
+  "hover:-translate-y-0.5",
+  "disabled:pointer-events-none disabled:opacity-55 disabled:translate-y-0 disabled:shadow-none",
   // The global :focus-visible rule already draws the ring; this keeps it clear
   // of the button's own background on dark surfaces.
   "focus-visible:outline-offset-[3px]",
 ].join(" ");
 
 const VARIANTS: Record<Variant, string> = {
-  accent:
-    "bg-accent text-on-accent shadow-signal hover:bg-accent-hover hover:shadow-lg",
-  solid:
-    "bg-brand-strong text-on-brand hover:bg-brand shadow-sm hover:shadow-md",
-  outline:
-    "border-2 border-line-strong text-content hover:border-brand hover:text-brand bg-transparent",
+  // The one primary action. The solid edge is a darker shade of the button's
+  // own hue, so it looks moulded rather than shadowed.
+  accent: [
+    "bg-accent text-on-accent border-2 border-accent-edge",
+    "shadow-[0_5px_0_0_var(--accent-edge)]",
+    "hover:bg-accent-hover hover:shadow-[0_7px_0_0_var(--accent-edge)]",
+    "active:translate-y-[4px] active:shadow-[0_1px_0_0_var(--accent-edge)]",
+  ].join(" "),
+  solid: [
+    "bg-brand-strong text-on-brand border-2 border-ink",
+    "shadow-[0_5px_0_0_var(--ink)]",
+    "hover:shadow-[0_7px_0_0_var(--ink)]",
+    "active:translate-y-[4px] active:shadow-[0_1px_0_0_var(--ink)]",
+  ].join(" "),
+  outline: [
+    "bg-surface-raised text-content border-2 border-ink",
+    "shadow-[0_4px_0_0_var(--ink)]",
+    "hover:shadow-[0_6px_0_0_var(--ink)]",
+    "active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--ink)]",
+  ].join(" "),
   ghost: "text-content hover:bg-surface-muted",
 };
 
-/**
- * Heights are all ≥44px: the WCAG 2.2 target-size minimum, and the audience is
- * children and parents on phones. `sm` is small in padding, never in hit area.
- */
 /**
  * `min-h` rather than a fixed `h`, so a wrapped two-line label grows the
  * button instead of spilling out of it. All are ≥44px: the WCAG 2.2
