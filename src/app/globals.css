@@ -17,19 +17,19 @@
    ART DIRECTION — "Playful Arena".
    The brief asks for bright and friendly for children (Q16); sponsors and press
    must still read a serious national championship. The resolution is a toy
-   language executed with precision: a white canvas, one saturated signal red
-   that only ever means "act now", chunky rounded shapes with solid dark
-   outlines, and shadows that sit as a hard bottom edge so a button reads like
-   a physical key rather than a rectangle with a blur behind it.
+   language executed with precision: a white canvas, one reserved magenta that
+   only ever means "act now", chunky rounded shapes with solid dark outlines,
+   and shadows that sit as a hard bottom edge so a button reads like a physical
+   key rather than a rectangle with a blur behind it.
 
    Playfulness lives in colour, motion and the robot mascots. Credibility lives
    in grid discipline, type scale and whitespace. Nothing is childish; a lot is
-   child-friendly. Two near-black indigo sections punctuate the page so they
-   read as "the arena".
+   child-friendly. Two deep-navy sections punctuate the page so they read as
+   "the arena" — that navy is the logo's own plate border.
 
-   ⚠ The palette below is a documented PLACEHOLDER. The brief confirms a
-   brandbook and brand colours exist but they were not supplied. Replace the
-   primitive layer and the whole site re-skins. Keep DESIGN.md in step.
+   The palette is SAMPLED FROM THE SUPPLIED LOGO, not invented: deep navy
+   #00243c, electric blue #0024a8, magenta #a800b4, gold #fcd800. If the mark
+   is ever revised, re-sample rather than eyeball, and keep DESIGN.md in step.
    ══════════════════════════════════════════════════════════════════════════ */
 
 @layer theme {
@@ -336,6 +336,10 @@
     }
     *, *::before, *::after {
       animation-duration: 0.001ms !important;
+      /* Negative delay starts the animation already finished. Without this an
+         element with a 700ms stagger would stay at its `from` state — which is
+         `opacity: 0` — for 700ms before appearing. */
+      animation-delay: -1ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;
@@ -497,6 +501,75 @@
     --d-accent: hsl(var(--discipline-hue) 92% 66%);
     --d-accent-soft: hsl(var(--discipline-hue) 55% 20%);
     --d-accent-ring: hsl(var(--discipline-hue) 92% 66% / 0.4);
+  }
+
+  /**
+   * Entrance animations, in CSS rather than JavaScript.
+   *
+   * ── Why not Motion here ────────────────────────────────────────────────
+   * A JS-driven entrance sets `opacity: 0` as an inline style during SSR and
+   * relies on requestAnimationFrame to clear it. If the bundle fails, is
+   * blocked, or simply has not executed yet, the hero renders and stays
+   * invisible — the single worst failure this page can have, and one no
+   * text-based check catches because the text is still in the DOM.
+   *
+   * A CSS animation cannot fail that way: if the stylesheet loaded, the
+   * animation runs to completion on its own. `animation-fill-mode: both` holds
+   * the start state through the delay, and the global reduced-motion rule
+   * below collapses both duration and delay so the element simply appears.
+   * ───────────────────────────────────────────────────────────────────────
+   */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--rise-distance, 18px));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rise {
+    animation: rise-in 600ms var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  /* Overshoot, so the logo lands as if presented rather than faded in. */
+  @keyframes pop-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.6) rotate(-8deg);
+    }
+    62% {
+      opacity: 1;
+      transform: scale(1.06) rotate(2deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .pop-in {
+    animation: pop-in 780ms var(--ease-spring) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  @keyframes lift-in {
+    from {
+      opacity: 0;
+      transform: translateY(26px) scale(0.88);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .lift-in {
+    animation: lift-in 850ms var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
   }
 
   /* Gentle idle float for hero mascots. Disabled by the reduced-motion rule
