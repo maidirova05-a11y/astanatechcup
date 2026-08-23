@@ -18,13 +18,18 @@ export async function Stats({ locale }: { locale: string }) {
           {t("title")}
         </h2>
 
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
           {STATS.map((stat, index) => (
-            <Reveal key={stat.key} index={index} className="flex flex-col gap-2">
-              <dd className="font-display text-4xl font-extrabold leading-none text-brand sm:text-5xl">
-                <CountUp value={stat.value} prefix={stat.prefix} />
-              </dd>
-              <dt className="text-sm font-medium text-muted">{t(stat.key)}</dt>
+            <Reveal key={stat.key} index={index}>
+              {/* dt before dd in the DOM so the pair is announced in the right
+                  order; `flex-col-reverse` puts the number on top visually,
+                  which is the order the eye wants it in. */}
+              <div className="tile tile-quiet flex h-full flex-col-reverse gap-1.5 p-5 sm:p-6">
+                <dt className="text-sm font-medium text-muted">{t(stat.key)}</dt>
+                <dd className="tabular font-display text-4xl font-extrabold leading-none text-brand sm:text-5xl">
+                  <CountUp value={stat.value} prefix={stat.prefix} />
+                </dd>
+              </div>
             </Reveal>
           ))}
         </dl>

@@ -25,7 +25,7 @@ export async function Faq({ locale }: { locale: string }) {
   };
 
   return (
-    <Section id="faq" labelledBy="faq-title">
+    <Section id="faq" labelledBy="faq-title" tone="muted">
       <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:self-start">
           <SectionHeader
@@ -35,7 +35,7 @@ export async function Faq({ locale }: { locale: string }) {
             subtitle={t("subtitle")}
           />
 
-          <div className="rounded-lg border border-line bg-surface-muted p-5">
+          <div className="tile tile-quiet bg-surface-raised p-5">
             <p className="font-semibold">{t("stillQuestions")}</p>
             <p className="mt-1 text-sm text-muted">{t("askUs")}</p>
             {CONTACTS.email && (

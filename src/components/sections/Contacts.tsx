@@ -70,7 +70,7 @@ export async function Contacts({ locale }: { locale: string }) {
   const hasAnything = available.length > 0 || CONTACTS.address;
 
   return (
-    <Section id="contacts" labelledBy="contacts-title" tone="muted">
+    <Section id="contacts" labelledBy="contacts-title">
       <SectionHeader
         eyebrow={t("eyebrow")}
         id="contacts-title"
@@ -85,10 +85,10 @@ export async function Contacts({ locale }: { locale: string }) {
               <a
                 href={channel.href(channel.value!)}
                 {...(channel.external ? EXTERNAL_LINK_PROPS : {})}
-                className="group flex h-full items-start gap-4 rounded-lg border border-line bg-surface-raised p-6 transition-[border-color,transform] duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-brand"
+                className="group tile tile-quiet tile-interactive flex h-full items-start gap-4 p-6"
               >
                 <span
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xl text-brand"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-xl text-brand"
                   aria-hidden="true"
                 >
                   {channel.icon}
@@ -105,10 +105,10 @@ export async function Contacts({ locale }: { locale: string }) {
 
           {CONTACTS.address && (
             <Reveal index={available.length} className="sm:col-span-2 lg:col-span-3">
-              <div className="flex flex-col gap-4 rounded-lg border border-line bg-surface-raised p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="tile tile-quiet flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
                   <span
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xl text-brand"
+                    className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-xl text-brand"
                     aria-hidden="true"
                   >
                     <MapPin />
@@ -136,7 +136,7 @@ export async function Contacts({ locale }: { locale: string }) {
           )}
         </div>
       ) : (
-        <p className="mt-10 rounded-lg border border-dashed border-line-strong bg-surface-raised p-6 text-muted">
+        <p className="mt-10 rounded-lg border-2 border-dashed border-line-strong bg-surface-raised p-6 text-muted">
           {t("empty")}
         </p>
       )}

@@ -225,6 +225,10 @@ jitter as they tick.
   `container-prose` (46rem). Inline padding `clamp(1rem, 4vw, 2.5rem)`.
 - **Section rhythm:** `clamp(4rem, 8vw, 7.5rem)` block padding, giving the page
   a consistent heartbeat. This is most of what makes it feel composed.
+- **Tone alternation:** sections alternate `default` (white) and `tone="muted"`
+  all the way down, with the two dark blocks as punctuation and the dark footer
+  closing it. Two muted sections in a row erase the boundary between them, so
+  adding a section means re-checking the run, not just appending to it.
 - **Measure:** section headers cap at `max-w-3xl`. Full-width running text is
   never acceptable.
 
@@ -273,6 +277,27 @@ input looks like a joke.
 **solid** 5px bottom edge instead of a blur. `.tile-interactive` lifts it to 8px
 on hover and sinks it to 2px on press. That press physics is what makes a card
 feel like an object rather than a drawing of one.
+
+**Every card on the page is a tile.** There is no second card style. A soft
+`border border-line` panel is not a lighter option — it is the generic SaaS card
+this system exists instead of, and a page that opens in tiles and finishes in
+hairlines reads as two designs stapled together.
+
+`.tile-quiet` is the only sanctioned variant: the same outline with the bottom
+edge halved to 3px. It exists for density, not for emphasis. Four prize cards,
+seven audience cards and five contact cards at the full 5px become a wall of
+hard edges; dropping them to 3px keeps the language while letting the surfaces
+that actually carry a decision — the hero deadline card, the discipline cards,
+the international-prize block, the sticky fee summary — keep the full edge and
+out-rank everything around them.
+
+| Surface | Edge |
+| --- | --- |
+| Hero deadline, disciplines, organisers, international prize, fee summary | `.tile` (5px) |
+| Stats, journey token, flagship points, prize items, audiences, contacts, gallery, FAQ aside | `.tile .tile-quiet` (3px) |
+
+Both adapt inside `.on-dark` with no per-component branching, exactly as the
+rest of the semantic layer does.
 
 ## Logos
 
@@ -392,6 +417,7 @@ cannot reach.
 **Do**
 
 - Put every new colour through the primitive → semantic → utility chain.
+- Build every card as `.tile`, adding `.tile-quiet` when it sits in a dense grid.
 - Use `.on-dark` for dark sections and let nested components adapt.
 - Keep tap targets at 44px or more. The audience is children and parents on
   phones. Inline links inside running text are the only exemption.
@@ -401,6 +427,8 @@ cannot reach.
 **Don't**
 
 - Don't write a hex code in a component file.
+- Don't invent a second card style. `border border-line` on a panel is the
+  smell; `.tile` is the answer.
 - Don't use the accent hue for anything but the primary action and deadlines.
 - Don't add a third dark section — the drama comes from scarcity.
 - Don't add `dark:` variants; `.on-dark` is what exists instead.

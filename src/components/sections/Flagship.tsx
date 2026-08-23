@@ -68,7 +68,7 @@ export async function Flagship({ locale }: { locale: string }) {
           </a>
 
           {discipline?.provisional && (
-            <p className="flex items-start gap-2.5 rounded-md border border-line bg-white/5 p-4 text-sm text-muted">
+            <p className="flex items-start gap-2.5 rounded-md border-2 border-dashed border-line bg-white/5 p-4 text-sm text-muted">
               <Info className="mt-0.5 shrink-0 text-base" />
               {t("provisionalNote")}
             </p>
@@ -78,9 +78,9 @@ export async function Flagship({ locale }: { locale: string }) {
         <ul className="flex flex-col gap-4">
           {points.map((point, index) => (
             <Reveal as="li" key={point.title} index={index} direction="right">
-              <div className="flex gap-5 rounded-lg border border-line bg-surface-raised/60 p-6 backdrop-blur-sm">
+              <div className="tile tile-quiet flex gap-5 p-6">
                 <span
-                  className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand/15 text-3xl"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-lg border-2 border-brand/40 bg-brand/15 text-3xl"
                   style={{ "--r-accent": "var(--gold-400)" } as React.CSSProperties}
                 >
                   <RobotSumo />

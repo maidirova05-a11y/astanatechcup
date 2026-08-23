@@ -53,7 +53,7 @@ export async function Gallery({ locale }: { locale: string }) {
         ].map((shape, index) => (
           <div
             key={index}
-            className={`${shape} flex items-center justify-center overflow-hidden rounded-lg border border-line bg-surface-muted`}
+            className={`${shape} tile tile-quiet flex items-center justify-center overflow-hidden bg-surface-muted`}
           >
             <span
               aria-hidden="true"

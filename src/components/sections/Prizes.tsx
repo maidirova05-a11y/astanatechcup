@@ -49,10 +49,10 @@ export async function Prizes({ locale }: { locale: string }) {
 
       {/* The international slot, given the visual weight the brief gives it. */}
       <Reveal>
-        <div className="mt-12 overflow-hidden rounded-xl border border-line bg-surface-raised/70 backdrop-blur-sm">
+        <div className="tile mt-12 overflow-hidden rounded-xl">
           <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[auto_1fr] lg:items-center lg:gap-12">
             <span
-              className="flex size-20 items-center justify-center rounded-xl bg-accent text-4xl text-on-accent shadow-signal"
+              className="flex size-20 items-center justify-center rounded-xl border-2 border-accent-edge bg-accent text-4xl text-on-accent shadow-signal"
               aria-hidden="true"
             >
               <Trophy />
@@ -77,9 +77,9 @@ export async function Prizes({ locale }: { locale: string }) {
       <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {ITEMS.map((item, index) => (
           <Reveal as="li" key={item} index={index}>
-            <div className="flex h-full flex-col gap-4 rounded-lg border border-line bg-surface-raised/50 p-6">
+            <div className="tile tile-quiet flex h-full flex-col gap-4 p-6">
               <span
-                className="flex size-11 items-center justify-center rounded-full bg-brand/15 text-xl text-brand"
+                className="flex size-12 items-center justify-center rounded-full border-2 border-brand/40 bg-brand/15 text-xl text-brand"
                 aria-hidden="true"
               >
                 {ICONS[item]}

@@ -39,12 +39,12 @@ export async function Journey({ locale }: { locale: string }) {
               {!isLast && (
                 <span
                   aria-hidden="true"
-                  className="absolute left-[1.375rem] top-12 h-[calc(100%+2.25rem)] w-px bg-line lg:left-12 lg:top-[1.375rem] lg:h-px lg:w-[calc(100%-3rem)]"
+                  className="absolute left-[calc(1.375rem-1.5px)] top-12 h-[calc(100%+2.25rem)] w-[3px] rounded-full bg-line-strong lg:left-12 lg:top-[calc(1.375rem-1.5px)] lg:h-[3px] lg:w-[calc(100%-3rem)]"
                 />
               )}
 
               <span
-                className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-brand bg-surface font-display text-lg font-extrabold text-brand"
+                className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface font-display text-lg font-extrabold text-brand shadow-[0_3px_0_0_var(--ink)]"
                 aria-hidden="true"
               >
                 {number}

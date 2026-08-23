@@ -69,10 +69,10 @@ export async function Audiences({ locale }: { locale: string }) {
           <Reveal as="li" key={role} index={index}>
             <a
               href={hrefFor(role)}
-              className="group flex h-full flex-col gap-4 rounded-lg border border-line bg-surface-raised p-6 transition-[border-color,box-shadow,transform] duration-300 ease-out-expo hover:-translate-y-1 hover:border-brand hover:shadow-md"
+              className="group tile tile-quiet tile-interactive flex h-full flex-col gap-4 p-6"
             >
               <span
-                className="flex size-11 items-center justify-center rounded-full bg-surface-muted text-xl text-brand"
+                className="flex size-12 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-xl text-brand"
                 aria-hidden="true"
               >
                 {ICONS[role]}

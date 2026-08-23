@@ -472,6 +472,35 @@
     box-shadow: 0 8px 0 0 color-mix(in oklab, var(--ink-0) 22%, transparent);
   }
 
+  /**
+   * Quiet tile. Same 2px outline — which is what ties a card to the mark —
+   * with the bottom edge halved. Dense grids (four prize cards, seven audience
+   * cards, five contact cards) read as a wall of hard edges at the full 5px;
+   * the flagship, hero and discipline cards keep the full edge so they still
+   * out-rank everything around them.
+   */
+  .tile-quiet {
+    box-shadow: 0 3px 0 0 var(--ink);
+  }
+
+  .tile-quiet.tile-interactive:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 0 var(--ink);
+  }
+
+  .tile-quiet.tile-interactive:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 0 var(--ink);
+  }
+
+  .on-dark .tile-quiet {
+    box-shadow: 0 3px 0 0 color-mix(in oklab, var(--ink-0) 16%, transparent);
+  }
+
+  .on-dark .tile-quiet.tile-interactive:hover {
+    box-shadow: 0 6px 0 0 color-mix(in oklab, var(--ink-0) 22%, transparent);
+  }
+
   /* Off-screen but still submitted: the honeypot field. `display: none` is
      skipped by some bots, which is exactly the ones we want to catch. */
   .honeypot {

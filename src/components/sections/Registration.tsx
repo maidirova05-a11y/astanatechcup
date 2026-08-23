@@ -56,7 +56,7 @@ export async function Registration({ locale }: { locale: string }) {
               turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             />
           ) : (
-            <div className="flex items-start gap-4 rounded-xl border border-line bg-surface-muted p-8">
+            <div className="tile flex items-start gap-4 bg-surface-muted p-8">
               <Warning className="mt-0.5 shrink-0 text-xl text-accent" />
               <div className="flex flex-col gap-2">
                 <h3 className="text-xl">{t("closed")}</h3>
@@ -70,7 +70,7 @@ export async function Registration({ locale }: { locale: string }) {
             visible while the visitor works down a long form — this is the
             single most common reason someone abandons a paid registration. */}
         <aside className="order-1 lg:order-2 lg:sticky lg:top-28 lg:self-start">
-          <div className="flex flex-col gap-6 rounded-xl border border-line bg-surface-muted p-7">
+          <div className="tile flex flex-col gap-6 bg-surface-muted p-7">
             <div className="flex flex-col gap-1">
               <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
                 {t("feeLabel")}
@@ -95,7 +95,7 @@ export async function Registration({ locale }: { locale: string }) {
               </ul>
             </div>
 
-            <p className="rounded-md bg-surface-raised p-3.5 text-sm font-medium">
+            <p className="rounded-md border-2 border-ink bg-surface-raised p-3.5 text-sm font-medium">
               {t("deadlineNote", { date: deadline })}
             </p>
           </div>
