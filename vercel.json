@@ -8,6 +8,15 @@
     "silent": true
   },
 
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.astanatechcup.kz" }],
+      "destination": "https://astanatechcup.kz/:path*",
+      "permanent": true
+    }
+  ],
+
   "headers": [
     {
       "source": "/admin/:path*",

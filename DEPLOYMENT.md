@@ -3,24 +3,47 @@
 Target: **Vercel**, project `maidirova05-2314s-projects/astanatechcup`
 (the account the `vercel` CLI is signed into as `azgroup01-2027`).
 
+Live at **<https://astanatechcup.kz>**.
+
 ## Current state
 
 | | |
 | --- | --- |
 | Project | created and linked |
-| Build on Vercel | ✅ succeeds (41 s) |
-| Deployed URL | `https://astanatechcup.vercel.app` |
-| Runtime | ❌ **500 on every request** — see below |
+| Build on Vercel | ✅ succeeds |
+| Domain | ✅ `astanatechcup.kz` + `www`, TLS issued, aliased to production |
+| Runtime | ✅ 200 on the public site |
+| `APP_URL` | ✅ `https://astanatechcup.kz` |
+| `DATABASE_URL` | ✅ set — Neon (see the residency note below) |
 | `CSRF_SECRET` | ✅ set (generated, never printed) |
 | `ENCRYPTION_KEY` | ✅ set — **back it up, see below** |
-| `APP_URL` | ✅ set to the vercel.app alias — change when the real domain lands |
-| `TRUSTED_IP_HEADER` | ✅ set to `x-vercel-forwarded-for` |
-| `DATABASE_URL` | ❌ **missing — this is the only thing stopping the site working** |
-| `ADMIN_PASSWORD_HASH` | ❌ missing — optional; without it `/admin` returns 404 and the public site is unaffected |
+| `TRUSTED_IP_HEADER` | ✅ `x-vercel-forwarded-for` |
+| `ADMIN_PASSWORD_HASH` | ❌ missing — without it `/admin` returns 404; the public site is unaffected |
+| Stripe / Turnstile | ❌ not configured — both optional, both degrade safely |
 
-Set `DATABASE_URL`, redeploy, and the site is live.
+### DNS
+
+The domain is registered at **hoster.kz** and keeps hoster's nameservers
+(`ns1–3.hoster.kz`); only the records point at Vercel. Vercel's dashboard will
+show "Intended Nameservers ✗" — that is expected and not an error. It only
+matters if you want Vercel to run DNS for the zone, which we do not.
+
+| Record | Name | Value |
+| --- | --- | --- |
+| A | `@` | `76.76.21.21` |
+| A | `www` | `76.76.21.21` |
+
+`www` is redirected to the apex by a host-conditional rule in `vercel.json`, and
+every page also emits a canonical pointing at the apex, so the two hostnames
+cannot compete for indexing.
+
+> **`APP_URL` is not cosmetic.** It is the CSRF origin comparison, the payment
+> return URLs, `metadataBase`, the canonical tags, `robots.txt` and the sitemap.
+> If the domain ever changes, change this in the same pass or search engines
+> index the wrong host and payers get returned to a dead one.
 
 ---
+
 
 ## ⚠⚠ Back up ENCRYPTION_KEY before you take another step
 
@@ -42,32 +65,25 @@ Do this before the first real registration arrives, not after.
 
 ---
 
-## ⚠ Why it 500s, and why that is deliberate
+## ⚠ The database is on Neon, and Neon is not in Kazakhstan
 
 `src/lib/env.ts` refuses to boot in production without `DATABASE_URL`,
-`CSRF_SECRET` and an https `APP_URL`.
+`CSRF_SECRET` and an https `APP_URL` — a deployment that started without a
+database would accept registrations into an in-memory store and lose them at the
+next cold start. Refusing to start is the correct behaviour: loud and obvious
+beats quiet and lossy.
 
-A deployment that started without a database would accept registrations into
-an in-memory store and lose them at the next cold start — silently, with no
-error, with the team believing they had entered. Three weeks before a national
-championship that is the worst failure mode available. Refusing to start is the
-correct behaviour: loud and obvious beats quiet and lossy.
+That check is satisfied. What it does **not** check is *where* the database is,
+and the one currently wired up is a Neon project, which has no Kazakhstan
+region. `.env.example` and the section below both state that KZ Law No. 94-V
+requires personal data on citizens — here, the names and ages of minors — to be
+stored on a database physically located in Kazakhstan.
 
-## ⚠ A local PostgreSQL cannot back this deployment
-
-A database on your own machine listens on `localhost`. Vercel's servers are in
-Frankfurt. They cannot reach it, and exposing a laptop's Postgres to the public
-internet to make them able to would be a bad trade for a database holding
-children's names and ages.
-
-So there are two separate databases in play:
-
-- **Local Postgres 18 on your machine** — for development and for seeing the
-  admin panel work. Set up with `npm run setup:local`.
-- **A reachable, hosted Postgres** — for the Vercel deployment. This is the one
-  that must live in Kazakhstan per Law 94-V, and it is the one still missing.
-
----
+**This is an open compliance item, not a technical fault.** The site works. But
+either the organiser's counsel confirms the current arrangement is acceptable,
+or `DATABASE_URL` moves to a Kazakh-hosted Postgres before real registrations
+arrive. Migrating later means moving encrypted rows *and* the key, which is a
+much worse day than switching the connection string now.
 
 ## ⚠ Data residency, revisited
 
@@ -180,22 +196,29 @@ deployment:
 vercel deploy --prod
 ```
 
-### Step 5 — Point the domain at it
+### Step 5 — Point the domain at it ✅ done
 
-Once `astanatechcup.kz` (or whichever domain) is bought:
+Kept here as the record of what was actually run:
 
 ```bash
 vercel domains add astanatechcup.kz
 ```
 
-Then update `APP_URL` to the new origin — no trailing slash — and redeploy.
-`APP_URL` is used for the CSRF origin comparison and the payment return URLs,
-so a stale value breaks both.
+The A records at hoster.kz already pointed at Vercel, so the domain verified and
+the certificate issued without further DNS work. `APP_URL` was then repointed
+and production redeployed — environment variables bind at build time, so a new
+deployment is required for the change to take effect:
+
+```bash
+vercel redeploy <latest-production-url> --target production
+```
 
 ### Step 6 — After the first working production deploy
 
-- [ ] Point the domain at the project and update `APP_URL` to match
-- [ ] Set the Stripe webhook endpoint to `https://<domain>/api/payments/webhook`
+- [x] Point the domain at the project and update `APP_URL` to match
+- [ ] Set `ADMIN_PASSWORD_HASH` so `/admin` exists in production
+- [ ] Resolve the Law 94-V question on the Neon database (see above)
+- [ ] Set the Stripe webhook endpoint to `https://astanatechcup.kz/api/payments/webhook`
       and put the resulting signing secret in `STRIPE_WEBHOOK_SECRET`
 - [ ] Put Cloudflare (or the WAF of your choice) in front and move rate limiting
       there — the in-app limiter is per-instance and Vercel runs many
