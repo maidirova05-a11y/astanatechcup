@@ -50,6 +50,26 @@ export const EVENT = {
   venueKey: "enu",
 } as const;
 
+/**
+ * The venue, in the shape a search engine wants it.
+ *
+ * @assumption The brief names ENU as the host of the PREVIOUS edition and does
+ * not confirm it for this one. The hero already states it as the venue, so this
+ * mirrors that claim rather than inventing a second one — but it is the same
+ * assumption, and it is emitted as structured data, which is a stronger claim
+ * than body copy. Confirm before the first press release.
+ *
+ * `streetAddress` is deliberately absent: the exact building is not in the
+ * brief, and a guessed street address in schema.org markup would put a wrong
+ * pin on Google Maps.
+ */
+export const VENUE = {
+  name: "L. N. Gumilyov Eurasian National University",
+  city: "Astana",
+  region: "Astana",
+  countryCode: "KZ",
+} as const;
+
 /* ── Dates ──────────────────────────────────────────────────────────────── */
 
 /** Applications close 30 April, end of day, Astana time. @assumption year */

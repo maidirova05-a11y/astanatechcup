@@ -13,6 +13,7 @@ import { Faq } from "@/components/sections/Faq";
 import { Gallery } from "@/components/sections/Gallery";
 import { Partners } from "@/components/sections/Partners";
 import { Contacts } from "@/components/sections/Contacts";
+import { StructuredData } from "@/components/seo/StructuredData";
 
 /**
  * The landing page.
@@ -39,6 +40,11 @@ export default async function HomePage({
 
   return (
     <>
+      {/* schema.org graph for the event, the organiser and the site. Renders
+          nothing visible; it is what turns a plain blue link in search results
+          into dates, venue, entry fee and a registration action. */}
+      <StructuredData locale={locale} />
+
       <Hero locale={locale} />
       <Stats locale={locale} />
       <Flagship locale={locale} />

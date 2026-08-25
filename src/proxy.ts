@@ -221,6 +221,10 @@ export const config = {
    * Origin check and the security headers actually matter.
    */
   matcher: [
-    "/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|txt|xml|webmanifest|woff2?)$).*)",
+    // `icon` and `apple-icon` are Next.js metadata routes and carry no file
+    // extension, so without naming them above the locale rewrite sends /icon
+    // to /ru/icon and the favicon 404s — silently, because a missing favicon
+    // breaks nothing except how the site looks in a tab and in search results.
+    "/((?!_next/static|_next/image|icon|apple-icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|txt|xml|webmanifest|woff2?)$).*)",
   ],
 };
