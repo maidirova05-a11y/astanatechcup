@@ -225,6 +225,10 @@ export const config = {
     // extension, so without naming them above the locale rewrite sends /icon
     // to /ru/icon and the favicon 404s — silently, because a missing favicon
     // breaks nothing except how the site looks in a tab and in search results.
-    "/((?!_next/static|_next/image|icon|apple-icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|txt|xml|webmanifest|woff2?)$).*)",
+    //
+    // Both are anchored with `$`. Unanchored, `icon` would also exclude
+    // /iconfoo and everything else sharing the prefix, and anything excluded
+    // here is served without the security headers this proxy exists to set.
+    "/((?!_next/static|_next/image|icon$|apple-icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|txt|xml|webmanifest|woff2?)$).*)",
   ],
 };
