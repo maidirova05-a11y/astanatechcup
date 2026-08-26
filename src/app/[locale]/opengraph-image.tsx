@@ -75,18 +75,31 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", height: 12, backgroundColor: "#fcd800", borderRadius: 6 }} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          {/* Satori rasterises a plain <img>; next/image renders a client-side
-              component that does not exist inside an ImageResponse. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`data:image/png;base64,${logo}`}
-            width={420}
-            height={Math.round(
-              (420 * BRAND_ASSETS.championship.height) / BRAND_ASSETS.championship.width,
-            )}
-            alt={alt}
-            style={{ borderRadius: 24 }}
-          />
+          {/* The plate rule, from DESIGN.md: the mark is drawn as a white plate
+              with a #00243c border, so on a #00243c ground its outline vanishes
+              and the pixel letters sit on nothing. `<Logo plate />` solves this
+              everywhere else on the site; this is the same fix, by hand. */}
+          <div
+            style={{
+              display: "flex",
+              background: "#ffffff",
+              padding: "18px 26px",
+              borderRadius: 24,
+              alignSelf: "flex-start",
+            }}
+          >
+            {/* Satori rasterises a plain <img>; next/image renders a client-side
+                component that does not exist inside an ImageResponse. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`data:image/png;base64,${logo}`}
+              width={380}
+              height={Math.round(
+                (380 * BRAND_ASSETS.championship.height) / BRAND_ASSETS.championship.width,
+              )}
+              alt={alt}
+            />
+          </div>
 
           <div
             style={{
