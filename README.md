@@ -34,9 +34,10 @@ set — see [Configuration](#configuration).
 | --- | --- |
 | `npm run dev` | Dev server |
 | `npm run build` | Production build |
-| `npm run check` | Message parity + typecheck + lint (run this before committing) |
+| `npm run check` | Message parity + scoring maths + typecheck + lint (run this before committing) |
 | `npm run check:messages` | Fails if the three locale catalogs drift apart |
-| `npm run admin:hash` | Generate the admin password hash (hidden prompt) |
+| `npm run check:scoring` | Checks the standings and tiebreak maths against the rulebooks |
+| `npm run admin:hash` | Generate an admin or judges' password hash (hidden prompt) |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run db:generate` | Generate a migration from `src/lib/db/schema.ts` |
@@ -65,22 +66,26 @@ export const EVENT_YEAR = 2027;
 
 ```
 src/
-├── config/            Event facts and region list. Edit here, not in components.
+├── config/            Event facts, region list, competition categories.
 ├── i18n/              Locale routing, navigation helpers, request config
-├── messages/          ru.json · kk.json  (identical key sets, enforced in CI)
+├── messages/          ru.json · kk.json · en.json  (identical key sets, CI-enforced)
 ├── proxy.ts           Edge: CSP nonce, security headers, CSRF, locale routing
 ├── app/
-│   ├── [locale]/      Pages: landing, privacy, terms, payment results
+│   ├── [locale]/      Pages: landing, categories, results, privacy, terms, payment
+│   ├── admin/         Organising committee: applications, export, audit
+│   ├── judge/         Scoring console: match sheets and attempt times
 │   ├── actions/       Server actions (registration)
 │   └── api/           Payment webhook, CSP violation report sink
 ├── components/
 │   ├── layout/        Header, footer, locale switcher, consent, legal shell
-│   ├── sections/      One file per landing-page section
+│   ├── sections/      One file per landing-page section, plus the two new pages
 │   ├── forms/         Registration form
+│   ├── judge/         Console shell, match scorer, run scorer
 │   └── ui/            Design-system primitives
 └── lib/
     ├── security/      CSP, CSRF, rate limiting, client IP, bot checks
-    ├── validation/    Zod schema shared by client and server
+    ├── validation/    Zod schemas shared by client and server
+    ├── scoring/       Clock parsing, standings maths, scoring data access
     ├── db/            Drizzle schema + store (Postgres, memory fallback)
     ├── payments/      Provider-agnostic hosted checkout (Stripe adapter)
     ├── env.ts         Validated environment
@@ -191,6 +196,67 @@ prompt is hidden and the plaintext never touches disk, argv or shell history.
 
 With `ADMIN_PASSWORD_HASH` or `DATABASE_URL` unset, `/admin` returns **404**
 rather than a login page, so a scanner cannot tell the panel exists.
+
+---
+
+## Categories and scoring
+
+Two axes, deliberately not merged.
+
+A **discipline** (`src/config/event.ts`) is what a team registers into — a
+technology family: VEX, LEGO, Arduino, drones, esports. It drives the form, the
+server-side validation and the admin panel, and its ids are already written into
+every stored application.
+
+A **category** (`src/config/categories.ts`) is what a team competes in on the
+day: Robo Sumo, Line Follower, Robot Rugby, Drone Soccer, Ring Master Challenge,
+Robot Bowling, Leap. Seven categories, twenty-one classes, transcribed from the
+official RobotChallenge rulebooks with the revision date of each recorded
+alongside it. That file is the single source for both the public rules page and
+the scoring system, so a limit cannot mean one thing to a reader and another to
+the form that scores it.
+
+### `/[locale]/categories` — the rules page
+
+Every category with its robot envelopes, arena dimensions, match format, key
+rules and scoring method, in all three languages. Static, pre-rendered.
+
+### `/judge` — the scoring console
+
+For the referee crew. Mobile-first, Russian only, outside the `[locale]` tree
+for the same reason as the admin panel.
+
+- **Match categories** (Sumo, Rugby, Drone Soccer, Ring Master) — a sheet per
+  pairing with stepper controls for the score and the cards. The judge declares
+  the outcome; the form suggests one from the score but never overrides them,
+  because every one of these rulebooks lets a referee award a match against the
+  score.
+- **Run categories** (Line Follower, Bowling, Leap) — one screen per attempt.
+  Line Follower takes a clock value and writes the rulebook's own 03:00.001 for
+  an attempt that does not finish. Leap reproduces its eighteen-row score sheet
+  and totals it, including the time bonus, so nobody is adding up negative rows
+  in their head beside a stage.
+- **Teams** — start number, name, organisation, region, group letter. A withdrawn
+  team is archived, never deleted, so its played matches keep a team to name.
+- Every write is audited with the session, the role, the address and the previous
+  value. A championship result is contestable, and "the system says so" is not an
+  answer a team has to accept.
+
+Access is a second shared password in `JUDGE_PASSWORD_HASH`, generated the same
+way as the admin one. A judge session reaches the console and nothing else; an
+admin session reaches both. Make them different passwords — the judges' one is
+shared with a crew standing at a venue.
+
+With neither password set, `/judge` returns **404**.
+
+### `/[locale]/results` — the public scoreboard
+
+Group tables and attempt rankings, computed from the filed sheets on every
+render by the same functions the console uses. Nothing is stored as a standing.
+Cached for thirty seconds, and pushed immediately whenever a judge saves.
+
+Tiebreaks follow the rulebooks rather than football intuition — most of these
+lead with the head-to-head result, not goal difference.
 
 ---
 

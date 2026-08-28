@@ -174,6 +174,10 @@ function isExemptPath(pathname: string): boolean {
     // audience that shares one working language.
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
+    // Same reasoning for the judges' console: one working language, used by
+    // the referee crew rather than by visitors.
+    pathname === "/judge" ||
+    pathname.startsWith("/judge/") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
     pathname === "/manifest.webmanifest" ||

@@ -6,6 +6,8 @@ import { EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
 
 const NAV = [
   { key: "disciplines", href: "#disciplines" },
+  { key: "categories", href: "/categories", page: true },
+  { key: "results", href: "/results", page: true },
   { key: "journey", href: "#journey" },
   { key: "prizes", href: "#prizes" },
   { key: "faq", href: "#faq" },
@@ -49,7 +51,7 @@ export async function Footer({ locale }: { locale: string }) {
             {NAV.map((item) => (
               <a
                 key={item.key}
-                href={item.href}
+                href={"page" in item ? `/${locale}${item.href}` : item.href}
                 className="inline-flex min-h-11 items-center text-muted transition-colors duration-200 hover:text-content"
               >
                 {tn(item.key)}

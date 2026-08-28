@@ -19,7 +19,27 @@ Live at **<https://astanatechcup.kz>**.
 | `ENCRYPTION_KEY` | ✅ set — **back it up, see below** |
 | `TRUSTED_IP_HEADER` | ✅ `x-vercel-forwarded-for` |
 | `ADMIN_PASSWORD_HASH` | ❌ missing — without it `/admin` returns 404; the public site is unaffected |
+| `JUDGE_PASSWORD_HASH` | ❌ missing — without it (and without the admin one) `/judge` returns 404 and `/results` says it is not connected |
+| Scoring migration `0001` | ✅ applied to the Neon database on 2026-08-29 |
 | Stripe / Turnstile | ❌ not configured — both optional, both degrade safely |
+
+### Migration `0001` — the scoring tables
+
+`drizzle/0001_panoramic_juggernaut.sql` adds `scoring_teams`,
+`scoring_matches`, `scoring_runs`, `scoring_audit` and a `role` column on
+`admin_sessions`. It is purely additive — four `CREATE TABLE`s, four
+`CREATE TYPE`s and one `ADD COLUMN` with a default — and touches no existing
+row's data. It has been applied to the Neon database already.
+
+If you move to a different Postgres (see step 1 below), apply it there too:
+
+```bash
+npm run db:migrate
+```
+
+Until it lands, `/[locale]/results` queries tables that do not exist. The page
+catches that and renders "not connected" rather than a 500, so the site stays up
+either way — but nothing is recorded.
 
 ### DNS
 
@@ -160,9 +180,11 @@ postgres://user:password@host:5432/astanatechcup?sslmode=require
 npm run db:migrate
 ```
 
-Five tables: `applications`, `webhook_events`, `admin_sessions`,
-`admin_login_attempts`, `application_audit`. The SQL is committed in `drizzle/`
-— read it before running it against anything real.
+Nine tables: `applications`, `webhook_events`, `admin_sessions`,
+`admin_login_attempts`, `application_audit`, and the four the scoring system
+adds — `scoring_teams`, `scoring_matches`, `scoring_runs`, `scoring_audit`. The
+SQL is committed in `drizzle/` — read it before running it against anything
+real.
 
 ### Step 3 — Set the remaining variables
 
@@ -183,6 +205,21 @@ npm run admin:hash
 ```bash
 vercel env add ADMIN_PASSWORD_HASH production
 ```
+
+Then a **different** password for the judges' console, generated the same way:
+
+```bash
+npm run admin:hash
+```
+
+```bash
+vercel env add JUDGE_PASSWORD_HASH production
+```
+
+A judge session reaches `/judge` and nothing else — no applications, no personal
+data, no export. That separation is the reason the two passwords exist, and it
+is worth nothing if they are the same string: the judges' one is read out to a
+crew standing at a venue and will be overheard.
 
 Optional, when you have them: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.

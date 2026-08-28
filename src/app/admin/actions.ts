@@ -86,7 +86,7 @@ export async function login(
     return { status: "error", message: "Неверный пароль." };
   }
 
-  const { token } = await createSession(ip, headerList.get("user-agent"));
+  const { token } = await createSession(ip, headerList.get("user-agent"), "admin");
   cookieStore.set(ADMIN_SESSION_COOKIE, token, adminCookieOptions);
 
   logger.info("admin.login_success", { ip });

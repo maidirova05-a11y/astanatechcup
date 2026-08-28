@@ -9,7 +9,8 @@
     "lint": "eslint src scripts",
     "typecheck": "tsc --noEmit",
     "check:messages": "node scripts/check-messages.mjs",
-    "check": "npm run check:messages && npm run typecheck && npm run lint",
+    "check:scoring": "tsx --conditions=react-server scripts/check-scoring.ts",
+    "check": "npm run check:messages && npm run check:scoring && npm run typecheck && npm run lint",
     "keygen": "node scripts/keygen.mjs",
     "setup:local": "node scripts/setup-local-db.mjs",
     "admin:hash": "node scripts/hash-admin-password.mjs",
@@ -41,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }

@@ -15,6 +15,9 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/admin", label: "Сводка" },
   { href: "/admin/applications", label: "Заявки" },
+  // The console is a separate area with its own session role; an admin session
+  // can reach it, a judge session cannot come back the other way.
+  { href: "/judge", label: "Судейская" },
 ] as const;
 
 export function AdminShell({

@@ -30,6 +30,14 @@ export async function requireSession(): Promise<AdminSession> {
   const session = await getSession();
   if (!session) redirect("/admin/login");
 
+  /**
+   * A judge session is a valid session — it just is not one that may read this
+   * area. Sending it to /judge rather than to the admin login is both the
+   * correct destination and the honest one: the referee is signed in, they are
+   * simply in the wrong place.
+   */
+  if (session.role !== "admin") redirect("/judge");
+
   return session;
 }
 

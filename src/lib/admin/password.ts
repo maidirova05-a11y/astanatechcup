@@ -55,8 +55,31 @@ export const SCRYPT_PARAMS = {
   saltLength: 32,
 } as const;
 
-/** `scrypt$N$r$p$<salt-base64>$<hash-base64>` */
+/**
+ * `scrypt.N.r.p.<salt-base64>.<hash-base64>`
+ *
+ * ── Why a dot and not the conventional `$` ────────────────────────────────
+ * Because a `$` cannot survive a `.env` file. Next.js runs every value it
+ * loads through dotenv-expand, which treats `$131072` as a variable reference
+ * and substitutes it with nothing — turning `scrypt$131072$8$1$…` into
+ * `scrypt31072…`. Single quotes do not help. Neither do double quotes, nor
+ * backslash escapes; this was measured against the loader, not assumed.
+ *
+ * The result was a hash that failed to parse, from a value the operator had
+ * copied correctly, following instructions that told them to use single quotes
+ * precisely because of the `$` signs. It worked on Vercel — where variables
+ * come from the platform rather than a file — and failed on every developer's
+ * machine, which is close to the worst place for a bug in an auth path to hide.
+ *
+ * A dot is not in the base64 alphabet, so it separates the fields just as
+ * unambiguously and passes through untouched. Hashes in the old format are
+ * still accepted; see `verifyPassword`.
+ * ─────────────────────────────────────────────────────────────────────────
+ */
 const FORMAT_PREFIX = "scrypt";
+const SEPARATOR = ".";
+/** Hashes minted before the separator changed. Still verified, never minted. */
+const LEGACY_SEPARATOR = "$";
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(SCRYPT_PARAMS.saltLength);
@@ -75,20 +98,26 @@ export async function hashPassword(password: string): Promise<string> {
     SCRYPT_PARAMS.p,
     salt.toString("base64"),
     derived.toString("base64"),
-  ].join("$");
+  ].join(SEPARATOR);
 }
 
 /**
  * Verify a candidate password against a stored hash.
  *
  * Parameters are read back out of the stored string rather than assumed, so an
- * existing hash keeps working if SCRYPT_PARAMS is raised later.
+ * existing hash keeps working if SCRYPT_PARAMS is raised later — and both
+ * separators are accepted, so a hash minted before the format changed does not
+ * lock its owner out.
  */
 export async function verifyPassword(
   password: string,
   storedHash: string,
 ): Promise<boolean> {
-  const parts = storedHash.split("$");
+  const separator = storedHash.startsWith(FORMAT_PREFIX + LEGACY_SEPARATOR)
+    ? LEGACY_SEPARATOR
+    : SEPARATOR;
+
+  const parts = storedHash.split(separator);
   if (parts.length !== 6 || parts[0] !== FORMAT_PREFIX) return false;
 
   const N = Number(parts[1]);

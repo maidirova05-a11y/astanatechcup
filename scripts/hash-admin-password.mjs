@@ -1,5 +1,6 @@
 /**
- * Generate the ADMIN_PASSWORD_HASH value for .env.local / Vercel.
+ * Generate an ADMIN_PASSWORD_HASH or JUDGE_PASSWORD_HASH value for
+ * .env.local / Vercel.
  *
  *   npm run admin:hash
  *
@@ -105,13 +106,20 @@ const main = async () => {
     PARAMS.p,
     salt.toString("base64"),
     derived.toString("base64"),
-  ].join("$");
+    // A dot, not the conventional `$`. Next.js runs .env values through
+    // dotenv-expand, which eats `$131072` as a variable reference no matter how
+    // the value is quoted — see the note in src/lib/admin/password.ts.
+  ].join(".");
 
-  console.log("\nAdd this line to .env.local, and set the same value in Vercel:\n");
-  console.log(`ADMIN_PASSWORD_HASH='${hash}'`);
+  console.log("\nAdd ONE of these to .env.local, and set the same value in Vercel:\n");
+  console.log(`ADMIN_PASSWORD_HASH=${hash}`);
+  console.log(`JUDGE_PASSWORD_HASH=${hash}`);
   console.log(
-    "\nUse single quotes — the hash contains $ characters that a shell would\n" +
-      "otherwise try to expand.\n",
+    "\nNo quotes needed, and do not add any — the hash contains no characters\n" +
+      "that a shell or a .env loader will touch.\n" +
+      "\nThe two are different doors: the admin one opens the applications panel\n" +
+      "and the children's data in it; the judges' one opens the scoring console\n" +
+      "and nothing else. Run this twice and use two different passwords.\n",
   );
 };
 

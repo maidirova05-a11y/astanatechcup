@@ -23,7 +23,15 @@
     "skipToContent": "Skip to content",
     "menu": "Menu",
     "language": "Language",
-    "scrollDown": "Scroll down"
+    "scrollDown": "Scroll down",
+    "cm": "cm",
+    "m": "m",
+    "mm": "mm",
+    "g": "g",
+    "kg": "kg",
+    "min": "min",
+    "sec": "s",
+    "noLimit": "no limit"
   },
 
   "nav": {
@@ -33,7 +41,9 @@
     "faq": "FAQ",
     "contacts": "Contact",
     "register": "Enter now",
-    "home": "Home"
+    "home": "Home",
+    "categories": "Categories",
+    "results": "Results"
   },
 
   "hero": {
@@ -101,6 +111,7 @@
     "flagshipTag": "Flagship",
     "provisionalTag": "To be confirmed",
     "cta": "Enter now",
+    "catalogueCta": "All categories and rules",
     "regulationsCta": "Download the regulations",
     "regulationsMissing": "The regulations will be published before entries open.",
     "items": {
@@ -135,6 +146,268 @@
         "description": "Team esports tournaments with a group stage and play-offs. The largest teams in the championship."
       }
     }
+  },
+
+  "categories": {
+    "eyebrow": "Rulebook",
+    "title": "Every category at the championship",
+    "subtitle": "The full RobotChallenge catalogue: robot envelopes, arena dimensions, match formats and exactly how a judge counts the points. These are the same documents the referee crew works from.",
+    "metaTitle": "Categories and rules",
+    "metaDescription": "Every AstanaTechCup category: Robo Sumo, Line Follower, Robot Rugby, Drone Soccer, Ring Master Challenge, Robot Bowling and Leap. Robot limits, arena dimensions, match formats and scoring systems.",
+    "tocTitle": "On this page",
+    "statCategories": "categories",
+    "statClasses": "classes",
+    "statNote": "One format can run as several classes — they differ by robot envelope, control type and age group.",
+    "classesLabel": "Classes",
+    "groupsLabel": "Age groups",
+    "formatLabel": "Format",
+    "scoringLabel": "Scoring",
+    "rulesLabel": "Key rules",
+    "colClass": "Class",
+    "colGroups": "Groups",
+    "colControl": "Control",
+    "colRobot": "Robot",
+    "colArena": "Arena",
+    "sourceLabel": "Source",
+    "sourceValue": "{title}, rev. {date}",
+    "sourceNote": "Transcribed from the official RobotChallenge rulebooks. Where this page and the original document disagree, the original document wins.",
+    "clockLabel": "Clock",
+    "clockMatch": "{minutes} min per match",
+    "clockRun": "{minutes} min per attempt",
+    "robotsPerTeam": "{count, plural, one {# robot} other {# robots}} per team",
+    "roundsRun": "{count, plural, one {# attempt} other {# attempts}} per team",
+    "bestOf": "First to two wins in three rounds",
+    "leagueNote": "Group stage: win {win}, draw {draw}, loss {loss}",
+    "aggregateBest": "The best attempt counts",
+    "aggregateAverage": "The average of the attempts counts",
+    "metricTime": "Faster time ranks higher",
+    "metricPoints": "More points ranks higher",
+    "maxPoints": "Maximum {points} points",
+    "dnfNote": "An unfinished attempt is recorded as {value}",
+    "unitGoals": "goals",
+    "unitPoints": "points",
+    "unitRounds": "rounds won",
+    "groups": {
+      "junior": "Junior",
+      "senior": "Senior",
+      "adult": "Adult"
+    },
+    "control": {
+      "autonomous": "Autonomous",
+      "remote": "Remote control"
+    },
+    "materials": {
+      "wood": "wood",
+      "steel": "iron/steel",
+      "acrylic": "acrylic",
+      "carpet": "carpet",
+      "vinyl": "vinyl",
+      "fabric": "fabric"
+    },
+    "arenaRing": "Ring Ø{diameter} {u}, {border} {u} border, {material}",
+    "arenaRect": "{length} × {width} {u}",
+    "arenaRectHeight": "{length} × {width} × {height} {u}",
+    "arenaMaterialSuffix": ", {material}",
+    "envelopeBox": "{width} × {length} × {height} {u}",
+    "envelopeFootprint": "{width} × {length} {u}",
+    "envelopeDiameter": "Ø up to {width} {u}",
+    "envelopeWeight": "up to {weight}",
+    "cta": "Register a team",
+    "resultsCta": "See results",
+    "items": {
+      "sumo": {
+        "name": "Robo Sumo",
+        "tagline": "Push your opponent past the white border",
+        "summary": "Two robots on a raised circular ring: you win when your opponent is the first to touch the surface outside the platform. Nine classes, from a 2.5 cm, 25 g Nano to a 3 kg Mega, autonomous and remote-controlled, including two-legged humanoids.",
+        "rules": [
+          "A match runs to two wins out of three rounds. A round lasts 3 minutes; with no winner by then, the round is a draw.",
+          "After the whistle, autonomous robots wait 5 seconds before moving. Moving early hands the round to the opponent.",
+          "A robot may expand once the match starts, but it must remain one compact entity and never split into parts.",
+          "Shedding parts totalling more than 5 g loses the round. If both robots shed parts, the round is a draw.",
+          "Sticky traction compounds are banned: a tyre must not hold an 80 g/m² sheet of A4 for more than two seconds.",
+          "Downforce devices — vacuum pumps and magnets — are permitted in Mega Sumo only.",
+          "Mega, Mini, Micro and Nano start on the official RobotChallenge chip signal; without the chip the robot cannot compete."
+        ],
+        "scoring": [
+          "The group stage is a round robin: 3 points for a win, 1 for a draw, 0 for a loss.",
+          "The knockout stage is best-of-three. The first team to win two rounds advances.",
+          "Humanoid Sumo scores inside the bout instead: a knock down is worth 2 to the opponent, a slip down 1, a push out 3.",
+          "In Humanoid, a robot that fails to get up within 10 seconds loses the bout immediately.",
+          "Teams level on group points are separated by their head-to-head result."
+        ]
+      },
+      "lineFollower": {
+        "name": "Line Follower",
+        "tagline": "Three attempts, the fastest one counts",
+        "summary": "The robot runs a closed course — a 15 mm black line on a white 2.8 × 4.5 m carpet — and returns to the start zone. Three classes: LEGO, open, and Enhanced, which adds a line gap, an obstacle and a seesaw.",
+        "rules": [
+          "The event runs three rounds; the next round only starts once every team has completed the current one.",
+          "Each attempt has a 3-minute limit. A team that does not finish inside it is recorded as 03:00.001.",
+          "Once the robot crosses the start line it must be fully autonomous, otherwise the team is disqualified.",
+          "Envelope is 30 × 30 cm and up to 3 kg. A robot that fails inspection gets 5 minutes to be adjusted.",
+          "Leaving the line, spinning in place, reversing, or touching the timing equipment voids the attempt.",
+          "In Enhanced, briefly leaving the line to clear an obstacle is allowed, but the robot must return to the course and carry on.",
+          "LEGO Line Follower must be built from original LEGO parts; the only third-party items allowed are rubber bands holding cables."
+        ],
+        "scoring": [
+          "Ranking is decided by the best — that is, the lowest — time across the three attempts.",
+          "A voided attempt and a robot leaving the carpet are both recorded as 03:00.001, not as a blank.",
+          "Timing comes from the electronic system triggered at the start line, not from a referee's stopwatch.",
+          "A result is valid only if the robot completed the whole course without leaving the line and the system captured a full time."
+        ]
+      },
+      "rugby": {
+        "name": "Robot Rugby",
+        "tagline": "Three robots a side, three minutes",
+        "summary": "A remote-controlled match on a 350 × 150 cm field with a 10 cm protective wall and try zones at each end. An oval 160 g rubber ball, a captain who can call a timeout, and rules built on the traditional game.",
+        "rules": [
+          "A team fields up to 3 robots, one per team member; robots and members carry matching numbers 1–3.",
+          "Envelope is under 20 × 20 × 20 cm. Junior is up to 1.5 kg on LEGO EV3/NXT or VEX IQ controllers with at most 9 motors per team; Senior is up to 3 kg with no equipment restrictions.",
+          "Sucking in the ball, hiding it or fitting ball-holding devices is banned; extending parts must not exceed the ball's radius.",
+          "One 30-second timeout per match, called by the captain. Repairs happen only in the designated area during a stoppage, 30 seconds per attempt.",
+          "Touching a robot without the referee's permission is a yellow card. Two yellows for one member is a red, and the team plays on a robot short.",
+          "A robot that tips over or is pushed off the field may recover on its own or with help from teammates — play continues meanwhile."
+        ],
+        "scoring": [
+          "A try is worth 1 point: the attacking team's robot has the ball and it touches the goal-line wall in the try zone.",
+          "A 5-point lead ends the match immediately in the leader's favour.",
+          "Disqualifying a team for a serious offence automatically awards the opponent 5 points.",
+          "Draws stand in the group stage; the knockout stage goes to extra time and a golden goal.",
+          "On level scores the referee compares both teams' cards, and the team with fewer wins."
+        ]
+      },
+      "droneSoccer": {
+        "name": "Drone Soccer",
+        "tagline": "3 v 3 in the air, inside the net",
+        "summary": "A team event inside an enclosed 6 × 3 × 3 m netted arena. Each side flies one striker and two defenders, and the roles are fixed for the match. A goal counts when the striker's ball passes fully through the opponent's ring from the front.",
+        "rules": [
+          "Drone size including the guard is 100 to 220 mm. Junior is up to 150 g, Senior up to 300 g including cover and battery.",
+          "Any controller model, but 2.4 GHz only. A team brings 3 competition drones and up to 3 spares.",
+          "Every drone carries an LED that switches between at least red and blue; the striker always shows its team's colour.",
+          "Defenders may not fully cross the halfway line into the opponent's half.",
+          "Collisions between drones are allowed. Metal propellers and sharp structural parts are banned.",
+          "A 30-second timeout is available in the knockout stage only — one per match, called by the captain.",
+          "Turtle Mode and other automatic self-righting systems are permitted after a fall."
+        ],
+        "scoring": [
+          "Each goal is worth 1 point. Own goals do not count.",
+          "Group stage: 3 points for a win, 1 for a draw, 0 for a loss. The top two teams from each group advance.",
+          "After a goal, the scorer's striker must return behind the halfway line before the next attack — otherwise it is a penalty.",
+          "A penalty is taken within 5 seconds of the referee's signal, one striker against one defender; every other drone lands.",
+          "A drawn final or third-place match goes to three penalties a side.",
+          "Three red cards zero the team's score and hand the win to the opponent."
+        ]
+      },
+      "ringMaster": {
+        "name": "Ring Master Challenge",
+        "tagline": "Rings on poles, multipliers and a sudden finish",
+        "summary": "Five minutes on a 2 × 2 m field with twenty scoring poles. The robot places foam rings on poles worth 1, 2, 3 and 5 points; a yellow ring on top doubles that pole. Completing a diagonal or a square ends the match on the spot.",
+        "rules": [
+          "Starting envelope is 25 × 25 × 25 cm and up to 2000 g. Once expanded the robot may not exceed 35 × 35 cm; height is unrestricted.",
+          "The robot may carry, grip or transport no more than 2 rings at a time.",
+          "Up to 4 drive motors and up to 4 manipulator motors, 12 V maximum, and the robot must move on wheels.",
+          "Control is wireless only. Junior builds from a construction kit; Senior has no restriction on materials or electronics.",
+          "The robot enters and leaves the yellow zone only through the 30 × 30 cm gate; rings may not cross the side boundaries.",
+          "A pole counts a maximum of 4 rings — anything above that is ignored.",
+          "The team removes its own disabled robot from the field, and the clock keeps running while it does."
+        ],
+        "scoring": [
+          "The red and blue poles are worth 5 points each and accept only their own colour plus yellow rings.",
+          "Yellow poles are worth 1, 2 or 3 points per the official field map and are open to both teams.",
+          "A yellow ring on top of a coloured ring doubles the pole. Yellow on yellow adds no further multiplier.",
+          "Knocking an opponent's ring off is −10. Deliberately removing a ring, ramming a robot or damaging the field is a yellow card and −30.",
+          "Points are counted only after the final whistle, and only for rings seated securely on their poles.",
+          "Endgame — a diagonal or a square of fully scored poles — stops the match and wins it."
+        ]
+      },
+      "bowling": {
+        "name": "Robot Bowling",
+        "tagline": "Five frames, strikes and spares",
+        "summary": "An autonomous robot launches LEGO DUPLO balls down lanes at ten pins arranged in a triangle. A round is five frames and three minutes; a strike in the fifth frame opens lanes six and seven. Maximum score 150.",
+        "rules": [
+          "Inspection envelope is 20 × 20 cm, expanding to no more than 30 × 30 cm. Height and weight are unrestricted.",
+          "Junior plays a 120 × 40 cm field with seven lanes, Senior a 160 × 60 cm field with five.",
+          "Every team plays 2 rounds of 5 frames; a frame allows up to two balls unless the first is a strike.",
+          "The ball may only be launched from the launch zone. Launching before entering it is a foul and the frame scores zero.",
+          "After a launch the robot must return to the start zone by itself; picking it up before its wheels touch the black line is a foul.",
+          "A ball that knocks pins after rebounding off the net or a side wall is a foul. So is the robot falling off the platform.",
+          "Teams get 30 minutes of debugging beforehand; the start zone and the robot's initial heading are announced before it begins."
+        ],
+        "scoring": [
+          "A strike is 10 plus the pins from the next two balls. A spare is 10 plus the next ball.",
+          "An open frame is simply the pins knocked down by the two balls.",
+          "A strike in the fifth frame earns two bonus balls, played on lanes six and seven.",
+          "A fouled ball scores nothing; if the first bonus ball is a foul, the second is not given.",
+          "Ranking uses the average of the two rounds. Ties go to the better round, then to remaining time."
+        ]
+      },
+      "leap": {
+        "name": "Leap",
+        "tagline": "Build the festival stage in three minutes",
+        "summary": "A music-festival stage on a 0.9 × 2 m field: close the circuits, set the microphones, raise the speakers, deploy the screen, bring the band on, then trigger lighting, sound and the camera crane. Some tasks are driven by remote, others must run fully autonomously.",
+        "rules": [
+          "Participants are 12 years old or younger.",
+          "The robot is built from plastic interlocking blocks only — LEGO Spike Prime, EV3, VEX IQ, micro:bit and equivalents. 3D-printed parts are banned.",
+          "One controller and no more than 4 motors per robot. Sensor type and count are unrestricted.",
+          "The robot must fit the START area; there is no height or weight limit.",
+          "Task order is free: remote and autonomous tasks can be interleaved, and the robot may return to START to swap attachments.",
+          "During an autonomous task nobody may touch the robot, the controller or the field props until the robot returns to START on its own.",
+          "Teams get 60 minutes of debugging beforehand; a round lasts 3 minutes and there are two rounds."
+        ],
+        "scoring": [
+          "The task sheet is worth 270 points, or 300 with the championship bonus task.",
+          "The time bonus is (remaining seconds ÷ round length) × 30 — up to 10% of the base sheet.",
+          "Every retry costs 5 points. A robot that sheds no parts earns 5.",
+          "Ranking uses the better of the two rounds; ties go to the team with more time remaining.",
+          "The referee crew tallies the sheet after the round, from the final state of the field."
+        ]
+      }
+    }
+  },
+
+  "results": {
+    "eyebrow": "Scoreboard",
+    "title": "Competition results",
+    "subtitle": "Tables and sheets are filed by the referee crew straight from the floor. A category stays empty until it starts playing.",
+    "metaTitle": "Results",
+    "metaDescription": "Live AstanaTechCup results: group tables, match sheets and attempt rankings across every category of the championship.",
+    "empty": "The competition has not started yet. The first result a judge files will appear here.",
+    "emptyCategory": "No results in this category yet.",
+    "notStarted": "Not started yet",
+    "standings": "Group table",
+    "leaderboard": "Ranking",
+    "recent": "Latest sheets",
+    "colPos": "#",
+    "colTeam": "Team",
+    "colPlayed": "P",
+    "colWon": "W",
+    "colDrawn": "D",
+    "colLost": "L",
+    "colFor": "F",
+    "colAgainst": "A",
+    "colDiff": "GD",
+    "colPoints": "Pts",
+    "colResult": "Result",
+    "colAttempts": "Attempts",
+    "colBestTime": "Best time",
+    "colAverage": "Average",
+    "colBest": "Best",
+    "legendPlayed": "P — played, W — won, D — drawn, L — lost, F — for, A — against, GD — difference, Pts — points.",
+    "dnf": "DNF",
+    "dsq": "DSQ",
+    "foul": "Foul",
+    "noRun": "—",
+    "stageGroup": "Group stage",
+    "stagePlayoff": "Knockout",
+    "stageFinal": "Final",
+    "groupLabel": "Group {label}",
+    "roundLabel": "Round {label}",
+    "rulesLink": "Category rules",
+    "updated": "Updated: {time}",
+    "updatedNever": "No updates yet",
+    "liveNote": "This page refreshes itself roughly every half minute.",
+    "attemptShort": "A{number}",
+    "notConfigured": "The results system is not connected on this deployment yet."
   },
 
   "journey": {

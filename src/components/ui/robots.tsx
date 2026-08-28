@@ -175,6 +175,50 @@ export const RobotGamer = (props: RobotProps) => (
   </Mascot>
 );
 
+/** Ring Master — a gripper arm holding a ring over a scoring pole. */
+export const RobotRing = (props: RobotProps) => (
+  <Mascot {...props}>
+    {/* the ring it is about to place, held high */}
+    <ellipse cx="70" cy="18" rx="13" ry="5.5" fill="none" stroke="var(--ink)" strokeWidth={STROKE * 1.6} />
+    <ellipse cx="70" cy="18" rx="13" ry="5.5" fill="none" stroke="var(--r-accent, currentColor)" strokeWidth={STROKE * 0.8} />
+    <rect x="22" y="26" width="48" height="40" rx="14" fill="var(--r-accent, currentColor)" stroke="var(--ink)" strokeWidth={STROKE} />
+    <rect x="29" y="34" width="34" height="22" rx="9" fill="#fff" stroke="var(--ink)" strokeWidth={STROKE} />
+    <Eyes cx1={39} cx2={53} cy={44} r={4.4} />
+    {/* a small, concentrating mouth — this one is aiming */}
+    <path d="M42 51h8" stroke="var(--ink)" strokeWidth={STROKE} />
+    {/* lifting arm reaching up to the ring */}
+    <path d="M66 34 70 22" stroke="var(--ink)" strokeWidth={STROKE * 1.2} />
+    {/* scoring pole on its base */}
+    <path d="M18 66V44" stroke="var(--ink)" strokeWidth={STROKE * 1.2} />
+    <ellipse cx="18" cy="52" rx="9" ry="4" fill="var(--r-accent, currentColor)" stroke="var(--ink)" strokeWidth={STROKE} />
+    <rect x="16" y="66" width="62" height="15" rx="7" fill="var(--ink)" />
+    <circle cx="30" cy="73" r="3.2" fill="#fff" />
+    <circle cx="64" cy="73" r="3.2" fill="#fff" />
+  </Mascot>
+);
+
+/** Bowling — a launcher with a ball loaded and pins waiting. */
+export const RobotPin = (props: RobotProps) => (
+  <Mascot {...props}>
+    {/* pins standing behind it */}
+    <path d="M14 30q4-6 8 0v10q-4 5-8 0z" fill="#fff" stroke="var(--ink)" strokeWidth={STROKE} />
+    <path d="M82 30q-4-6-8 0v10q4 5 8 0z" fill="#fff" stroke="var(--ink)" strokeWidth={STROKE} />
+    <rect x="26" y="22" width="44" height="40" rx="14" fill="var(--r-accent, currentColor)" stroke="var(--ink)" strokeWidth={STROKE} />
+    <rect x="32" y="29" width="32" height="22" rx="9" fill="#fff" stroke="var(--ink)" strokeWidth={STROKE} />
+    <Eyes cx1={41} cx2={55} cy={39} r={4.4} />
+    <path d="M43 47q5 3 10 0" stroke="var(--ink)" strokeWidth={STROKE} />
+    {/* launch arm, cocked back */}
+    <path d="M70 44h9v-9" stroke="var(--ink)" strokeWidth={STROKE} />
+    {/* the ball, loaded */}
+    <circle cx="17" cy="62" r="9" fill="var(--r-accent, currentColor)" stroke="var(--ink)" strokeWidth={STROKE} />
+    <circle cx="14" cy="59" r="1.6" fill="var(--ink)" />
+    <circle cx="19" cy="58" r="1.6" fill="var(--ink)" />
+    <rect x="28" y="62" width="42" height="16" rx="8" fill="var(--ink)" />
+    <circle cx="39" cy="70" r="3.4" fill="#fff" />
+    <circle cx="59" cy="70" r="3.4" fill="#fff" />
+  </Mascot>
+);
+
 /** Discipline id -> mascot, so a card can render its own character. */
 export const DISCIPLINE_ROBOTS = {
   robosumo: RobotSumo,
@@ -186,6 +230,26 @@ export const DISCIPLINE_ROBOTS = {
 } as const;
 
 export type RobotName = keyof typeof DISCIPLINE_ROBOTS;
+
+/**
+ * Mascot key -> character, for the competition categories.
+ *
+ * A separate map from `DISCIPLINE_ROBOTS` because the two taxonomies are
+ * separate (see src/config/categories.ts) and several characters appear in
+ * both — a shared map would have to invent a key that means "LEGO the
+ * technology family" and "Leap the category" at once.
+ */
+export const CATEGORY_ROBOTS = {
+  sumo: RobotSumo,
+  circuit: RobotCircuit,
+  vex: RobotVex,
+  drone: RobotDrone,
+  ring: RobotRing,
+  pin: RobotPin,
+  blocks: RobotBlocks,
+} as const;
+
+export type CategoryRobotName = keyof typeof CATEGORY_ROBOTS;
 
 /**
  * A waving robot for the hero and the 404 page. Larger, friendlier and more

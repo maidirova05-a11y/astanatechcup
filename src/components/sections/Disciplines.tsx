@@ -108,6 +108,17 @@ export async function Disciplines({ locale }: { locale: string }) {
       </ul>
 
       <div className="mt-12 flex flex-col items-start gap-3">
+        {/* The full rulebook set lives on its own page: six cards are what a
+            team needs to choose a discipline, and twenty-one classes with
+            weight limits are what they need once they have. */}
+        <a
+          href={`/${locale}/categories`}
+          className={buttonClasses({ variant: "solid", size: "md" })}
+        >
+          {t("catalogueCta")}
+          <ArrowRight className="text-base" />
+        </a>
+
         {REGULATIONS_PDF ? (
           <a
             href={REGULATIONS_PDF}

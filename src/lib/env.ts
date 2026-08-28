@@ -15,6 +15,17 @@ import { z } from "zod";
 
 const isProd = process.env.NODE_ENV === "production";
 
+/**
+ * A password hash from `npm run admin:hash`, in either separator form.
+ *
+ * Matched with a regex rather than `startsWith`, so a value that a `.env`
+ * loader has quietly eaten the `$` signs out of fails at boot with a clear
+ * message instead of silently never matching any password.
+ */
+const SCRYPT_HASH = /^scrypt[.$]\d+[.$]\d+[.$]\d+[.$][A-Za-z0-9+/=]+[.$][A-Za-z0-9+/=]+$/;
+const SCRYPT_HASH_MESSAGE =
+  "must be a full hash from `npm run admin:hash`, e.g. scrypt.131072.8.1.<salt>.<hash>";
+
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
@@ -57,8 +68,27 @@ const schema = z.object({
    * scrypt hash of the shared admin password, produced by `npm run admin:hash`.
    * Absent => the admin panel is disabled entirely and /admin returns 404.
    * The plaintext password is never stored, transmitted or logged anywhere.
+   *
+   * `scrypt.` is the current format; `scrypt$` is accepted for hashes minted
+   * before the separator changed. See the note in src/lib/admin/password.ts —
+   * the short version is that a `$` does not survive a .env file.
    */
-  ADMIN_PASSWORD_HASH: z.string().startsWith("scrypt$").optional(),
+  ADMIN_PASSWORD_HASH: z.string().regex(SCRYPT_HASH, SCRYPT_HASH_MESSAGE).optional(),
+
+  /**
+   * scrypt hash of the shared JUDGES' password, produced the same way:
+   *   npm run admin:hash
+   *
+   * A judge session can reach the scoring console and nothing else — no
+   * applications, no personal data, no export. Absent => there is no separate
+   * judges' sign-in and only the organising committee can file results.
+   *
+   * Make it a DIFFERENT password from ADMIN_PASSWORD_HASH. The point of the
+   * split is that a password shared with twenty referees at a venue is a
+   * password that will be overheard, and it must not be the one that opens the
+   * panel holding children's names and ages.
+   */
+  JUDGE_PASSWORD_HASH: z.string().regex(SCRYPT_HASH, SCRYPT_HASH_MESSAGE).optional(),
 
   /** Cloudflare Turnstile. Both halves required, or the feature stays off. */
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
@@ -97,6 +127,7 @@ const rawEnv: Record<string, string | undefined> = {
   DATABASE_URL: process.env.DATABASE_URL,
   ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
   ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
+  JUDGE_PASSWORD_HASH: process.env.JUDGE_PASSWORD_HASH,
   TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
@@ -134,6 +165,17 @@ export const features = {
   // The panel needs both: somewhere to read applications from, and a way to
   // authenticate. Half-configured means off, not partly on.
   admin: Boolean(env.DATABASE_URL && env.ADMIN_PASSWORD_HASH),
+  /**
+   * The scoring console and the public results page. Needs somewhere to store
+   * results and at least one password that can reach the console — an admin
+   * one counts, so a small event can run without issuing a separate judges'
+   * password at all.
+   */
+  scoring: Boolean(
+    env.DATABASE_URL && (env.ADMIN_PASSWORD_HASH || env.JUDGE_PASSWORD_HASH),
+  ),
+  /** Whether a separate judges' sign-in exists at all. */
+  judgeLogin: Boolean(env.DATABASE_URL && env.JUDGE_PASSWORD_HASH),
   turnstile: Boolean(env.TURNSTILE_SECRET_KEY && env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
   payments: Boolean(env.STRIPE_SECRET_KEY),
   paymentWebhook: Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET),

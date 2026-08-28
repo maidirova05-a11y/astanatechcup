@@ -3,7 +3,7 @@ import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
 import { and, eq, gt, isNull, lt, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { getDb } from "@/lib/db/client";
-import { adminSessions, adminLoginAttempts } from "@/lib/db/schema";
+import { adminSessions, adminLoginAttempts, type SessionRole } from "@/lib/db/schema";
 import { isProduction } from "@/lib/env";
 import { securityLog } from "@/lib/log";
 
@@ -110,11 +110,18 @@ export async function recordLoginAttempt(
 
 /* ── Sessions ───────────────────────────────────────────────────────────── */
 
-export type AdminSession = { id: string; expiresAt: Date };
+export type AdminSession = { id: string; expiresAt: Date; role: SessionRole };
 
+/**
+ * The role is decided here, from which password verified, and stored on the
+ * row. It is never read back from the cookie or from a request parameter,
+ * which is what makes "a judge cannot become an admin" a property of the
+ * database rather than of every call site remembering to check.
+ */
 export async function createSession(
   ip: string,
   userAgent: string | null,
+  role: SessionRole,
 ): Promise<{ token: string; session: AdminSession }> {
   const db = getDb();
   const token = randomBytes(32).toString("base64url");
@@ -124,11 +131,16 @@ export async function createSession(
     .insert(adminSessions)
     .values({
       tokenHash: hashToken(token),
+      role,
       expiresAt,
       ip: ip.slice(0, 64),
       userAgent: userAgent?.slice(0, 255) ?? null,
     })
-    .returning({ id: adminSessions.id, expiresAt: adminSessions.expiresAt });
+    .returning({
+      id: adminSessions.id,
+      expiresAt: adminSessions.expiresAt,
+      role: adminSessions.role,
+    });
 
   // Opportunistic cleanup; keeps the table from growing without a cron job.
   await db.delete(adminSessions).where(lt(adminSessions.expiresAt, new Date()));
@@ -156,6 +168,7 @@ export async function getSession(): Promise<AdminSession | null> {
       expiresAt: adminSessions.expiresAt,
       lastSeenAt: adminSessions.lastSeenAt,
       tokenHash: adminSessions.tokenHash,
+      role: adminSessions.role,
     })
     .from(adminSessions)
     .where(
@@ -188,7 +201,7 @@ export async function getSession(): Promise<AdminSession | null> {
       .where(eq(adminSessions.id, row.id));
   }
 
-  return { id: row.id, expiresAt: row.expiresAt };
+  return { id: row.id, expiresAt: row.expiresAt, role: row.role };
 }
 
 export async function revokeSession(sessionId: string): Promise<void> {
