@@ -22,6 +22,10 @@ export function CoachActivateForm({ csrfToken }: { csrfToken: string }) {
     initialCoachFormState,
   );
 
+  // As on the sign-in form: React 19 clears the fields after an action, and
+  // retyping a reference character by character is how a lockout gets spent.
+  const typed = state.status === "error" ? state.values : undefined;
+
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4">
       <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
@@ -45,6 +49,7 @@ export function CoachActivateForm({ csrfToken }: { csrfToken: string }) {
           name="reference"
           type="text"
           required
+          defaultValue={typed?.reference ?? ""}
           autoFocus
           spellCheck={false}
           autoCapitalize="characters"
@@ -66,6 +71,7 @@ export function CoachActivateForm({ csrfToken }: { csrfToken: string }) {
           name="email"
           type="email"
           required
+          defaultValue={typed?.email ?? ""}
           autoComplete="username"
           inputMode="email"
           className={field}

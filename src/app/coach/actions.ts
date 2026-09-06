@@ -119,7 +119,12 @@ export async function coachLogin(
   if (!gate.ok) return gate.state;
   const { ip } = gate;
 
-  const email = emailSchema.safeParse(formData.get("email"));
+  const typedEmail = formData.get("email");
+  const echo = {
+    email: typeof typedEmail === "string" ? typedEmail.slice(0, 254) : undefined,
+  };
+
+  const email = emailSchema.safeParse(typedEmail);
   const password = z
     .string()
     .min(1)
@@ -129,7 +134,7 @@ export async function coachLogin(
   if (!email.success || !password.success) {
     await recordCoachAttempt(COACH_IP_SCOPE + ip, false);
     await delay(FAILURE_DELAY_MS);
-    return { status: "error", message: GENERIC_SIGN_IN_ERROR };
+    return { status: "error", message: GENERIC_SIGN_IN_ERROR, values: echo };
   }
 
   const emailHash = emailLookupHash(email.data);
@@ -143,6 +148,7 @@ export async function coachLogin(
     return {
       status: "error",
       message: `Слишком много неудачных попыток для этой почты. Повторите через ${minutes} мин.`,
+      values: echo,
     };
   }
 
@@ -164,7 +170,7 @@ export async function coachLogin(
   if (!ok || !account) {
     logger.info("coach.login_failed", { ip });
     await delay(FAILURE_DELAY_MS);
-    return { status: "error", message: GENERIC_SIGN_IN_ERROR };
+    return { status: "error", message: GENERIC_SIGN_IN_ERROR, values: echo };
   }
 
   const headerList = await headers();
@@ -200,8 +206,15 @@ export async function coachActivate(
   if (!gate.ok) return gate.state;
   const { ip } = gate;
 
-  const reference = z.string().trim().min(1).max(32).safeParse(formData.get("reference"));
-  const email = emailSchema.safeParse(formData.get("email"));
+  const typedReference = formData.get("reference");
+  const typedEmail = formData.get("email");
+  const echo = {
+    reference: typeof typedReference === "string" ? typedReference.slice(0, 32) : undefined,
+    email: typeof typedEmail === "string" ? typedEmail.slice(0, 254) : undefined,
+  };
+
+  const reference = z.string().trim().min(1).max(32).safeParse(typedReference);
+  const email = emailSchema.safeParse(typedEmail);
   const password = passwordSchema.safeParse(formData.get("password"));
 
   if (!password.success) {
@@ -209,13 +222,14 @@ export async function coachActivate(
       status: "error",
       field: "password",
       message: `Пароль должен быть не короче ${PASSWORD_MIN} символов.`,
+      values: echo,
     };
   }
 
   if (!reference.success || !email.success) {
     await recordCoachAttempt(COACH_IP_SCOPE + ip, false);
     await delay(FAILURE_DELAY_MS);
-    return { status: "error", message: GENERIC_ACTIVATION_ERROR };
+    return { status: "error", message: GENERIC_ACTIVATION_ERROR, values: echo };
   }
 
   const result = await activateCoachAccount({
@@ -229,7 +243,7 @@ export async function coachActivate(
   if (!result.ok) {
     logger.info("coach.activate_failed", { ip });
     await delay(FAILURE_DELAY_MS);
-    return { status: "error", message: GENERIC_ACTIVATION_ERROR };
+    return { status: "error", message: GENERIC_ACTIVATION_ERROR, values: echo };
   }
 
   const headerList = await headers();

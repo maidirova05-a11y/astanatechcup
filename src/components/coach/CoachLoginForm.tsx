@@ -15,6 +15,10 @@ export function CoachLoginForm({ csrfToken }: { csrfToken: string }) {
     initialCoachFormState,
   );
 
+  // React 19 resets the form after an action; put the address back so a
+  // mistyped password does not cost the coach their e-mail as well.
+  const typed = state.status === "error" ? state.values : undefined;
+
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4">
       <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
@@ -38,6 +42,7 @@ export function CoachLoginForm({ csrfToken }: { csrfToken: string }) {
           name="email"
           type="email"
           required
+          defaultValue={typed?.email ?? ""}
           autoComplete="username"
           autoFocus
           inputMode="email"

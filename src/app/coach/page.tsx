@@ -5,6 +5,7 @@ import { CoachShell } from "@/components/coach/CoachShell";
 import { StatusBadge } from "@/components/ui/status";
 import { getCoachOverview, type CoachEntryView } from "@/lib/coach/data";
 import { getDiscipline } from "@/config/event";
+import { isRegion } from "@/config/regions";
 
 /** The cabinet shows live state — status and placement both move. */
 export const dynamic = "force-dynamic";
@@ -14,9 +15,10 @@ export default async function CoachHome() {
 
   // Russian catalogue, as in the judges' console: names come from the same
   // messages the public pages use, never a second hard-coded list.
-  const [tCategories, tDisciplines] = await Promise.all([
+  const [tCategories, tDisciplines, tRegions] = await Promise.all([
     getTranslations({ locale: "ru", namespace: "categories" }),
     getTranslations({ locale: "ru", namespace: "disciplines" }),
+    getTranslations({ locale: "ru", namespace: "regions" }),
   ]);
 
   const overview = await getCoachOverview(session.accountId, (key) => tCategories(key));
@@ -35,6 +37,10 @@ export default async function CoachHome() {
 
   const disciplineName = (id: string) =>
     getDiscipline(id) ? tDisciplines(`items.${id}.name`) : id;
+
+  // The region column stores the key ("astana"), not the name. Without this the
+  // card reads "Астана, astana".
+  const regionName = (key: string) => (isRegion(key) ? tRegions(key) : key);
 
   return (
     <CoachShell
@@ -63,7 +69,11 @@ export default async function CoachHome() {
         <ul className="flex flex-col gap-6">
           {overview.entries.map((entry) => (
             <li key={entry.application.id}>
-              <EntryCard entry={entry} disciplineName={disciplineName} />
+              <EntryCard
+                entry={entry}
+                disciplineName={disciplineName}
+                regionName={regionName}
+              />
             </li>
           ))}
         </ul>
@@ -100,11 +110,15 @@ function EmptyState() {
 function EntryCard({
   entry,
   disciplineName,
+  regionName,
 }: {
   entry: CoachEntryView;
   disciplineName: (id: string) => string;
+  regionName: (key: string) => string;
 }) {
   const { application, teams } = entry;
+  const placeOf = (a: typeof application) =>
+    joinPlace(a.city, regionName(a.region));
 
   return (
     <article className="tile p-6">
@@ -122,9 +136,7 @@ function EntryCard({
       </header>
 
       <dl className="mt-5 grid gap-4 sm:grid-cols-3">
-        <Fact label="Город">
-          {application.city}, {application.region}
-        </Fact>
+        <Fact label="Город">{placeOf(application)}</Fact>
         <Fact label="Участников">{application.memberCount}</Fact>
         <Fact label="Подана">
           {application.createdAt.toLocaleDateString("ru-RU", {
@@ -195,6 +207,17 @@ function EntryCard({
       </section>
     </article>
   );
+}
+
+/**
+ * "Астана, Акмолинская область" reads well; "Астана, город Астана" does not. The three
+ * cities of republican significance are their own region, so the region label
+ * repeats the city — drop it when it adds nothing.
+ */
+function joinPlace(city: string, region: string): string {
+  const a = city.trim().toLowerCase();
+  const b = region.trim().toLowerCase();
+  return b.includes(a) || a.includes(b) ? city : `${city}, ${region}`;
 }
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {

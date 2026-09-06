@@ -218,8 +218,19 @@ export const adminLoginAttempts = pgTable(
   "admin_login_attempts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** Client IP, or "unknown" when the proxy header is not configured. */
-    identifier: varchar("identifier", { length: 64 }).notNull(),
+    /**
+     * What is being throttled.
+     *
+     * Originally just a client IP (or "unknown" when the proxy header is not
+     * configured). The coaches' cabinet added scoped keys — `coach-ip:<addr>`
+     * and `coach-acct:<email-hash>` — so an operator's lockout and a coach's
+     * are counted separately, and so a per-account counter exists at all.
+     *
+     * 128 rather than 64 because `coach-acct:` plus a 64-character hash is 75:
+     * at the old width the INSERT failed, which meant a failed sign-in was a
+     * 500 and the attempt went unrecorded — a lockout that never locked.
+     */
+    identifier: varchar("identifier", { length: 128 }).notNull(),
     succeeded: boolean("succeeded").notNull(),
     attemptedAt: timestamp("attempted_at", { withTimezone: true }).notNull().defaultNow(),
   },

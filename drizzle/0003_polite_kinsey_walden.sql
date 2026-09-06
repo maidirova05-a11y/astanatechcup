@@ -1,0 +1,1 @@
+ALTER TABLE "admin_login_attempts" ALTER COLUMN "identifier" SET DATA TYPE varchar(128);
