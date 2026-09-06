@@ -252,6 +252,25 @@ which is why no audit trail was added for it — there is nothing for them to
 change. Making it writable means adding one, and this note is here so that is
 not forgotten.
 
+### Seeding the start list
+
+`scoring_teams.application_id` links a start-list row to the entry it came
+from, and the coaches' cabinet reads it. Exactly one thing writes it:
+`addToStartList` in `src/app/admin/actions.ts`, behind `requireSession`, which
+rejects a judge session.
+
+That restriction is the point. Making the link needs someone who can see both
+an entry and the start list, and the entries carry children's names — handing
+the referee crew a list to pick from would undo the separation the two table
+sets exist to enforce. The team's name, organisation and region are copied from
+the entry rather than retyped, so the start list cannot drift from what was
+registered, and every seeding writes an `application_audit` row alongside the
+status changes so one entry has one timeline.
+
+Start numbers are decided by the unique index on
+`(category_id, class_id, code)`, not by a check in the action: two organisers
+seeding the same class at the same moment is a race a check-then-insert loses.
+
 ### Admin authorisation
 
 Every admin page **and every admin server action** calls `requireSession()`

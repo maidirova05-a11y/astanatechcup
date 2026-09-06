@@ -66,6 +66,42 @@ export const teamSchema = categoryRef
 
 export type TeamFields = z.infer<typeof teamSchema>;
 
+/**
+ * Seeding a team onto the start list FROM a paid entry, in the admin panel.
+ *
+ * Separate from `teamSchema` because the two forms are filled in by different
+ * people from different sources. The console's form asks for a name and an
+ * organisation, because a team that turns up on the day has neither on file.
+ * This one takes them from the entry, so the only things a human supplies are
+ * the ones no entry can answer: which category and class the team is actually
+ * competing in, its start number, and its group.
+ *
+ * The discipline on an entry cannot answer that. Registration collects six
+ * disciplines and the rulebooks define seven categories with twenty-one
+ * classes between them; "lego" is a discipline on the form and a CLASS inside
+ * two different categories in the rulebook. Guessing that mapping would put
+ * teams in the wrong bracket, so a person chooses.
+ */
+export const startListSchema = categoryRef
+  .extend({
+    applicationId: trimmed.uuid(),
+    /**
+     * Optional: an empty field means "give it the next free number". The class
+     * is not known until this form is submitted, so the server cannot suggest
+     * one while it is being filled in without shipping JavaScript to do it.
+     */
+    code: trimmed.max(16).default(""),
+    groupLabel: trimmed
+      .max(8)
+      .transform((value) => (value === "" ? null : value.toUpperCase()))
+      .nullable()
+      .default(null),
+  })
+  .refine(knownClass, KNOWN_CLASS);
+
+export type StartListFields = z.infer<typeof startListSchema>;
+
+
 /* ── Matches ────────────────────────────────────────────────────────────── */
 
 export const matchCreateSchema = categoryRef

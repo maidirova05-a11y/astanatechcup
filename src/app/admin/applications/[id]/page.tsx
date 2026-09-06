@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { requireSession } from "../../auth";
-import { changeApplicationStatus } from "../../actions";
+import { addToStartList, changeApplicationStatus } from "../../actions";
 import { getApplicationById, getAuditTrail, STATUSES } from "@/lib/admin/queries";
+import { listTeamsByApplicationIds } from "@/lib/scoring/store";
+import { CATEGORIES, getCategoryClass } from "@/config/categories";
 import { AdminShell, StatusBadge, STATUS_LABELS } from "@/components/admin/AdminShell";
 import { CSRF_FIELD, CSRF_HEADER } from "@/lib/security/csrf";
 import { ENTRY_FEE } from "@/config/event";
@@ -31,6 +34,28 @@ const dateFormat = new Intl.DateTimeFormat("ru-RU", {
   timeStyle: "short",
 });
 
+const START_LIST_NOTICES: Record<string, { tone: string; text: string }> = {
+  added: { tone: "border-success/40 bg-success-surface", text: "Команда добавлена в стартовый список." },
+  duplicate: {
+    tone: "border-danger/30 bg-danger-surface",
+    text: "Такой стартовый номер в этом классе уже занят. Оставьте поле пустым, чтобы номер выдался автоматически.",
+  },
+  invalid: {
+    tone: "border-danger/30 bg-danger-surface",
+    text: "Проверьте категорию, класс и номер.",
+  },
+};
+
+function StartListNotice({ outcome }: { outcome: string }) {
+  const notice = START_LIST_NOTICES[outcome];
+  if (!notice) return null;
+  return (
+    <p role="status" className={`mt-3 rounded-md border p-3 text-xs ${notice.tone}`}>
+      {notice.text}
+    </p>
+  );
+}
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5 border-b border-line py-3 last:border-b-0 sm:flex-row sm:gap-6">
@@ -42,8 +67,10 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 export default async function ApplicationDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireSession();
 
@@ -51,8 +78,18 @@ export default async function ApplicationDetailPage({
   const application = await getApplicationById(id);
   if (!application) notFound();
 
-  const [audit, headerList] = await Promise.all([getAuditTrail(application.id), headers()]);
+  const [audit, headerList, startList, query, tCategories] = await Promise.all([
+    getAuditTrail(application.id),
+    headers(),
+    listTeamsByApplicationIds([application.id]),
+    searchParams,
+    // Category names come from the same catalogue the rules page renders, as
+    // in the judges' console — never a second hard-coded list.
+    getTranslations({ locale: "ru", namespace: "categories" }),
+  ]);
   const csrfToken = headerList.get(CSRF_HEADER) ?? "";
+
+  const outcome = Array.isArray(query.startlist) ? query.startlist[0] : query.startlist;
 
   return (
     <AdminShell
@@ -203,6 +240,106 @@ export default async function ApplicationDetailPage({
               обычно ставится автоматически вебхуком платёжного провайдера —
               меняйте вручную только при оплате в обход сайта.
             </p>
+          </section>
+
+          <section className="rounded-lg border border-line bg-surface p-6">
+            <h2 className="text-lg">Стартовый список</h2>
+            <p className="mt-1 text-xs text-muted">
+              Связывает заявку с командой на площадке. Без этого тренер не увидит
+              свои результаты в кабинете.
+            </p>
+
+            {outcome && <StartListNotice outcome={outcome} />}
+
+            {startList.length > 0 && (
+              <ul className="mt-4 flex flex-col gap-2">
+                {startList.map((team) => (
+                  <li
+                    key={team.id}
+                    className="rounded-md border border-line bg-surface-muted px-3 py-2 text-xs"
+                  >
+                    <span className="font-semibold">
+                      {tCategories(`items.${team.categoryId}.name`)}
+                      {" · "}
+                      {getCategoryClass(team.categoryId, team.classId)?.label ??
+                        team.classId}
+                    </span>
+                    <span className="block text-subtle">
+                      Номер {team.code}
+                      {team.groupLabel ? ` · группа ${team.groupLabel}` : ""}
+                      {team.archivedAt ? " · снята" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <form action={addToStartList} className="mt-4 flex flex-col gap-3">
+              <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
+              <input type="hidden" name="applicationId" value={application.id} />
+
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="font-semibold">Категория и класс</span>
+                <select
+                  name="slot"
+                  required
+                  defaultValue=""
+                  className="h-10 rounded-md border border-line-strong bg-surface px-2 text-sm"
+                >
+                  <option value="" disabled>
+                    Выберите…
+                  </option>
+                  {CATEGORIES.map((category) => (
+                    <optgroup
+                      key={category.id}
+                      label={tCategories(`items.${category.id}.name`)}
+                    >
+                      {category.classes.map((cls) => (
+                        <option
+                          key={`${category.id}:${cls.id}`}
+                          value={`${category.id}:${cls.id}`}
+                        >
+                          {cls.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <span className="text-subtle">
+                  Дисциплина в заявке — «{DISCIPLINE_LABELS[application.discipline] ??
+                    application.discipline}». Класс по регламенту выбирается
+                  отдельно: словари не совпадают.
+                </span>
+              </label>
+
+              <div className="flex gap-3">
+                <label className="flex flex-1 flex-col gap-1 text-xs">
+                  <span className="font-semibold">Стартовый номер</span>
+                  <input
+                    name="code"
+                    maxLength={16}
+                    placeholder="авто"
+                    className="h-10 rounded-md border border-line-strong bg-surface px-2 text-sm"
+                  />
+                </label>
+                <label className="flex w-24 flex-col gap-1 text-xs">
+                  <span className="font-semibold">Группа</span>
+                  <input
+                    name="groupLabel"
+                    maxLength={8}
+                    placeholder="A"
+                    className="h-10 rounded-md border border-line-strong bg-surface px-2 text-sm uppercase"
+                  />
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="rounded-md border border-line px-4 py-2.5 text-sm transition-colors hover:border-brand hover:bg-surface-muted"
+              >
+                Добавить в стартовый список
+              </button>
+            </form>
           </section>
 
           <section className="rounded-lg border border-line bg-surface p-6">

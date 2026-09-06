@@ -312,6 +312,30 @@ export async function recordExport(
   logger.warn("admin.export", { sessionId: context.sessionId, rowCount });
 }
 
+/**
+ * Record that an entry was put on the start list.
+ *
+ * Goes in the same audit table as status changes so the entry has ONE
+ * timeline: "paid, confirmed, seeded into Sumo/LEGO as number 07" reads as a
+ * story, whereas the same facts split across two logs has to be reassembled by
+ * whoever is answering a complaint on the day.
+ */
+export async function recordStartListEntry(
+  applicationId: string,
+  team: { categoryId: string; classId: string; code: string },
+  context: { sessionId: string; ip: string },
+): Promise<void> {
+  const db = getDb();
+  await db.insert(applicationAudit).values({
+    applicationId,
+    action: `startlist.${team.categoryId}.${team.classId}.${team.code}`.slice(0, 64),
+    sessionId: context.sessionId,
+    ip: context.ip.slice(0, 64),
+  });
+
+  logger.info("admin.startlist_added", { applicationId, ...team });
+}
+
 /** Every row matching the current filters, for CSV export. */
 export async function listAllForExport(filters: ParsedFilters): Promise<Application[]> {
   const db = getDb();

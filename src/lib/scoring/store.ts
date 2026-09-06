@@ -82,6 +82,16 @@ export type TeamInput = {
   organization: string | null;
   region: string | null;
   groupLabel: string | null;
+  /**
+   * The paid entry this team was seeded from, when the organisers added it
+   * through the admin panel. Optional because the judges' console creates
+   * teams that turn up on the day with no entry behind them, and a start-list
+   * row must never be blocked because paperwork is late.
+   *
+   * This is the only writer of `scoring_teams.application_id`, and it is what
+   * lets the coaches' cabinet answer "which of the start list is mine".
+   */
+  applicationId?: string | null;
 };
 
 /** Active teams in a category, ordered the way a start list is read. */
@@ -137,6 +147,35 @@ export async function getTeam(id: string): Promise<ScoringTeamRow | null> {
   const db = getDb();
   const rows = await db.select().from(scoringTeams).where(eq(scoringTeams.id, id)).limit(1);
   return rows[0] ?? null;
+}
+
+/**
+ * The next free start number in a class.
+ *
+ * Numbers are free text — a venue may use "A1" or "12b" — so this only counts
+ * the purely numeric ones and offers the next integer. It is a SUGGESTION for
+ * the form, never a reservation: two organisers seeding at the same moment can
+ * still collide, and the unique index on (category, class, code) is what
+ * actually decides. Zero-padded to two digits so a start list sorts readably
+ * as text.
+ */
+export async function suggestTeamCode(
+  categoryId: string,
+  classId: string,
+): Promise<string> {
+  const db = getDb();
+  const rows = await db
+    .select({ code: scoringTeams.code })
+    .from(scoringTeams)
+    .where(and(eq(scoringTeams.categoryId, categoryId), eq(scoringTeams.classId, classId)));
+
+  let highest = 0;
+  for (const row of rows) {
+    const numeric = /^\d+$/.test(row.code.trim()) ? Number(row.code.trim()) : null;
+    if (numeric !== null && numeric > highest) highest = numeric;
+  }
+
+  return String(highest + 1).padStart(2, "0");
 }
 
 export async function createTeam(

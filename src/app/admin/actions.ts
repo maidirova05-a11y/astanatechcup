@@ -16,7 +16,14 @@ import {
   recordLoginAttempt,
   revokeSession,
 } from "@/lib/admin/session";
-import { STATUSES, updateStatus } from "@/lib/admin/queries";
+import {
+  STATUSES,
+  getApplicationById,
+  recordStartListEntry,
+  updateStatus,
+} from "@/lib/admin/queries";
+import { createTeam, suggestTeamCode } from "@/lib/scoring/store";
+import { startListSchema } from "@/lib/validation/scoring";
 import { getActionContext } from "./auth";
 import type { LoginState } from "./login-state";
 import type { ApplicationStatus } from "@/lib/db/schema";
@@ -132,4 +139,97 @@ export async function changeApplicationStatus(formData: FormData): Promise<void>
   await updateStatus(id, status as ApplicationStatus, context);
 
   redirect(`/admin/applications/${id}`);
+}
+
+/* ── Start list ─────────────────────────────────────────────────────────── */
+
+/**
+ * Put a paid entry on the start list.
+ *
+ * This is the ONLY writer of `scoring_teams.application_id`. Without it the
+ * column is never populated and the coaches' cabinet has nothing to show under
+ * "На площадке" — the link has to be made by someone who can see both sides,
+ * and that is the organising committee, not the referee crew. Judges must not
+ * be handed a list of entries to pick from: those rows carry children's names,
+ * and keeping them away from the console is the point of the whole separation.
+ *
+ * The team's name, organisation and region come from the entry rather than
+ * from the form, so the start list cannot drift from what was registered.
+ */
+export async function addToStartList(formData: FormData): Promise<void> {
+  // Re-checks the session itself, and `requireSession` inside it rejects a
+  // judge — a server action is a public endpoint.
+  const context = await getActionContext();
+
+  const cookieStore = await cookies();
+  const submitted = formData.get(CSRF_FIELD);
+  const cookieToken = cookieStore.get(CSRF_COOKIE)?.value;
+  if (!(await assertCsrf(typeof submitted === "string" ? submitted : undefined, cookieToken))) {
+    securityLog.csrfFailure({ endpoint: "admin.startlist" });
+    return;
+  }
+
+  // One <select> carries both halves as "categoryId:classId", which keeps the
+  // class list dependent on the category without shipping a client component
+  // to this page for the sake of one field.
+  const slot = formData.get("slot");
+  const [categoryId = "", classId = ""] =
+    typeof slot === "string" ? slot.split(":") : [];
+
+  const parsed = startListSchema.safeParse({
+    applicationId: formData.get("applicationId"),
+    categoryId,
+    classId,
+    code: formData.get("code") ?? "",
+    groupLabel: formData.get("groupLabel") ?? "",
+  });
+
+  if (!parsed.success) {
+    redirect(
+      `/admin/applications/${formData.get("applicationId")}?startlist=invalid`,
+    );
+  }
+
+  const entry = await getApplicationById(parsed.data.applicationId);
+  if (!entry) redirect("/admin/applications?startlist=missing");
+
+  // Empty means "next free". A suggestion, not a reservation — the unique
+  // index below is what actually decides a collision.
+  const code =
+    parsed.data.code !== ""
+      ? parsed.data.code
+      : await suggestTeamCode(parsed.data.categoryId, parsed.data.classId);
+
+  try {
+    await createTeam(
+      {
+        categoryId: parsed.data.categoryId,
+        classId: parsed.data.classId,
+        code,
+        // From the entry, never from the form: the start list must say what
+        // was registered.
+        name: entry.teamName,
+        organization: entry.organization,
+        region: entry.region,
+        groupLabel: parsed.data.groupLabel,
+        applicationId: entry.id,
+      },
+      // The console's audit trail wants a scoring context; an admin session is
+      // one, and `role` is what the trail records.
+      { sessionId: context.sessionId, role: "admin", ip: context.ip },
+    );
+  } catch (error) {
+    // The unique index on (category, class, code) is the real arbiter of a
+    // duplicate start number — two organisers can seed the same class at the
+    // same moment, and a check-then-insert would lose that race.
+    logger.warn("admin.startlist_failed", {
+      reference: entry.reference,
+      reason: error instanceof Error ? error.message : "unknown",
+    });
+    redirect(`/admin/applications/${entry.id}?startlist=duplicate`);
+  }
+
+  await recordStartListEntry(entry.id, { ...parsed.data, code }, context);
+
+  redirect(`/admin/applications/${entry.id}?startlist=added`);
 }
