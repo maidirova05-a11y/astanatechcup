@@ -171,9 +171,9 @@ worse. Re-evaluate when drizzle-kit updates its toolchain.
 
 ## A07 — Identification and authentication failures
 
-Public users have no accounts, which removes an entire credential-breach
-surface. Application status is looked up by an unguessable reference, not a
-password.
+Public visitors have no accounts. Coaches now do — see below — but nothing
+else on the public site requires one, and application status is still looked up
+by an unguessable reference rather than a password.
 
 ### Admin panel
 
@@ -213,6 +213,44 @@ prompt and writes nothing to disk, argv or shell history.
 Verified: correct password accepted, wrong/empty rejected, salt unique per
 hash, and malformed, truncated, wrong-algorithm and absurd-parameter hashes all
 rejected rather than crashing.
+
+### Coaches' cabinet
+
+Unlike the two operator surfaces, `/coach` has **one credential per person**,
+stored as a row in `coach_accounts` rather than a shared hash in the
+environment. A shared password cannot be withdrawn from one coach, and its leak
+is everyone's leak.
+
+| Control | Implementation |
+| --- | --- |
+| Password storage | scrypt, the same parameters as the operator passwords |
+| Identity | blind index of the contact e-mail, reusing `applications.contact_email_hash` — the address is never stored in the clear |
+| Sessions | a **separate** `coach_sessions` table, not a third `session_role`; a coach cookie cannot resolve to an operator session under any call site's mistake |
+| Session lifetime | 7 days absolute, 48 h idle — longer than the operators' 12 h, because forcing a re-login every visit pushes coaches towards weak passwords |
+| Lockout | two counters: per IP *and* per account, because per-account passwords make a single-target attack from rotating addresses worth defending against separately |
+| Account enumeration | a miss verifies against a decoy hash so an unknown address takes the same time as a known one |
+| Scope | every query in `src/lib/coach/data.ts` is keyed by the session's own account; there is no id parameter a request could use to widen it |
+| Revocation | the account row is re-checked on every request, so revoking takes effect on the next page view rather than at cookie expiry |
+
+**⚠ The explicit trade-off.** Activation — which is also the password reset —
+proves ownership with the application reference plus the e-mail that entry was
+filed with. Anyone holding both can set that entry's password.
+
+This is deliberate, and it is the consequence of having no mail sender in this
+deployment: without one there is no out-of-band channel for a reset, and adding
+a delivery dependency to an auth path weeks before the event is its own risk.
+The reference carries 40 bits of entropy and the form is behind a five-try
+lockout, so guessing is not the exposure; someone who already has both values
+is. That is the same trust the organising committee already places in the
+reference when it identifies an entry over the phone.
+
+If a mail sender is ever added, `activateCoachAccount` in
+`src/lib/coach/account.ts` is the one function to revisit.
+
+**Not covered:** the cabinet is read-only. A coach cannot change a roster,
+which is why no audit trail was added for it — there is nothing for them to
+change. Making it writable means adding one, and this note is here so that is
+not forgotten.
 
 ### Admin authorisation
 

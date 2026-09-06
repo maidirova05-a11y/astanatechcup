@@ -113,31 +113,10 @@ export function StatCard({
   );
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending_payment: "bg-warning-surface text-warning",
-  paid: "bg-surface-muted text-brand",
-  confirmed: "bg-success-surface text-success",
-  cancelled: "bg-surface-muted text-muted",
-  rejected: "bg-danger-surface text-danger",
-};
-
-export const STATUS_LABELS: Record<string, string> = {
-  pending_payment: "Ожидает оплаты",
-  paid: "Оплачена",
-  confirmed: "Подтверждена",
-  cancelled: "Отменена",
-  rejected: "Отклонена",
-};
-
-export function StatusBadge({ status }: { status: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-2xs font-semibold",
-        STATUS_STYLES[status] ?? "bg-surface-muted text-muted",
-      )}
-    >
-      {STATUS_LABELS[status] ?? status}
-    </span>
-  );
-}
+/**
+ * Status vocabulary lives in components/ui/status.tsx so the coaches' cabinet
+ * can share it without importing this file, which pulls in the admin sign-out
+ * action. Re-exported here because every admin page already imports it from
+ * AdminShell.
+ */
+export { STATUS_LABELS, StatusBadge } from "@/components/ui/status";

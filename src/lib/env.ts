@@ -176,6 +176,16 @@ export const features = {
   ),
   /** Whether a separate judges' sign-in exists at all. */
   judgeLogin: Boolean(env.DATABASE_URL && env.JUDGE_PASSWORD_HASH),
+  /**
+   * The coaches' cabinet.
+   *
+   * Needs only a database, because unlike the operator surfaces it has no
+   * shared password to configure: every coach's credential is a row, created
+   * by that coach against their own entry. Encryption is not listed as a
+   * second condition because production cannot boot without ENCRYPTION_KEY
+   * anyway, and in development crypto/field.ts falls back to a fixed key.
+   */
+  coach: Boolean(env.DATABASE_URL),
   turnstile: Boolean(env.TURNSTILE_SECRET_KEY && env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
   payments: Boolean(env.STRIPE_SECRET_KEY),
   paymentWebhook: Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET),

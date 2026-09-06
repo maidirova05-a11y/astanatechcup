@@ -114,6 +114,25 @@ export async function loadTeamsById(ids: string[]): Promise<Map<string, ScoringT
   return new Map(rows.map((row) => [row.id, row]));
 }
 
+/**
+ * Teams seeded from a given set of paid entries.
+ *
+ * Used by the coaches' cabinet to answer "which of the start list is mine".
+ * Archived teams are included: a coach whose team withdrew after playing still
+ * has results, and hiding the team would leave those results unexplained.
+ */
+export async function listTeamsByApplicationIds(
+  applicationIds: string[],
+): Promise<ScoringTeamRow[]> {
+  if (applicationIds.length === 0) return [];
+  const db = getDb();
+  return db
+    .select()
+    .from(scoringTeams)
+    .where(inArray(scoringTeams.applicationId, applicationIds))
+    .orderBy(asc(scoringTeams.categoryId), asc(scoringTeams.classId), asc(scoringTeams.code));
+}
+
 export async function getTeam(id: string): Promise<ScoringTeamRow | null> {
   const db = getDb();
   const rows = await db.select().from(scoringTeams).where(eq(scoringTeams.id, id)).limit(1);

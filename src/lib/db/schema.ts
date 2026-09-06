@@ -261,6 +261,100 @@ export type ApplicationStatus = (typeof applicationStatus.enumValues)[number];
 export type AdminSessionRow = typeof adminSessions.$inferSelect;
 export type SessionRole = (typeof sessionRole.enumValues)[number];
 
+/* ── Coaches' cabinet ───────────────────────────────────── */
+
+/**
+ * A coach's account.
+ *
+ * `admin` and `judge` each share ONE password that lives in the environment.
+ * That is right for a handful of operators and wrong for hundreds of coaches:
+ * a shared word cannot be withdrawn from one person, and a leak of it is a
+ * leak for everyone. So these accounts live in the database, one row per
+ * coach, each with its own hash.
+ *
+ * The account is keyed by the blind index of the contact e-mail — the same
+ * value `applications.contact_email_hash` already stores. Reusing it is what
+ * lets a sign-in find the coach's entries without the address existing in the
+ * clear anywhere, and without a second way of deriving it that could drift
+ * out of step with the first.
+ *
+ * There is deliberately no name column. The coach's name is on the
+ * application, encrypted, and copying it here would mean a second plaintext
+ * of a person's name in a table that does not need one.
+ */
+export const coachAccounts = pgTable(
+  "coach_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    /** HMAC of the lowercased address. See blindIndex() in crypto/field.ts. */
+    emailHash: varchar("email_hash", { length: 64 }).notNull(),
+    /** The address itself, encrypted, so the cabinet can show who is signed in. */
+    email: text("email").notNull(),
+
+    /** scrypt, the same format and parameters as the operator passwords. */
+    passwordHash: text("password_hash").notNull(),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+
+    /**
+     * Locks the account without deleting it. A coach who is removed from the
+     * event should stop being able to sign in, but their sign-in history is
+     * still part of the audit trail.
+     */
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    // One account per address, enforced by the database: two concurrent
+    // activations of the same entry must not both succeed.
+    uniqueIndex("coach_accounts_email_idx").on(table.emailHash),
+  ],
+);
+
+/**
+ * Coach sessions.
+ *
+ * A SEPARATE table from `admin_sessions`, not a third value on `session_role`.
+ *
+ * The guards in src/lib/admin/session.ts read `admin_sessions` and answer
+ * "who is this operator". If a coach's session lived there, then every one of
+ * those call sites — the panel listing children's names, the export, the
+ * scoring console — would be one forgotten role check away from admitting a
+ * member of the public. Separate tables mean a coach cookie cannot resolve to
+ * an operator session at all, whatever any future call site forgets.
+ *
+ * The cookie carries a random token and only its SHA-256 is stored, for the
+ * same reason as everywhere else here: a database dump must not be replayable
+ * as a login.
+ */
+export const coachSessions = pgTable(
+  "coach_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** SHA-256 of the cookie token, hex encoded. */
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    coachAccountId: uuid("coach_account_id").notNull(),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Absolute expiry. Not extended by activity. */
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    /** Sliding idle timeout is measured from here. */
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+
+    ip: varchar("ip", { length: 64 }),
+    userAgent: varchar("user_agent", { length: 255 }),
+  },
+  (table) => [
+    uniqueIndex("coach_sessions_token_idx").on(table.tokenHash),
+    index("coach_sessions_account_idx").on(table.coachAccountId),
+    index("coach_sessions_expires_idx").on(table.expiresAt),
+  ],
+);
+
+export type CoachAccountRow = typeof coachAccounts.$inferSelect;
+
 /* ── Scoring ────────────────────────────────────────────────────────────── */
 
 /**

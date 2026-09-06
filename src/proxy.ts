@@ -178,6 +178,15 @@ function isExemptPath(pathname: string): boolean {
     // the referee crew rather than by visitors.
     pathname === "/judge" ||
     pathname.startsWith("/judge/") ||
+    // The coaches' cabinet is Russian-only for now, which is the one place
+    // this reasoning is uncomfortable: a coach is a member of the public, and
+    // the rest of the site speaks three languages to them. It sits here
+    // because a signed-in cabinet is a working tool rather than a page the
+    // event is advertised with, and because shipping it in one language beats
+    // shipping it after the deadline. Revisit by moving these routes under
+    // [locale] and translating the ~40 strings.
+    pathname === "/coach" ||
+    pathname.startsWith("/coach/") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
     pathname === "/manifest.webmanifest" ||

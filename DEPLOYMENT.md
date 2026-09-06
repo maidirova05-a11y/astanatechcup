@@ -267,6 +267,30 @@ vercel redeploy <latest-production-url> --target production
 
 ---
 
+## Coaches' cabinet — one migration, no new secrets
+
+`/coach` needs **migration 0002** (`drizzle/0002_rapid_patch.sql`) and nothing
+else. It adds two tables, `coach_accounts` and `coach_sessions`, and alters
+nothing that already exists, so it is safe to apply to a live database:
+
+```bash
+npm run db:migrate
+```
+
+⚠ Remember that local development and production currently share one Neon
+database, so running this locally applies it to production as well. That is
+harmless here — the migration is purely additive — but it is not a general
+licence.
+
+There is no environment variable to set. That is the point of the design: a
+coach's credential is a row they create themselves against their own entry, so
+the organising committee never generates, holds or hands over a coach password.
+`features.coach` is on whenever `DATABASE_URL` is set; without it `/coach`
+returns 404 rather than a sign-in form.
+
+**Verifying it after a deploy:** `/coach` answers 307 to `/coach/login` when
+the cabinet is on and 404 when it is off — the same probe shape as `/judge`.
+
 ## Rolling back
 
 ```bash

@@ -1,5 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+// The locale-aware Link above prefixes every href. The cabinet lives outside
+// the [locale] segment, so it needs the plain one.
+import NextLink from "next/link";
 import { Logo, OrganiserLogo } from "./Logo";
 import { BRAND_ASSETS, EVENT, EVENT_YEAR, CONTACTS } from "@/config/event";
 import { EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
@@ -75,6 +78,12 @@ export async function Footer({ locale }: { locale: string }) {
             >
               {t("terms")}
             </Link>
+            <NextLink
+              href="/coach"
+              className="inline-flex min-h-11 items-center text-muted transition-colors duration-200 hover:text-content"
+            >
+              {t("coachCabinet")}
+            </NextLink>
 
             {socials.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-3">
