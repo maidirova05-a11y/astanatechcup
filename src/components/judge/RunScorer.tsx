@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { saveRunAction } from "@/app/judge/actions";
 import { initialScoringFormState } from "@/app/judge/form-state";
 import { Segmented } from "@/components/judge/MatchScorer";
-import { CSRF_FIELD } from "@/lib/security/csrf";
+import { CSRF_FIELD } from "@/lib/security/constants";
 import { Warning } from "@/components/ui/icons";
 import { formatClock, parseClock, parseDuration } from "@/lib/scoring/format";
 import { LEAP_SCORE_SHEET, leapTimeBonus } from "@/config/categories";

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { judgeLogin } from "@/app/judge/actions";
 import { initialJudgeLoginState } from "@/app/judge/form-state";
-import { CSRF_FIELD } from "@/lib/security/csrf";
+import { CSRF_FIELD } from "@/lib/security/constants";
 import { Warning } from "@/components/ui/icons";
 
 /**

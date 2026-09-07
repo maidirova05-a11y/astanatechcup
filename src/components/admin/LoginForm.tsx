@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { login } from "@/app/admin/actions";
 import { initialLoginState } from "@/app/admin/login-state";
-import { CSRF_FIELD } from "@/lib/security/csrf";
+import { CSRF_FIELD } from "@/lib/security/constants";
 import { Warning } from "@/components/ui/icons";
 
 /**

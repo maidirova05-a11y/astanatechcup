@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { coachActivate } from "@/app/coach/actions";
 import { initialCoachFormState } from "@/app/coach/form-state";
-import { CSRF_FIELD } from "@/lib/security/csrf";
+import { CSRF_FIELD } from "@/lib/security/constants";
 import { Warning } from "@/components/ui/icons";
 
 const field =

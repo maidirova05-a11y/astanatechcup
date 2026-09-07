@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { saveMatchAction } from "@/app/judge/actions";
 import { initialScoringFormState } from "@/app/judge/form-state";
-import { CSRF_FIELD } from "@/lib/security/csrf";
+import { CSRF_FIELD } from "@/lib/security/constants";
 import { Warning, Check } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
