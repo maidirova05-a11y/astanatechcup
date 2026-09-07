@@ -6,6 +6,14 @@ import { LegalPage } from "@/components/layout/LegalPage";
 import { ENTRY_FEE, EVENT, REGISTRATION_DEADLINE } from "@/config/event";
 import { formatEventDate } from "@/lib/utils";
 
+/**
+ * Per-request, because a cached copy cannot carry the CSP nonce the proxy
+ * mints for every request — and under `strict-dynamic` a missing nonce blocks
+ * every script on the page. See the longer note in ../categories/page.tsx;
+ * scripts/check-csp.mjs enforces it.
+ */
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

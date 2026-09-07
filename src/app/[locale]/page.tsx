@@ -28,6 +28,20 @@ import { StructuredData } from "@/components/seo/StructuredData";
  * everything they need to decide. The FAQ then catches whoever is still
  * hesitating, and every one of its answers targets a barrier the brief named.
  */
+
+/**
+ * Stated explicitly, though this page already renders per request as a side
+ * effect of reading `headers()` for the CSRF token.
+ *
+ * That is the problem: it is dynamic by accident. A refactor that moved the
+ * token elsewhere would make the landing page static, and a static page under
+ * a nonce-based CSP has every one of its scripts blocked — the failure that
+ * emptied four other routes for nine days, on the page that takes entries.
+ * A guarantee this load-bearing should not rest on a `headers()` call nobody
+ * knows is holding it up. scripts/check-csp.mjs enforces it.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function HomePage({
   params,
 }: {

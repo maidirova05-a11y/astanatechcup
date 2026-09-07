@@ -127,6 +127,31 @@ All four were verified by bypassing the client: removing the `min`/`max`
 attributes and injecting extra member rows produced correct server-side
 rejections with the right messages.
 
+## ⚠ The nonce forbids cached HTML
+
+The policy pairs a per-request nonce with `strict-dynamic`. That combination
+makes `'self'` and host allow-lists inert: a script runs only if it carries the
+nonce from **this** response.
+
+So any page whose HTML is not produced for this request — prerendered at build
+time, or held by ISR — ships markup with no nonce, or a stale one, while the
+header demands the fresh one. The browser then blocks *every script on the
+page*.
+
+The failure is silent in the worst possible way. The server returns 200, the
+HTML is complete, `innerText` reports every character, and the page renders
+blank or frozen because React never hydrates. No status check, no text scrape
+and no build warning sees it. It reached production and stayed nine days across
+four routes — the rules page, both legal pages, and the live scoreboard, whose
+thirty-second auto-refresh is JavaScript. Caching the scoreboard is precisely
+what stopped the scoreboard refreshing.
+
+**Every page under `src/app/[locale]` therefore exports
+`dynamic = "force-dynamic"`, and `npm run check:csp` fails if one does not.**
+Making a page static again means removing the nonce first — a change to
+`src/lib/security/csp.ts` and to this document. If database load ever justifies
+caching, cache the query, never the document.
+
 ## A05 — Security misconfiguration
 
 Set per request in `src/proxy.ts`, built in `src/lib/security/csp.ts`:

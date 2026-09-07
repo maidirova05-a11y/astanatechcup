@@ -19,6 +19,13 @@ import { normaliseReference } from "@/lib/reference";
  * The reference from the query string is normalised before display, so a
  * crafted value cannot be reflected onto the page.
  */
+/**
+ * Per request, like every page under [locale]: cached HTML cannot carry the
+ * CSP nonce the proxy mints, and without it `strict-dynamic` blocks every
+ * script on the page. scripts/check-csp.mjs enforces this.
+ */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function PaymentSuccessPage({

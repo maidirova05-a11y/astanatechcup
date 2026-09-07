@@ -9,16 +9,26 @@ import { env, features } from "@/lib/env";
 import { logger } from "@/lib/log";
 
 /**
- * Cached for thirty seconds.
+ * Per request, and NOT cached — which costs this page exactly the thing it
+ * most wanted.
  *
- * A scoreboard is the one page a venue full of people refreshes at the same
- * moment, and serving it uncached would turn every final into a load test
- * against Postgres. Thirty seconds is far inside the noise for a table that
- * changes when a judge finishes a sheet — and the console calls
- * `revalidatePath` on every save anyway, so a result that has just landed
- * appears immediately rather than up to half a minute late.
+ * It was `revalidate = 30`, on the reasoning that a scoreboard is the one page
+ * a venue full of people refreshes at the same moment, and that serving it
+ * uncached turns every final into a load test against Postgres. That reasoning
+ * still holds.
+ *
+ * What it missed: cached HTML cannot carry a per-request CSP nonce. The proxy
+ * mints one for every request; the cached copy has none; under `strict-dynamic`
+ * the mismatch blocks every script on the page. The scoreboard's own
+ * thirty-second auto-refresh is JavaScript — so caching the scoreboard was
+ * precisely what stopped it refreshing, and on 15 May the hall would have
+ * watched a frozen table while judges filed results into it.
+ *
+ * If database load ever becomes real, cache the QUERY, not the HTML. The
+ * document has to stay per-request for as long as the CSP carries a nonce.
+ * scripts/check-csp.mjs enforces that.
  */
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 /**
  * No `generateStaticParams` of its own — the `[locale]` layout already supplies

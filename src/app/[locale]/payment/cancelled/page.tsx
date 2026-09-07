@@ -15,6 +15,13 @@ import { normaliseReference } from "@/lib/reference";
  * payment step wobbled would be the worst possible outcome for a team that has
  * spent months building a robot.
  */
+/**
+ * Per request, like every page under [locale]: cached HTML cannot carry the
+ * CSP nonce the proxy mints, and without it `strict-dynamic` blocks every
+ * script on the page. scripts/check-csp.mjs enforces this.
+ */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function PaymentCancelledPage({

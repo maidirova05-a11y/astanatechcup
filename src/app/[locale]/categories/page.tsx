@@ -8,11 +8,24 @@ import { env } from "@/lib/env";
 /**
  * The rules page.
  *
- * Fully static: nothing on it depends on a request, and the numbers change
- * when a rulebook is revised, not when someone loads the page. Pre-rendering
- * all three locales means the one page a team opens on venue wi-fi, standing
- * next to the inspection gauge, is served from the edge.
+ * Nothing on it depends on a request — the numbers change when a rulebook is
+ * revised, not when someone loads the page — so it *wants* to be static, and
+ * was, served from the edge to a team standing next to the inspection gauge.
+ *
+ * It cannot be. The proxy mints a CSP nonce per request and Next stamps it on
+ * the framework's own <script> tags; HTML built once at deploy time carries no
+ * nonce at all, while the header still demands one. Under `strict-dynamic`
+ * that blocks every script on the page, React never hydrates, and the
+ * scroll-reveal animation leaves the whole catalogue at `opacity: 0` — a page
+ * that looks blank while `innerText` still reports its 2,600 characters, which
+ * is why no text-based check caught it for nine days.
+ *
+ * A nonce-based policy and cached HTML are mutually exclusive. Cache the data
+ * if load ever bites; the HTML has to stay per-request.
+ * scripts/check-csp.mjs enforces this.
  */
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
