@@ -155,8 +155,10 @@ async function CategoryResults({
 
   if (classes.length === 0) return null;
 
-  const nameOf = (id: string): ScoringTeamRow | undefined =>
-    snapshot.teams.find((team) => team.id === id) ?? snapshot.archived.get(id);
+  const nameOf = (id: string | null): ScoringTeamRow | undefined =>
+    id === null
+      ? undefined
+      : (snapshot.teams.find((team) => team.id === id) ?? snapshot.archived.get(id));
 
   return (
     <Section id={`results-${category.id}`} labelledBy={headingId} tone={tone}>
@@ -298,7 +300,7 @@ function RecentMatches({
   t,
 }: {
   matches: ScoringMatchRow[];
-  teamOf: (id: string) => ScoringTeamRow | undefined;
+  teamOf: (id: string | null) => ScoringTeamRow | undefined;
   t: Translator;
 }) {
   if (matches.length === 0) return null;

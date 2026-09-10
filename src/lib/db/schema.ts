@@ -453,9 +453,32 @@ export const scoringMatches = pgTable(
     /** Free text: "Раунд 3", "1/4", "Финал". Shown exactly as filed. */
     roundLabel: varchar("round_label", { length: 40 }),
 
-    /** Red and blue are the rulebooks' own names for the two sides. */
-    redTeamId: uuid("red_team_id").notNull(),
-    blueTeamId: uuid("blue_team_id").notNull(),
+    /**
+     * Red and blue are the rulebooks' own names for the two sides.
+     *
+     * Nullable so a bracket can be generated with its full shape up front —
+     * round 2 exists as a row before round 1 is played, its slots empty until
+     * a winner fills them. A team-less slot renders as "TBD"; it is never a
+     * team a judge can select against.
+     */
+    redTeamId: uuid("red_team_id"),
+    blueTeamId: uuid("blue_team_id"),
+
+    /**
+     * The elimination-bracket wiring: "this slot is filled by whoever wins
+     * that match." Set only by the bracket generator, never by hand. No
+     * foreign key, matching `applicationId` on scoring_teams — the row this
+     * points at can be replayed or corrected without a constraint fighting
+     * the judge over it.
+     *
+     * `saveMatchResult` reads these in the OTHER direction: once a match gets
+     * a winner, it looks for rows where one of these equals this match's id
+     * and writes the winner into that row's team slot. That is the entire
+     * propagation mechanism — no bracket tree walked, no recursion, one
+     * query fired from the match that just finished.
+     */
+    redFromMatchId: uuid("red_from_match_id"),
+    blueFromMatchId: uuid("blue_from_match_id"),
 
     /**
      * Signed integers, not unsigned. Ring Master subtracts 10 and 30 for
@@ -494,6 +517,9 @@ export const scoringMatches = pgTable(
     index("scoring_matches_played_idx").on(table.playedAt),
     index("scoring_matches_red_idx").on(table.redTeamId),
     index("scoring_matches_blue_idx").on(table.blueTeamId),
+    // Looked up every time a match completes, to propagate its winner.
+    index("scoring_matches_red_from_idx").on(table.redFromMatchId),
+    index("scoring_matches_blue_from_idx").on(table.blueFromMatchId),
   ],
 );
 

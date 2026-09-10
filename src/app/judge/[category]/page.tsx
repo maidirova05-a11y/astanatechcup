@@ -11,14 +11,20 @@ import {
   STATE_LABELS,
 } from "@/components/judge/JudgeShell";
 import { CSRF_FIELD, CSRF_HEADER } from "@/lib/security/csrf";
-import { getCategory, type CategoryClass } from "@/config/categories";
+import { getCategory, type Category, type CategoryClass } from "@/config/categories";
 import { getCategorySnapshot } from "@/lib/scoring/store";
 import { formatClock } from "@/lib/scoring/format";
+import { buildStandings } from "@/lib/scoring/standings";
+import { seedFromGroupStandings } from "@/lib/scoring/bracket";
+import { BracketSeedEditor, type SeedRow } from "@/components/judge/BracketSeedEditor";
 import {
   archiveTeamAction,
   createMatchAction,
   createTeamAction,
+  createTeamsBulkAction,
   deleteMatchAction,
+  generateBracketAction,
+  generateRoundRobinAction,
 } from "../actions";
 import { REGIONS } from "@/config/regions";
 import type { ScoringMatchRow, ScoringRunRow, ScoringTeamRow } from "@/lib/db/schema";
@@ -62,14 +68,21 @@ export default async function JudgeCategoryPage({
   const matches = snapshot.matches.filter((m) => m.classId === selectedClass.id);
   const runs = snapshot.runs.filter((r) => r.classId === selectedClass.id);
 
-  const nameOf = (id: string) =>
-    snapshot.teams.find((team) => team.id === id)?.name ??
-    snapshot.archived.get(id)?.name ??
-    "—";
-  const codeOf = (id: string) =>
-    snapshot.teams.find((team) => team.id === id)?.code ??
-    snapshot.archived.get(id)?.code ??
-    "?";
+  // Null is a bracket slot nobody has reached yet — not a lookup failure,
+  // so it gets its own word rather than falling into the "—"/"?" used for a
+  // team id that genuinely cannot be found.
+  const nameOf = (id: string | null) =>
+    id === null
+      ? "TBD"
+      : (snapshot.teams.find((team) => team.id === id)?.name ??
+        snapshot.archived.get(id)?.name ??
+        "—");
+  const codeOf = (id: string | null) =>
+    id === null
+      ? "—"
+      : (snapshot.teams.find((team) => team.id === id)?.code ??
+        snapshot.archived.get(id)?.code ??
+        "?");
 
   return (
     <JudgeShell
@@ -105,6 +118,7 @@ export default async function JudgeCategoryPage({
       <div className="flex flex-col gap-6">
         {category.scoring.kind === "match" ? (
           <MatchesPanel
+            category={category}
             categoryId={categoryId}
             cls={selectedClass}
             teams={teams}
@@ -139,6 +153,7 @@ export default async function JudgeCategoryPage({
 /* ── Matches ────────────────────────────────────────────────────────────── */
 
 function MatchesPanel({
+  category,
   categoryId,
   cls,
   teams,
@@ -147,13 +162,14 @@ function MatchesPanel({
   nameOf,
   codeOf,
 }: {
+  category: Category;
   categoryId: string;
   cls: CategoryClass;
   teams: ScoringTeamRow[];
   matches: ScoringMatchRow[];
   csrfToken: string;
-  nameOf: (id: string) => string;
-  codeOf: (id: string) => string;
+  nameOf: (id: string | null) => string;
+  codeOf: (id: string | null) => string;
 }) {
   return (
     <section className="flex flex-col gap-4">
@@ -161,6 +177,15 @@ function MatchesPanel({
         <h2 className="text-xl">Матчи</h2>
         <span className="text-sm text-subtle">{matches.length}</span>
       </div>
+
+      <BracketGenerators
+        category={category}
+        categoryId={categoryId}
+        cls={cls}
+        teams={teams}
+        matches={matches}
+        csrfToken={csrfToken}
+      />
 
       {teams.length < 2 ? (
         <Card>
@@ -281,6 +306,140 @@ function MatchesPanel({
         </ul>
       )}
     </section>
+  );
+}
+
+/**
+ * The two "build it for me" buttons: a round robin per group, and the
+ * playoff bracket for the whole class. Both create every match in one
+ * action instead of a judge picking red/blue from a dropdown match by match.
+ */
+function BracketGenerators({
+  category,
+  categoryId,
+  cls,
+  teams,
+  matches,
+  csrfToken,
+}: {
+  category: Category;
+  categoryId: string;
+  cls: CategoryClass;
+  teams: ScoringTeamRow[];
+  matches: ScoringMatchRow[];
+  csrfToken: string;
+}) {
+  const groupLabels = [...new Set(teams.map((t) => t.groupLabel).filter((g): g is string => !!g))].sort();
+  const groupsWithMatches = new Set(
+    matches.filter((m) => m.stage === "group" && m.groupLabel).map((m) => m.groupLabel),
+  );
+  const hasPlayoffMatches = matches.some((m) => m.stage === "playoff" || m.stage === "final");
+
+  // Default seed order: standings if the group stage has results, otherwise
+  // the roster as entered (already sorted by start number).
+  const groupMatches = matches.filter((m) => m.stage === "group");
+  const standingsByGroup = groupLabels
+    .map((label) =>
+      buildStandings(
+        teams.filter((t) => t.groupLabel === label),
+        groupMatches.filter((m) => m.groupLabel === label),
+        category,
+      ),
+    )
+    .filter((rows) => rows.some((r) => r.played > 0));
+
+  // Standings only rank the teams whose group has at least one played match.
+  // A team whose group has not started yet — or has no group at all — must
+  // still appear in the seed list; it goes to the end, in roster order,
+  // rather than vanishing from the bracket entirely.
+  const rankedIds = seedFromGroupStandings(
+    standingsByGroup.map((rows) => rows.map((r) => ({ teamId: r.team.id, points: r.points }))),
+  );
+  const rankedSet = new Set(rankedIds);
+  const seedOrder = [...rankedIds, ...teams.filter((t) => !rankedSet.has(t.id)).map((t) => t.id)];
+
+  const defaultSeed: SeedRow[] = seedOrder.map((teamId) => {
+    const team = teams.find((t) => t.id === teamId)!;
+    return { teamId, label: `${team.code} · ${team.name}` };
+  });
+
+  return (
+    <div className="flex flex-col gap-3">
+      {groupLabels.length > 0 && (
+        <details className="rounded-lg border border-line bg-surface">
+          <summary className="cursor-pointer list-none px-5 py-4 font-semibold">
+            Сформировать круговой этап
+          </summary>
+          <div className="flex flex-col gap-3 border-t border-line p-5">
+            <p className="text-sm text-muted">
+              Каждая группа играет по кругу: все команды группы встречаются друг
+              с другом по одному разу. Матчи создаются сразу все.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {groupLabels.map((label) => {
+                const count = teams.filter((t) => t.groupLabel === label).length;
+                const already = groupsWithMatches.has(label);
+                return (
+                  <form key={label} action={generateRoundRobinAction}>
+                    <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
+                    <input type="hidden" name="categoryId" value={categoryId} />
+                    <input type="hidden" name="classId" value={cls.id} />
+                    <input type="hidden" name="groupLabel" value={label} />
+                    <button
+                      type="submit"
+                      disabled={count < 2 || already}
+                      className="inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-sm font-semibold disabled:opacity-40"
+                    >
+                      {already
+                        ? `Группа ${label} — уже сформирована`
+                        : `Группа ${label} · ${count} ${count === 1 ? "команда" : "команды"}`}
+                    </button>
+                  </form>
+                );
+              })}
+            </div>
+          </div>
+        </details>
+      )}
+
+      {teams.length >= 2 && !hasPlayoffMatches && (
+        <details className="rounded-lg border border-line bg-surface">
+          <summary className="cursor-pointer list-none px-5 py-4 font-semibold">
+            Сформировать сетку плей-офф
+          </summary>
+          <form
+            action={generateBracketAction}
+            className="flex flex-col gap-4 border-t border-line p-5"
+          >
+            <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
+            <input type="hidden" name="categoryId" value={categoryId} />
+            <input type="hidden" name="classId" value={cls.id} />
+
+            <p className="text-sm text-muted">
+              Вся сетка создаётся сразу, по стандартной посевной раскладке
+              (1-й номер играет с последним, 2-й — с предпоследним и так
+              далее), с проходами без пары при нечётном числе команд.{" "}
+              {standingsByGroup.length > 0
+                ? "Порядок ниже — по итогам групп; поменяйте местами при необходимости."
+                : "Порядок ниже — как в списке команд; поменяйте местами при необходимости."}
+            </p>
+
+            <BracketSeedEditor initial={defaultSeed} fieldName="seedOrder" />
+
+            <button type="submit" className={PRIMARY_BUTTON}>
+              Сформировать сетку
+            </button>
+          </form>
+        </details>
+      )}
+
+      {hasPlayoffMatches && (
+        <p className="text-xs text-subtle">
+          Сетка плей-офф уже сформирована. Чтобы пересобрать её, удалите
+          незаполненные протоколы плей-офф ниже.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -453,6 +612,60 @@ function TeamsPanel({
 
           <button type="submit" className={PRIMARY_BUTTON}>
             Добавить
+          </button>
+        </form>
+      </details>
+
+      <details className="rounded-lg border border-line bg-surface">
+        <summary className="cursor-pointer list-none px-5 py-4 font-semibold">
+          + Добавить несколько команд сразу
+        </summary>
+        <form
+          action={createTeamsBulkAction}
+          className="flex flex-col gap-4 border-t border-line p-5"
+        >
+          <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
+          <input type="hidden" name="categoryId" value={categoryId} />
+          <input type="hidden" name="classId" value={cls.id} />
+
+          <Field label="Названия команд" hint="Одно название на строку, до 64 за раз">
+            <textarea
+              name="namesText"
+              required
+              rows={6}
+              placeholder={"Команда 1\nКоманда 2\nКоманда 3"}
+              className={`${INPUT} h-auto py-3 font-normal`}
+            />
+          </Field>
+
+          <p className="text-xs text-subtle">
+            Стартовые номера присваиваются по порядку, следующие свободные.
+            Организация, регион и группа ниже — общие для всей группы команд.
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Организация" hint="Необязательно">
+              <input name="organization" maxLength={200} className={INPUT} />
+            </Field>
+
+            <Field label="Регион">
+              <select name="region" className={SELECT} defaultValue="">
+                <option value="">Не указан</option>
+                {REGIONS.map((region) => (
+                  <option key={region} value={region}>
+                    {regionLabel(region)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Группа" hint="Буква для кругового этапа">
+              <input name="groupLabel" maxLength={8} className={INPUT} />
+            </Field>
+          </div>
+
+          <button type="submit" className={PRIMARY_BUTTON}>
+            Добавить всех
           </button>
         </form>
       </details>

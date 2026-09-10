@@ -15,6 +15,7 @@ import {
   type SessionRole,
 } from "@/lib/db/schema";
 import { logger } from "@/lib/log";
+import { planElimination, roundRobinPairings } from "./bracket";
 
 /**
  * Data access for the scoring system.
@@ -224,6 +225,54 @@ export async function archiveTeam(
   await audit("team", id, "archived", { archivedAt: null }, { archivedAt: new Date() }, context);
 }
 
+/**
+ * Add a whole roster at once: one name per line, everything else — group,
+ * organisation, region — shared across the batch. This is the "type the
+ * names, not a form per team" path the console's bulk-add box uses; the
+ * one-team-at-a-time form still exists for a single correction.
+ *
+ * Start numbers are assigned sequentially from `suggestTeamCode`'s next free
+ * number, computed ONCE and then incremented locally — calling it per row
+ * would keep re-reading the same "highest so far" until the first insert
+ * lands, handing every row in the batch the same number.
+ */
+export async function createTeamsBulk(
+  input: {
+    categoryId: string;
+    classId: string;
+    names: readonly string[];
+    organization: string | null;
+    region: string | null;
+    groupLabel: string | null;
+  },
+  context: ScoringContext,
+): Promise<ScoringTeamRow[]> {
+  if (input.names.length === 0) return [];
+
+  const db = getDb();
+  const firstCode = Number(await suggestTeamCode(input.categoryId, input.classId));
+
+  const created: ScoringTeamRow[] = [];
+  for (const [index, name] of input.names.entries()) {
+    const [row] = await db
+      .insert(scoringTeams)
+      .values({
+        categoryId: input.categoryId,
+        classId: input.classId,
+        code: String(firstCode + index).padStart(2, "0"),
+        name,
+        organization: input.organization,
+        region: input.region,
+        groupLabel: input.groupLabel,
+      })
+      .returning();
+    await audit("team", row.id, "created", null, { name, bulk: true }, context);
+    created.push(row);
+  }
+
+  return created;
+}
+
 /* ── Matches ────────────────────────────────────────────────────────────── */
 
 export type MatchInput = {
@@ -232,8 +281,18 @@ export type MatchInput = {
   stage: ScoringStage;
   groupLabel: string | null;
   roundLabel: string | null;
-  redTeamId: string;
-  blueTeamId: string;
+  /**
+   * Null is a real state, not "not yet filled in" — a bracket-generated
+   * match can have an empty ("TBD") slot until an earlier match decides who
+   * fills it. The judge's own "new match" form still requires both, enforced
+   * by matchCreateSchema; this type is wide because the bracket generator
+   * uses the same insert path.
+   */
+  redTeamId: string | null;
+  blueTeamId: string | null;
+  /** Bracket wiring — see the column comment in schema.ts. */
+  redFromMatchId?: string | null;
+  blueFromMatchId?: string | null;
 };
 
 export type MatchResult = {
@@ -318,7 +377,53 @@ export async function saveMatchResult(
     context,
   );
 
+  if (result.state === "completed" && result.winnerTeamId) {
+    await propagateWinner(id, result.winnerTeamId, context);
+  }
+
   return row;
+}
+
+/**
+ * Bracket wiring, the other half of `redFromMatchId`/`blueFromMatchId`: once
+ * a match has a winner, fill that team into whichever next-round slot names
+ * this match as its source.
+ *
+ * Deliberately skips a downstream match that is no longer `scheduled` — a
+ * corrected result after the next round has already been played is a
+ * conflict a judge resolves by hand, not something this function should
+ * paper over by silently rewriting a match that was already scored.
+ */
+async function propagateWinner(
+  matchId: string,
+  winnerTeamId: string,
+  context: ScoringContext,
+): Promise<void> {
+  const db = getDb();
+
+  const downstream = await db
+    .select()
+    .from(scoringMatches)
+    .where(
+      and(
+        eq(scoringMatches.state, "scheduled"),
+        sql`(${scoringMatches.redFromMatchId} = ${matchId} or ${scoringMatches.blueFromMatchId} = ${matchId})`,
+      ),
+    );
+
+  for (const target of downstream) {
+    const patch: Partial<typeof scoringMatches.$inferInsert> = {};
+    if (target.redFromMatchId === matchId) patch.redTeamId = winnerTeamId;
+    if (target.blueFromMatchId === matchId) patch.blueTeamId = winnerTeamId;
+    if (Object.keys(patch).length === 0) continue;
+
+    await db
+      .update(scoringMatches)
+      .set({ ...patch, updatedAt: new Date() })
+      .where(eq(scoringMatches.id, target.id));
+
+    await audit("match", target.id, "updated", { advancing: null }, patch, context);
+  }
 }
 
 /**
@@ -340,6 +445,145 @@ export async function deleteScheduledMatch(
   await db.delete(scoringMatches).where(eq(scoringMatches.id, id));
   await audit("match", id, "deleted", before, null, context);
   return true;
+}
+
+/* ── Bracket generation ────────────────────────────────────────────────── */
+
+export type GenerateResult =
+  | { ok: true; matchesCreated: number }
+  | { ok: false; reason: "too_few_teams" | "already_scheduled" };
+
+/**
+ * Schedule a full round robin for one group in one action, instead of a
+ * judge creating each pairing by hand.
+ *
+ * Refuses if the group already has any group-stage match, scheduled or
+ * played — regenerating on top of a schedule that has already been touched
+ * would either duplicate pairings or silently orphan results. The fix is the
+ * explicit one: delete the (still-scheduled) matches this group has, then
+ * generate again.
+ */
+export async function generateRoundRobin(
+  categoryId: string,
+  classId: string,
+  groupLabel: string,
+  context: ScoringContext,
+): Promise<GenerateResult> {
+  const db = getDb();
+
+  const teams = await db
+    .select({ id: scoringTeams.id })
+    .from(scoringTeams)
+    .where(
+      and(
+        eq(scoringTeams.categoryId, categoryId),
+        eq(scoringTeams.classId, classId),
+        eq(scoringTeams.groupLabel, groupLabel),
+        isNull(scoringTeams.archivedAt),
+      ),
+    );
+
+  if (teams.length < 2) return { ok: false, reason: "too_few_teams" };
+
+  const existing = await db
+    .select({ id: scoringMatches.id })
+    .from(scoringMatches)
+    .where(
+      and(
+        eq(scoringMatches.categoryId, categoryId),
+        eq(scoringMatches.classId, classId),
+        eq(scoringMatches.groupLabel, groupLabel),
+        eq(scoringMatches.stage, "group"),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length > 0) return { ok: false, reason: "already_scheduled" };
+
+  const pairings = roundRobinPairings(teams.map((t) => t.id));
+
+  for (const pairing of pairings) {
+    const [row] = await db
+      .insert(scoringMatches)
+      .values({
+        categoryId,
+        classId,
+        stage: "group",
+        groupLabel,
+        roundLabel: `Раунд ${pairing.round}`,
+        redTeamId: pairing.a,
+        blueTeamId: pairing.b,
+      })
+      .returning();
+    await audit("match", row.id, "created", null, { generated: "round-robin" }, context);
+  }
+
+  return { ok: true, matchesCreated: pairings.length };
+}
+
+/**
+ * Generate a full single-elimination bracket for a class, seeded from the
+ * order `seededTeamIds` arrives in — `seededTeamIds[0]` plays the weakest
+ * remaining seed first, per `standardSeeding` in bracket.ts.
+ *
+ * Refuses if the class already has any playoff or final match — same
+ * reasoning as the round-robin guard.
+ */
+export async function generateEliminationBracket(
+  categoryId: string,
+  classId: string,
+  seededTeamIds: readonly string[],
+  context: ScoringContext,
+): Promise<GenerateResult> {
+  if (seededTeamIds.length < 2) return { ok: false, reason: "too_few_teams" };
+
+  const db = getDb();
+
+  const existing = await db
+    .select({ id: scoringMatches.id })
+    .from(scoringMatches)
+    .where(
+      and(
+        eq(scoringMatches.categoryId, categoryId),
+        eq(scoringMatches.classId, classId),
+        sql`${scoringMatches.stage} in ('playoff', 'final')`,
+      ),
+    )
+    .limit(1);
+
+  if (existing.length > 0) return { ok: false, reason: "already_scheduled" };
+
+  const plans = planElimination(seededTeamIds);
+  const idByRoundSlot = new Map<string, string>();
+
+  for (const plan of plans) {
+    const redFromMatchId = plan.redFrom
+      ? (idByRoundSlot.get(`${plan.redFrom.round}:${plan.redFrom.slot}`) ?? null)
+      : null;
+    const blueFromMatchId = plan.blueFrom
+      ? (idByRoundSlot.get(`${plan.blueFrom.round}:${plan.blueFrom.slot}`) ?? null)
+      : null;
+
+    const [row] = await db
+      .insert(scoringMatches)
+      .values({
+        categoryId,
+        classId,
+        stage: plan.roundLabel === "Финал" ? "final" : "playoff",
+        groupLabel: null,
+        roundLabel: plan.roundLabel,
+        redTeamId: plan.redTeamId,
+        blueTeamId: plan.blueTeamId,
+        redFromMatchId,
+        blueFromMatchId,
+      })
+      .returning();
+
+    idByRoundSlot.set(`${plan.round}:${plan.slot}`, row.id);
+    await audit("match", row.id, "created", null, { generated: "elimination" }, context);
+  }
+
+  return { ok: true, matchesCreated: plans.length };
 }
 
 /* ── Runs ───────────────────────────────────────────────────────────────── */
@@ -463,8 +707,9 @@ export async function getCategorySnapshot(categoryId: string): Promise<CategoryS
   const known = new Set(teams.map((team) => team.id));
   const missing = new Set<string>();
   for (const match of matches) {
-    if (!known.has(match.redTeamId)) missing.add(match.redTeamId);
-    if (!known.has(match.blueTeamId)) missing.add(match.blueTeamId);
+    // Null is a bracket "TBD" slot, not a team gone missing.
+    if (match.redTeamId && !known.has(match.redTeamId)) missing.add(match.redTeamId);
+    if (match.blueTeamId && !known.has(match.blueTeamId)) missing.add(match.blueTeamId);
   }
   for (const run of runs) {
     if (!known.has(run.teamId)) missing.add(run.teamId);

@@ -296,6 +296,25 @@ Start numbers are decided by the unique index on
 `(category_id, class_id, code)`, not by a check in the action: two organisers
 seeding the same class at the same moment is a race a check-then-insert loses.
 
+### Bracket generation
+
+`createTeamsBulkAction`, `generateRoundRobinAction` and `generateBracketAction`
+in `src/app/judge/actions.ts` can each write dozens of rows in one call — a
+whole group's schedule, or a whole elimination tree. Same guards as every
+other write here: `getScoringContext()` re-checks the session, CSRF is
+verified from the submitted token before anything is read, and every team and
+match created is its own `scoring_audit` row (`generated: "round-robin"` /
+`"elimination"` in the `after` column marks a bulk write apart from one a
+judge typed by hand, for whoever reads the trail later).
+
+The elimination bracket introduces `scoring_matches.red_from_match_id` /
+`blue_from_match_id` — a later round can be created before the earlier one
+that feeds it is played, with an empty ("TBD") team slot. `saveMatchResult`
+propagates a winner into that slot the moment a feeder match completes, and
+deliberately refuses to touch a downstream match that is no longer
+`scheduled` — a correction filed after the next round was already played is a
+conflict for a judge to resolve by hand, not something to silently overwrite.
+
 ### Admin authorisation
 
 Every admin page **and every admin server action** calls `requireSession()`

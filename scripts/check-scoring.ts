@@ -22,6 +22,12 @@ import { buildStandings, buildLeaderboard, positions } from "@/lib/scoring/stand
 import { parseClock, formatClock, parseDuration } from "@/lib/scoring/format";
 import { scoreLeapSheet } from "@/lib/validation/scoring";
 import { getCategory, leapTimeBonus } from "@/config/categories";
+import {
+  planElimination,
+  roundRobinPairings,
+  seedFromGroupStandings,
+  standardSeeding,
+} from "@/lib/scoring/bracket";
 import { hashPassword, verifyPassword } from "@/lib/admin/password";
 import type { ScoringMatchRow, ScoringRunRow, ScoringTeamRow } from "@/lib/db/schema";
 
@@ -74,6 +80,8 @@ function match(
     roundLabel: null,
     redTeamId: red,
     blueTeamId: blue,
+    redFromMatchId: null,
+    blueFromMatchId: null,
     redScore,
     blueScore,
     redYellow: 0,
@@ -386,6 +394,103 @@ ok("the time bonus is 10% of the sheet, scaled by time left", () => {
   assert.equal(leapTimeBonus(180_000, 180_000), 30);
   assert.equal(leapTimeBonus(90_000, 180_000), 15);
   assert.equal(leapTimeBonus(0, 180_000), 0);
+});
+
+/* ── Bracket generation ────────────────────────────────────────────────── */
+
+console.log("\nBracket generation");
+
+ok("standard seeding pairs the top two seeds only in the final", () => {
+  assert.deepEqual(standardSeeding(2), [1, 2]);
+  assert.deepEqual(standardSeeding(4), [1, 4, 2, 3]);
+  // The textbook 8-seed draw: 1v8, 4v5, 2v7, 3v6.
+  assert.deepEqual(standardSeeding(8), [1, 8, 4, 5, 2, 7, 3, 6]);
+  assert.deepEqual(standardSeeding(16), [
+    1, 16, 8, 9, 4, 13, 5, 12, 2, 15, 7, 10, 3, 14, 6, 11,
+  ]);
+});
+
+ok("a power-of-two team count needs no byes and every round is a real match", () => {
+  const plans = planElimination(["a", "b", "c", "d", "e", "f", "g", "h"]);
+  // 4 quarter-finals + 2 semi-finals + 1 final = 7 matches, none with a TBD
+  // slot in round one — every seed has an opponent.
+  assert.equal(plans.length, 7);
+  const roundOne = plans.filter((p) => p.round === 1);
+  assert.equal(roundOne.length, 4);
+  for (const p of roundOne) {
+    assert.notEqual(p.redTeamId, null);
+    assert.notEqual(p.blueTeamId, null);
+  }
+  assert.equal(plans.find((p) => p.roundLabel === "Финал")?.round, 3);
+});
+
+ok("byes go to the top seeds and never meet each other in round one", () => {
+  // 5 teams -> bracket of 8, 3 byes. Seed order [1,8,4,5,2,7,3,6] maps seeds
+  // 6,7,8 to byes, landing on pairs (1,bye), (4,5), (2,bye), (3,bye) — three
+  // round-one pairings vanish, one (4 vs 5) is a real match.
+  const plans = planElimination(["s1", "s2", "s3", "s4", "s5"]);
+  const roundOne = plans.filter((p) => p.round === 1);
+  assert.equal(roundOne.length, 1, "only the 4-vs-5 pairing is a real round-one match");
+  assert.equal(roundOne[0].redTeamId, "s4");
+  assert.equal(roundOne[0].blueTeamId, "s5");
+
+  // Round two (the semi-finals) must be fully populated: byes advance
+  // directly as concrete teams, the round-one winner as a pending reference.
+  const roundTwo = plans.filter((p) => p.round === 2);
+  assert.equal(roundTwo.length, 2);
+  const seed1Match = roundTwo.find((p) => p.redTeamId === "s1" || p.blueTeamId === "s1");
+  assert.ok(seed1Match, "the top seed's bye carries it straight into round two");
+  const pendingMatch = roundTwo.find((p) => p.redFrom !== null || p.blueFrom !== null);
+  assert.ok(pendingMatch, "the 4-vs-5 winner is not known yet, so it is a reference");
+});
+
+ok("planElimination is a no-op below two teams", () => {
+  assert.deepEqual(planElimination([]), []);
+  assert.deepEqual(planElimination(["only"]), []);
+});
+
+ok("round robin plays every pair exactly once", () => {
+  const teams = ["a", "b", "c", "d", "e"];
+  const pairings = roundRobinPairings(teams);
+  // C(5,2) = 10 pairings regardless of the bye seat odd counts need.
+  assert.equal(pairings.length, 10);
+
+  const seen = new Set<string>();
+  for (const { a, b } of pairings) {
+    const key = [a, b].sort().join(":");
+    assert.equal(seen.has(key), false, `${key} scheduled twice`);
+    seen.add(key);
+  }
+
+  const allPairs = new Set(
+    teams.flatMap((x, i) => teams.slice(i + 1).map((y) => [x, y].sort().join(":"))),
+  );
+  assert.deepEqual(seen, allPairs);
+});
+
+ok("round robin never plays a team twice in the same round", () => {
+  const pairings = roundRobinPairings(["a", "b", "c", "d", "e", "f"]);
+  const byRound = new Map<number, string[]>();
+  for (const { round, a, b } of pairings) {
+    const list = byRound.get(round) ?? [];
+    list.push(a, b);
+    byRound.set(round, list);
+  }
+  for (const [round, seats] of byRound) {
+    assert.equal(new Set(seats).size, seats.length, `round ${round} repeats a team`);
+  }
+});
+
+ok("group standings seed a crossover playoff group winners first", () => {
+  const groupA = [
+    { teamId: "a1", points: 9 },
+    { teamId: "a2", points: 3 },
+  ];
+  const groupB = [
+    { teamId: "b1", points: 6 },
+    { teamId: "b2", points: 0 },
+  ];
+  assert.deepEqual(seedFromGroupStandings([groupA, groupB]), ["a1", "b1", "a2", "b2"]);
 });
 
 /* ── Credential format ──────────────────────────────────────────────────── */

@@ -22,12 +22,18 @@ import {
   archiveTeam,
   createMatch,
   createTeam,
+  createTeamsBulk,
   deleteScheduledMatch,
+  generateEliminationBracket,
+  generateRoundRobin,
   getMatch,
   saveMatchResult,
   saveRun,
 } from "@/lib/scoring/store";
 import {
+  bulkTeamSchema,
+  generateBracketSchema,
+  generateRoundRobinSchema,
   matchCreateSchema,
   matchResultSchema,
   parseRun,
@@ -207,6 +213,43 @@ export async function createTeamAction(formData: FormData): Promise<void> {
   redirect(categoryPath(formData, "saved=team"));
 }
 
+/**
+ * One name per line, everything else shared — see bulkTeamSchema's comment.
+ * Any row that collides with an existing start number stops the batch there
+ * (the same unique-index guard as the single-team form); teams added before
+ * the collision are already saved, so the judge sees a partial roster and a
+ * clear reason rather than nothing.
+ */
+export async function createTeamsBulkAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.team.bulk"))) return;
+
+  const parsed = bulkTeamSchema.safeParse(fields(formData));
+  if (!parsed.success) {
+    redirect(categoryPath(formData, "error=team"));
+  }
+
+  try {
+    await createTeamsBulk(
+      {
+        categoryId: parsed.data.categoryId,
+        classId: parsed.data.classId,
+        names: parsed.data.names,
+        organization: parsed.data.organization,
+        region: parsed.data.region,
+        groupLabel: parsed.data.groupLabel,
+      },
+      context,
+    );
+  } catch (error) {
+    logger.warn("judge.team.bulk_partial", { message: String(error) });
+    redirect(categoryPath(formData, "error=code"));
+  }
+
+  publishResults();
+  redirect(categoryPath(formData, "saved=team"));
+}
+
 export async function archiveTeamAction(formData: FormData): Promise<void> {
   const context = await getScoringContext();
   if (!(await assertRequestCsrf(formData, "judge.team.archive"))) return;
@@ -233,6 +276,56 @@ export async function createMatchAction(formData: FormData): Promise<void> {
 
   const match = await createMatch(parsed.data, context);
   redirect(`/judge/${match.categoryId}/match/${match.id}`);
+}
+
+/**
+ * "Сформировать круговой этап" for one group: every pairing at once, in the
+ * standard round-robin order, instead of a judge picking teams from two
+ * dropdowns match by match. `error=already_scheduled` means the group has
+ * matches already — delete the still-scheduled ones first if the intent is
+ * to redo the draw, per generateRoundRobin's own reasoning.
+ */
+export async function generateRoundRobinAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.bracket.roundrobin"))) return;
+
+  const parsed = generateRoundRobinSchema.safeParse(fields(formData));
+  if (!parsed.success) {
+    redirect(categoryPath(formData, "error=bracket"));
+  }
+
+  const result = await generateRoundRobin(
+    parsed.data.categoryId,
+    parsed.data.classId,
+    parsed.data.groupLabel,
+    context,
+  );
+
+  redirect(categoryPath(formData, result.ok ? "saved=bracket" : `error=${result.reason}`));
+}
+
+/**
+ * "Сформировать сетку плей-офф": the whole elimination tree, seeded and
+ * placed, in one action. `seedOrder` is a newline list of team ids in the
+ * order the console's seeding UI put them in.
+ */
+export async function generateBracketAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.bracket.elimination"))) return;
+
+  const parsed = generateBracketSchema.safeParse(fields(formData));
+  if (!parsed.success) {
+    redirect(categoryPath(formData, "error=bracket"));
+  }
+
+  const result = await generateEliminationBracket(
+    parsed.data.categoryId,
+    parsed.data.classId,
+    parsed.data.teamIds,
+    context,
+  );
+
+  redirect(categoryPath(formData, result.ok ? "saved=bracket" : `error=${result.reason}`));
 }
 
 export async function deleteMatchAction(formData: FormData): Promise<void> {

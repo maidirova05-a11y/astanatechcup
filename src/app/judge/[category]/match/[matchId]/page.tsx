@@ -38,12 +38,42 @@ export default async function JudgeMatchPage({
   const headerList = await headers();
   const csrfToken = headerList.get(CSRF_HEADER) ?? "";
 
-  const teams = await loadTeamsById([match.redTeamId, match.blueTeamId]);
-  const red = teams.get(match.redTeamId);
-  const blue = teams.get(match.blueTeamId);
-  if (!red || !blue) notFound();
+  const knownIds = [match.redTeamId, match.blueTeamId].filter((id): id is string => id !== null);
+  const teams = await loadTeamsById(knownIds);
+  const red = match.redTeamId ? teams.get(match.redTeamId) : undefined;
+  const blue = match.blueTeamId ? teams.get(match.blueTeamId) : undefined;
 
   const cls = getCategoryClass(categoryId, match.classId);
+  const stageLabel = { group: "Групповой этап", playoff: "Плей-офф", final: "Финал" }[
+    match.stage
+  ];
+
+  // A bracket-generated slot whose feeder match has not been played yet. Not
+  // a 404 — the URL is real and a judge may well tap it to check progress —
+  // just nothing to score until the earlier match decides who is here.
+  if (!red || !blue) {
+    return (
+      <JudgeShell
+        role={session.role}
+        title="Матч ещё не определён"
+        subtitle={[cls?.label, stageLabel, match.roundLabel].filter(Boolean).join(" · ")}
+        back={{
+          href: `/judge/${categoryId}?class=${match.classId}`,
+          label: t(`items.${categoryId}.name`),
+        }}
+      >
+        <div className="rounded-lg border border-line bg-surface p-5">
+          <p className="text-sm text-muted">
+            {red ? red.name : "TBD"} — {blue ? blue.name : "TBD"}
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            Этот матч появится, как только определятся обе команды —
+            сыграйте предыдущий раунд.
+          </p>
+        </div>
+      </JudgeShell>
+    );
+  }
 
   const outcome = match.isDraw
     ? "draw"
@@ -52,10 +82,6 @@ export default async function JudgeMatchPage({
       : match.winnerTeamId === match.blueTeamId
         ? "blue"
         : "open";
-
-  const stageLabel = { group: "Групповой этап", playoff: "Плей-офф", final: "Финал" }[
-    match.stage
-  ];
 
   return (
     <JudgeShell

@@ -67,6 +67,84 @@ export const teamSchema = categoryRef
 export type TeamFields = z.infer<typeof teamSchema>;
 
 /**
+ * Bulk roster entry: one name per line from a single textarea, instead of a
+ * form per team. Everything else the single-team form asks for — group,
+ * organisation, region — is shared across the whole batch.
+ */
+export const bulkTeamSchema = categoryRef
+  .extend({
+    namesText: trimmed.min(1).max(8000),
+    organization: optionalText(200),
+    region: optionalText(40),
+    groupLabel: trimmed
+      .max(8)
+      .transform((value) => (value === "" ? null : value.toUpperCase()))
+      .nullable()
+      .default(null),
+  })
+  .refine(knownClass, KNOWN_CLASS)
+  .transform((value) => ({
+    ...value,
+    names: value.namesText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length >= 2)
+      .map((line) => line.slice(0, 120)),
+  }))
+  .refine((value) => value.names.length > 0, {
+    message: "Введите хотя бы одно название команды",
+    path: ["namesText"],
+  })
+  .refine((value) => value.names.length <= 64, {
+    message: "За один раз можно добавить не больше 64 команд",
+    path: ["namesText"],
+  });
+
+export type BulkTeamFields = z.infer<typeof bulkTeamSchema>;
+
+/* ── Bracket generation ────────────────────────────────────────────────── */
+
+export const generateRoundRobinSchema = categoryRef
+  .extend({
+    groupLabel: trimmed.min(1).max(8).transform((value) => value.toUpperCase()),
+  })
+  .refine(knownClass, KNOWN_CLASS);
+
+export type GenerateRoundRobinFields = z.infer<typeof generateRoundRobinSchema>;
+
+/**
+ * Playoff seeding is a newline-separated list of team ids in seed order —
+ * the console renders them as a re-orderable list, not free text a judge
+ * types, but the wire format is the same either way.
+ */
+export const generateBracketSchema = categoryRef
+  .extend({
+    seedOrder: trimmed.min(1).max(4000),
+  })
+  .refine(knownClass, KNOWN_CLASS)
+  .transform((value) => ({
+    ...value,
+    teamIds: value.seedOrder
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean),
+  }))
+  .refine((value) => value.teamIds.length >= 2, {
+    message: "Нужно минимум две команды",
+    path: ["seedOrder"],
+  })
+  .refine((value) => value.teamIds.every((id) => z.string().uuid().safeParse(id).success), {
+    message: "Список мест засорён — обновите страницу и попробуйте снова",
+    path: ["seedOrder"],
+  })
+  .refine((value) => new Set(value.teamIds).size === value.teamIds.length, {
+    message: "Одна команда указана в сетке дважды",
+    path: ["seedOrder"],
+  });
+
+export type GenerateBracketFields = z.infer<typeof generateBracketSchema>;
+
+/**
  * Seeding a team onto the start list FROM a paid entry, in the admin panel.
  *
  * Separate from `teamSchema` because the two forms are filled in by different

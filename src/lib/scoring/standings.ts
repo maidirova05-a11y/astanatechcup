@@ -73,6 +73,9 @@ function accumulate(
     if (!isCounted(match)) continue;
 
     for (const teamId of [match.redTeamId, match.blueTeamId]) {
+      // Null only on a bracket "TBD" slot, which cannot be `completed` — this
+      // is belt and braces for the type, not a state that occurs in practice.
+      if (teamId === null) continue;
       const row = rows.get(teamId);
       if (!row) continue; // a team archived after playing; skip, don't crash
 
@@ -125,6 +128,7 @@ function headToHead(
 
   for (const match of matches) {
     if (!isCounted(match)) continue;
+    if (match.redTeamId === null || match.blueTeamId === null) continue;
     if (!ids.has(match.redTeamId) || !ids.has(match.blueTeamId)) continue;
 
     const red = mini.get(match.redTeamId)!;
