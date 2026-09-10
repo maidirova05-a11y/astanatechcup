@@ -3,6 +3,7 @@ import { Section, SectionHeader, Pill } from "@/components/ui/Section";
 import { CATEGORY_ROBOTS, type CategoryRobotName } from "@/components/ui/robots";
 import { ArrowRight, Info } from "@/components/ui/icons";
 import { CATEGORIES, type Category } from "@/config/categories";
+import { BracketTree } from "./BracketTree";
 import { formatClock } from "@/lib/scoring/format";
 import {
   buildLeaderboard,
@@ -208,6 +209,23 @@ async function CategoryResults({
                     rows={buildStandings(teams, matches, category)}
                     t={t}
                   />
+                  {(() => {
+                    const bracketMatches = matches.filter(
+                      (m) => m.stage === "playoff" || m.stage === "final",
+                    );
+                    return bracketMatches.length > 0 ? (
+                      <div className="flex flex-col gap-3">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-subtle">
+                          {t("bracket")}
+                        </h4>
+                        <BracketTree
+                          matches={bracketMatches}
+                          teams={[...teams, ...snapshot.archived.values()]}
+                          tbdLabel={t("tbd")}
+                        />
+                      </div>
+                    ) : null;
+                  })()}
                   <RecentMatches
                     matches={matches.filter((m) => m.state === "completed").slice(0, 8)}
                     teamOf={nameOf}
