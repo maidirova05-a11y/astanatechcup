@@ -1,5 +1,6 @@
 import { CSRF_FIELD } from "@/lib/security/constants";
 import { archiveTeamAction, updateTeamAction } from "@/app/judge/actions";
+import { SaveButton } from "./SaveButton";
 import { REGIONS } from "@/config/regions";
 import type { ScoringTeamRow } from "@/lib/db/schema";
 
@@ -39,7 +40,7 @@ export function TeamGrid({
   return (
     <div className="flex flex-col gap-2">
       {ordered.map((team) => (
-        <form key={team.id} id={`team-${team.id}`} action={updateTeamAction} hidden>
+        <form key={team.id} id={`team-${team.id}`} hidden>
           <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
           <input type="hidden" name="categoryId" value={categoryId} />
           <input type="hidden" name="classId" value={classId} />
@@ -125,13 +126,7 @@ export function TeamGrid({
                   </td>
                   <td className="px-2 py-2">
                     <span className="flex items-center justify-end gap-3">
-                      <button
-                        type="submit"
-                        form={form}
-                        className="inline-flex h-11 items-center rounded-full bg-brand-strong px-4 text-sm font-semibold text-on-brand"
-                      >
-                        Записать
-                      </button>
+                      <SaveButton action={updateTeamAction} form={form} />
                       <form action={archiveTeamAction}>
                         <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
                         <input type="hidden" name="categoryId" value={categoryId} />

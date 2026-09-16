@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CSRF_FIELD } from "@/lib/security/constants";
 import { saveRunRowAction } from "@/app/judge/actions";
+import { SaveButton } from "./SaveButton";
 import { formatClock } from "@/lib/scoring/format";
 import { buildLeaderboard } from "@/lib/scoring/standings";
 import type { Category } from "@/config/categories";
@@ -66,7 +67,7 @@ export function RunGrid({
       {/* The row forms. Empty on purpose: their fields live in the table. */}
       {!itemised &&
         ordered.map((team) => (
-          <form key={team.id} id={`run-${team.id}`} action={saveRunRowAction} hidden>
+          <form key={team.id} id={`run-${team.id}`} hidden>
             <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
             <input type="hidden" name="categoryId" value={category.id} />
             <input type="hidden" name="classId" value={classId} />
@@ -131,13 +132,7 @@ export function RunGrid({
 
                   <td className="px-3 py-2 text-right">
                     {!itemised && (
-                      <button
-                        type="submit"
-                        form={`run-${team.id}`}
-                        className="inline-flex h-11 items-center rounded-full bg-brand-strong px-4 text-sm font-semibold text-on-brand"
-                      >
-                        Записать
-                      </button>
+                      <SaveButton action={saveRunRowAction} form={`run-${team.id}`} />
                     )}
                   </td>
                 </tr>

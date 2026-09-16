@@ -28,36 +28,13 @@ export function assertScoringEnabled(): void {
   if (!features.scoring) notFound();
 }
 
-/**
- * LOCAL DEVELOPMENT ONLY: the console opens without a password.
- *
- * Keyed on `NODE_ENV === "development"`, which only `next dev` sets. Every
- * production runtime — the Vercel deployment, `next build && next start`,
- * a preview deploy — runs with `production`, so this branch cannot open
- * there. It is deliberately NOT an environment flag: a flag is a thing that
- * can be copied into Vercel's settings by mistake, and a NODE_ENV check is not.
- *
- * Writes made this way are still audited, under the nil UUID and the judge
- * role, so a row filed from a laptop is recognisable as such in the trail.
- * Remember that `.env.local` points at the shared database: a result typed
- * locally is a result on the live board.
- */
-export const SCORING_AUTH_BYPASSED = process.env.NODE_ENV === "development";
-
-const LOCAL_SESSION: AdminSession = {
-  id: "00000000-0000-0000-0000-000000000000",
-  expiresAt: new Date(8640000000000000),
-  role: "judge",
-};
-
 export async function requireScoringSession(): Promise<AdminSession> {
   assertScoringEnabled();
 
   const session = await getSession();
-  if (session) return session;
-  if (SCORING_AUTH_BYPASSED) return LOCAL_SESSION;
+  if (!session) redirect("/judge/login");
 
-  redirect("/judge/login");
+  return session;
 }
 
 /** Everything a write needs to be attributable afterwards. */

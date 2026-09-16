@@ -111,10 +111,20 @@ You chose a Kazakh-hosted Postgres to satisfy Law 94-V. Worth being explicit
 about what that does and does not cover:
 
 - **The database** — the thing the law names — is in Kazakhstan. ✅
-- **The application server** is not. Vercel has no Kazakhstan region; the
-  closest is Frankfurt (`fra1`, configured in `vercel.json`). Personal data is
-  therefore *processed in memory and in transit* outside Kazakhstan even though
-  it is *stored* inside it.
+- **The application server** is not. Vercel has no Kazakhstan region. Personal
+  data is therefore *processed in memory and in transit* outside Kazakhstan
+  even though it is *stored* inside it.
+
+> **Region, as actually deployed (2026-09-17):** functions run in `iad1`
+> (Washington, D.C.), set in `vercel.json`. They were in `fra1` (Frankfurt),
+> chosen as the region nearest Kazakhstan on the assumption that the database
+> would be Kazakh-hosted. It is not — production uses a Neon database in
+> `us-east-1` — so `fra1` put an Atlantic crossing (~90 ms) under every single
+> query, and the judges' console makes a dozen per save. Moving functions next
+> to the database takes that to ~1 ms per query at the cost of ~80 ms more on
+> the one round trip from a browser in Kazakhstan. **If the database ever moves
+> to Kazakhstan or Europe, move the region back with it** — the rule is: run
+> functions in the region of the database, not of the visitors.
 
 Most readings of 94-V focus on where the database resides, so this is likely
 fine — but it is exactly the kind of detail the organiser's counsel should

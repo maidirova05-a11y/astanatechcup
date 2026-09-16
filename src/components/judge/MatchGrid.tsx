@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CSRF_FIELD } from "@/lib/security/constants";
 import { saveMatchRowAction } from "@/app/judge/actions";
 import { StateBadge } from "./JudgeShell";
+import { SaveButton } from "./SaveButton";
 import type { ScoringMatchRow, ScoringTeamRow } from "@/lib/db/schema";
 
 /**
@@ -59,7 +60,7 @@ export function MatchGrid({
     <ul className="flex flex-col gap-2">
       <li
         aria-hidden="true"
-        className="hidden items-center gap-3 px-4 text-2xs font-bold uppercase tracking-wider text-subtle sm:grid sm:grid-cols-[3.5rem_1fr_7rem_1fr_9rem_5rem]"
+        className="hidden items-center gap-3 px-4 text-2xs font-bold uppercase tracking-wider text-subtle sm:grid sm:grid-cols-[3.5rem_1fr_7rem_1fr_9rem_12rem]"
       >
         <span>Матч</span>
         <span>Красный</span>
@@ -121,8 +122,7 @@ function Row({
 
   return (
     <form
-      action={saveMatchRowAction}
-      className="grid items-center gap-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-[3.5rem_1fr_7rem_1fr_9rem_5rem] sm:px-4 sm:py-3"
+      className="grid items-center gap-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-[3.5rem_1fr_7rem_1fr_9rem_12rem] sm:px-4 sm:py-3"
     >
       <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
       <input type="hidden" name="categoryId" value={categoryId} />
@@ -210,12 +210,7 @@ function Row({
       </select>
 
       <div className="flex items-center justify-end gap-3">
-        <button
-          type="submit"
-          className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-brand-strong px-4 text-sm font-semibold text-on-brand sm:flex-none"
-        >
-          Записать
-        </button>
+        <SaveButton action={saveMatchRowAction} />
         <Link
           href={`/judge/${categoryId}/match/${match.id}`}
           className="shrink-0 text-xs font-medium text-muted underline underline-offset-2"

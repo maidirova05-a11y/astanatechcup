@@ -193,9 +193,15 @@ export async function updateTeam(
   id: string,
   patch: Partial<TeamInput>,
   context: ScoringContext,
+  /**
+   * The row as the caller already loaded it. Every round trip to the database
+   * costs real time from a venue, and an action that has just read the team to
+   * validate it should not make this function read it a second time.
+   */
+  known?: ScoringTeamRow,
 ): Promise<ScoringTeamRow | null> {
   const db = getDb();
-  const before = await getTeam(id);
+  const before = known ?? (await getTeam(id));
   if (!before) return null;
 
   const [row] = await db
@@ -345,9 +351,10 @@ export async function saveMatchResult(
   id: string,
   result: MatchResult,
   context: ScoringContext,
+  known?: ScoringMatchRow,
 ): Promise<ScoringMatchRow | null> {
   const db = getDb();
-  const before = await getMatch(id);
+  const before = known ?? (await getMatch(id));
   if (!before) return null;
 
   const [row] = await db
@@ -362,24 +369,28 @@ export async function saveMatchResult(
     .where(eq(scoringMatches.id, id))
     .returning();
 
-  await audit(
-    "match",
-    id,
-    "updated",
-    {
-      redScore: before.redScore,
-      blueScore: before.blueScore,
-      state: before.state,
-      winnerTeamId: before.winnerTeamId,
-      isDraw: before.isDraw,
-    },
-    result,
-    context,
-  );
-
-  if (result.state === "completed" && result.winnerTeamId) {
-    await propagateWinner(id, result.winnerTeamId, context);
-  }
+  // The audit entry and the bracket propagation touch different rows and do
+  // not depend on each other, so they go out together rather than one after
+  // the other.
+  await Promise.all([
+    audit(
+      "match",
+      id,
+      "updated",
+      {
+        redScore: before.redScore,
+        blueScore: before.blueScore,
+        state: before.state,
+        winnerTeamId: before.winnerTeamId,
+        isDraw: before.isDraw,
+      },
+      result,
+      context,
+    ),
+    result.state === "completed" && result.winnerTeamId
+      ? propagateWinner(id, result.winnerTeamId, context)
+      : Promise.resolve(),
+  ]);
 
   return row;
 }
@@ -394,9 +405,10 @@ export async function setMatchTeams(
   id: string,
   teams: { redTeamId: string | null; blueTeamId: string | null },
   context: ScoringContext,
+  known?: ScoringMatchRow,
 ): Promise<void> {
   const db = getDb();
-  const before = await getMatch(id);
+  const before = known ?? (await getMatch(id));
   if (!before) return;
 
   const patch: Partial<typeof scoringMatches.$inferInsert> = {};
@@ -450,19 +462,22 @@ async function propagateWinner(
       ),
     );
 
-  for (const target of downstream) {
-    const patch: Partial<typeof scoringMatches.$inferInsert> = {};
-    if (target.redFromMatchId === matchId) patch.redTeamId = winnerTeamId;
-    if (target.blueFromMatchId === matchId) patch.blueTeamId = winnerTeamId;
-    if (Object.keys(patch).length === 0) continue;
+  await Promise.all(
+    downstream.map(async (target) => {
+      const patch: Partial<typeof scoringMatches.$inferInsert> = {};
+      if (target.redFromMatchId === matchId) patch.redTeamId = winnerTeamId;
+      if (target.blueFromMatchId === matchId) patch.blueTeamId = winnerTeamId;
+      if (Object.keys(patch).length === 0) return;
 
-    await db
-      .update(scoringMatches)
-      .set({ ...patch, updatedAt: new Date() })
-      .where(eq(scoringMatches.id, target.id));
-
-    await audit("match", target.id, "updated", { advancing: null }, patch, context);
-  }
+      await Promise.all([
+        db
+          .update(scoringMatches)
+          .set({ ...patch, updatedAt: new Date() })
+          .where(eq(scoringMatches.id, target.id)),
+        audit("match", target.id, "updated", { advancing: null }, patch, context),
+      ]);
+    }),
+  );
 }
 
 /**
@@ -679,9 +694,12 @@ export async function getRun(
 export async function saveRun(
   input: RunInput,
   context: ScoringContext,
+  /** The stored attempt, or `null` for "known not to exist". */
+  known?: ScoringRunRow | null,
 ): Promise<ScoringRunRow> {
   const db = getDb();
-  const before = await getRun(input.teamId, input.roundNumber);
+  const before =
+    known !== undefined ? known : await getRun(input.teamId, input.roundNumber);
 
   const [row] = await db
     .insert(scoringRuns)
@@ -735,14 +753,23 @@ export async function deleteRun(
   teamId: string,
   roundNumber: number,
   context: ScoringContext,
+  known?: ScoringRunRow | null,
 ): Promise<boolean> {
   const db = getDb();
-  const before = await getRun(teamId, roundNumber);
+  const before = known !== undefined ? known : await getRun(teamId, roundNumber);
   if (!before) return false;
 
-  await db.delete(scoringRuns).where(eq(scoringRuns.id, before.id));
-  await audit("run", before.id, "deleted", before, null, context);
+  await Promise.all([
+    db.delete(scoringRuns).where(eq(scoringRuns.id, before.id)),
+    audit("run", before.id, "deleted", before, null, context),
+  ]);
   return true;
+}
+
+/** Every attempt one team has, in one query — what a row save starts from. */
+export async function listRunsForTeam(teamId: string): Promise<ScoringRunRow[]> {
+  const db = getDb();
+  return db.select().from(scoringRuns).where(eq(scoringRuns.teamId, teamId));
 }
 
 /* ── Snapshots ──────────────────────────────────────────────────────────── */

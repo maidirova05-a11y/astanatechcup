@@ -28,8 +28,8 @@ import {
   generateEliminationBracket,
   generateRoundRobin,
   getMatch,
-  getRun,
   getTeam,
+  listRunsForTeam,
   saveMatchResult,
   saveRun,
   setMatchTeams,
@@ -354,30 +354,29 @@ export async function deleteMatchAction(formData: FormData): Promise<void> {
 }
 
 /**
- * Save one row of the console's match table.
+ * Save one row of the console's match table: score, outcome, and — when the
+ * corner was filled by hand — who plays in it.
  *
- * The same table the public board shows, with the score and the outcome
- * editable in place — which is how a referee working a group of sixteen
- * actually files results: down the list, one line at a time, without opening
- * and closing twenty protocols.
+ * Returns a state instead of redirecting. A redirect re-renders the entire
+ * console (session lookup, every team, every match, every attempt in the
+ * category) just to show one saved row; returning lets the row say "saved"
+ * the moment the write lands, and the tables refresh behind it.
  *
- * Three things it deliberately does NOT do:
- *
- *  · It does not infer the winner from the scores. Every rulebook here lets a
- *    referee award a match against the score, so the outcome is a field, not
- *    a calculation — the same rule the full protocol follows.
- *  · It does not touch cards or notes. They are not on this row, and a form
- *    that silently zeroes the fields it does not show is a form that loses a
- *    red card nobody notices until the appeal.
- *  · It does not let a slot that has no team be declared the winner. An empty
- *    bracket slot is "TBD", and naming it a winner would advance nobody into
- *    the next round while marking the match closed.
+ * It does not infer the winner from the scores (every rulebook here lets a
+ * referee award a match against the score), does not touch cards or notes
+ * (they are not on this row), and does not let an empty bracket slot be
+ * declared the winner.
  */
-export async function saveMatchRowAction(formData: FormData): Promise<void> {
-  const context = await getScoringContext();
-  if (!(await assertRequestCsrf(formData, "judge.match.row"))) {
-    redirect(categoryPath(formData, "error=csrf"));
-  }
+export async function saveMatchRowAction(
+  _prev: ScoringFormState,
+  formData: FormData,
+): Promise<ScoringFormState> {
+  // Session and CSRF are independent checks, so they go out together.
+  const [context, csrfOk] = await Promise.all([
+    getScoringContext(),
+    assertRequestCsrf(formData, "judge.match.row"),
+  ]);
+  if (!csrfOk) return { status: "error", message: "Сессия устарела. Обновите страницу." };
 
   // An empty corner select ("TBD") means "no change", not an invalid id.
   const rowFields = fields(formData);
@@ -385,43 +384,41 @@ export async function saveMatchRowAction(formData: FormData): Promise<void> {
     if (rowFields[key] === "") delete rowFields[key];
   }
   const parsed = matchRowSchema.safeParse(rowFields);
-  if (!parsed.success) {
-    redirect(categoryPath(formData, "error=match"));
-  }
+  if (!parsed.success) return { status: "error", message: "Проверьте счёт." };
 
   const { id, redScore, blueScore, outcome } = parsed.data;
-  let match = await getMatch(id);
-  if (!match) redirect(categoryPath(formData, "error=match"));
 
-  /**
-   * A pairing typed against the wrong start number is fixed in the same row as
-   * its score. Both teams must belong to this class and be different — the
-   * same checks the "new match" form makes — and a corner wired to an earlier
-   * match is never offered, so it never arrives here.
-   */
-  const redTeamId = parsed.data.redTeamId ?? match.redTeamId;
-  const blueTeamId = parsed.data.blueTeamId ?? match.blueTeamId;
+  // The match and any team the row names, in one parallel read.
+  const [match, redPick, bluePick] = await Promise.all([
+    getMatch(id),
+    parsed.data.redTeamId ? getTeam(parsed.data.redTeamId) : Promise.resolve(null),
+    parsed.data.blueTeamId ? getTeam(parsed.data.blueTeamId) : Promise.resolve(null),
+  ]);
+  if (!match) return { status: "error", message: "Матч не найден." };
 
-  if (redTeamId !== match.redTeamId || blueTeamId !== match.blueTeamId) {
-    if (redTeamId && blueTeamId && redTeamId === blueTeamId) {
-      redirect(categoryPath(formData, "error=match"));
+  // A corner wired to an earlier match belongs to that match's winner and is
+  // never reassigned from here, whatever the form says.
+  const redTeamId = match.redFromMatchId ? match.redTeamId : (redPick?.id ?? match.redTeamId);
+  const blueTeamId = match.blueFromMatchId
+    ? match.blueTeamId
+    : (bluePick?.id ?? match.blueTeamId);
+
+  for (const pick of [redPick, bluePick]) {
+    if (pick && (pick.categoryId !== match.categoryId || pick.classId !== match.classId)) {
+      return { status: "error", message: "Команда не из этого класса." };
     }
-    for (const teamId of [redTeamId, blueTeamId]) {
-      if (!teamId) continue;
-      const team = await getTeam(teamId);
-      if (!team || team.categoryId !== match.categoryId || team.classId !== match.classId) {
-        redirect(categoryPath(formData, "error=match"));
-      }
-    }
-    await setMatchTeams(id, { redTeamId, blueTeamId }, context);
-    match = (await getMatch(id))!;
+  }
+  if (redTeamId && blueTeamId && redTeamId === blueTeamId) {
+    return { status: "error", message: "Команда не может играть сама с собой." };
   }
 
-  const winnerTeamId =
-    outcome === "red" ? match.redTeamId : outcome === "blue" ? match.blueTeamId : null;
-
+  const winnerTeamId = outcome === "red" ? redTeamId : outcome === "blue" ? blueTeamId : null;
   if ((outcome === "red" || outcome === "blue") && winnerTeamId === null) {
-    redirect(categoryPath(formData, "error=slot"));
+    return { status: "error", message: "В этом слоте ещё нет команды." };
+  }
+
+  if (redTeamId !== match.redTeamId || blueTeamId !== match.blueTeamId) {
+    await setMatchTeams(id, { redTeamId, blueTeamId }, context, match);
   }
 
   await saveMatchResult(
@@ -435,107 +432,110 @@ export async function saveMatchRowAction(formData: FormData): Promise<void> {
       blueYellow: match.blueYellow,
       blueRed: match.blueRed,
       notes: match.notes,
-      /**
-       * A score with no outcome is a match being played, which is exactly
-       * what "live" means. Choosing an outcome closes the sheet; clearing it
-       * again re-opens one that was closed by mistake.
-       */
+      // A score with no outcome is a match being played; choosing an outcome
+      // closes the sheet, clearing it re-opens one closed by mistake.
       state: outcome === "open" ? "live" : "completed",
       winnerTeamId,
       isDraw: outcome === "draw",
     },
     context,
+    { ...match, redTeamId, blueTeamId },
   );
 
-  publishResults();
-  redirect(categoryPath(formData, "saved=row"));
+  return { status: "saved", savedAt: Date.now() };
 }
 
 /**
  * Save one row of the roster table — a corrected name, start number,
  * organisation, region or group.
  *
- * Nothing else has to be touched afterwards. Standings, cross-tables, bracket
- * slots and the public board all read the team by id and render its current
- * name, so a typo fixed here is fixed everywhere on the next render.
+ * Nothing else has to be touched afterwards: standings, cross-tables, bracket
+ * slots and the public board all read the team by id, so a typo fixed here is
+ * fixed everywhere on their next render. Returns a state rather than
+ * redirecting, for the same reason as saveMatchRowAction.
  */
-export async function updateTeamAction(formData: FormData): Promise<void> {
-  const context = await getScoringContext();
-  if (!(await assertRequestCsrf(formData, "judge.team.update"))) {
-    redirect(categoryPath(formData, "error=csrf"));
-  }
+export async function updateTeamAction(
+  _prev: ScoringFormState,
+  formData: FormData,
+): Promise<ScoringFormState> {
+  const [context, csrfOk] = await Promise.all([
+    getScoringContext(),
+    assertRequestCsrf(formData, "judge.team.update"),
+  ]);
+  if (!csrfOk) return { status: "error", message: "Сессия устарела. Обновите страницу." };
 
   const parsed = teamUpdateSchema.safeParse(fields(formData));
-  if (!parsed.success) redirect(categoryPath(formData, "error=team"));
+  if (!parsed.success) {
+    return { status: "error", message: "Нужны номер и название (от 2 символов)." };
+  }
 
   const { id, categoryId, classId, ...patch } = parsed.data;
   const before = await getTeam(id);
   if (!before || before.categoryId !== categoryId || before.classId !== classId) {
-    redirect(categoryPath(formData, "error=team"));
+    return { status: "error", message: "Команда не найдена." };
   }
 
-  let duplicate = false;
   try {
-    await updateTeam(id, patch, context);
+    await updateTeam(id, patch, context, before);
   } catch (error) {
-    // The unique (category, class, code) index again: a start number that is
-    // already taken in this class.
+    // The unique (category, class, code) index: the number is already taken.
     logger.warn("judge.team.update_duplicate", { message: String(error) });
-    duplicate = true;
+    return { status: "error", message: "Этот номер уже занят в классе." };
   }
-  if (duplicate) redirect(categoryPath(formData, "error=code"));
 
-  publishResults();
-  redirect(categoryPath(formData, "saved=team_updated"));
+  return { status: "saved", savedAt: Date.now() };
 }
 
 /**
- * Save one team's row of the attempts table: every attempt cell at once, the
- * way a spreadsheet row is saved.
+ * Save one team's row of the attempts table: every attempt cell at once.
  *
- * Each cell takes what a referee would write on the sheet — a time
- * (`31.075`, `1:02.340`), a points total, or `DNF` / `DSQ` / `FOUL` — and an
- * EMPTY cell deletes the attempt, which is the fix for a result typed into
- * the wrong team's row. Unchanged cells are skipped, so a save writes an
- * audit entry only for what actually moved.
+ * Each cell takes what a referee writes on the sheet — `31.075`, `1:02.340`, a
+ * points total, or `DNF` / `DSQ` / `FOUL` — and an EMPTY cell deletes the
+ * attempt, which is the fix for a result typed into the wrong team's row.
+ * Unchanged cells are skipped. Notes and remaining time are not on this row
+ * and are carried over untouched. Leap is not saved from here: its total is
+ * the output of an itemised sheet.
  *
- * Notes and remaining time are not on this row and are carried over from the
- * stored attempt untouched. Leap is not saved from here at all: its total is
- * the output of an itemised sheet, and a typed total would disagree with the
- * sheet it claims to come from.
+ * Reads the team and all its attempts in one parallel pass, then writes every
+ * changed cell in parallel — a row of three attempts is one round of queries,
+ * not three rounds one after another.
  */
-export async function saveRunRowAction(formData: FormData): Promise<void> {
-  const context = await getScoringContext();
-  if (!(await assertRequestCsrf(formData, "judge.run.row"))) {
-    redirect(categoryPath(formData, "error=csrf"));
-  }
+export async function saveRunRowAction(
+  _prev: ScoringFormState,
+  formData: FormData,
+): Promise<ScoringFormState> {
+  const [context, csrfOk] = await Promise.all([
+    getScoringContext(),
+    assertRequestCsrf(formData, "judge.run.row"),
+  ]);
+  if (!csrfOk) return { status: "error", message: "Сессия устарела. Обновите страницу." };
 
   const raw = fields(formData);
   const category = getCategory(raw.categoryId ?? "");
   const teamId = raw.teamId ?? "";
-  if (!category || category.scoring.kind !== "run" || category.id === "leap") {
-    redirect(categoryPath(formData, "error=run_cell"));
+  if (!category || category.scoring.kind !== "run" || category.id === "leap" || !teamId) {
+    return { status: "error", message: "Эту попытку нельзя внести из таблицы." };
   }
 
-  const team = teamId ? await getTeam(teamId) : null;
+  const [team, stored] = await Promise.all([getTeam(teamId), listRunsForTeam(teamId)]);
   if (!team || team.categoryId !== category.id || team.classId !== raw.classId) {
-    redirect(categoryPath(formData, "error=run_cell"));
+    return { status: "error", message: "Команда не найдена." };
   }
 
   const isTime = category.scoring.metric === "time";
+  const writes: Promise<unknown>[] = [];
 
   for (let round = 1; round <= category.scoring.rounds; round++) {
     const key = `attempt_${round}`;
     if (!(key in raw)) continue;
 
     const value = raw[key].trim();
-    const existing = await getRun(team.id, round);
+    const existing = stored.find((run) => run.roundNumber === round) ?? null;
 
     if (value === "") {
-      if (existing) await deleteRun(team.id, round, context);
+      if (existing) writes.push(deleteRun(team.id, round, context, existing));
       continue;
     }
-
     if (existing && value === formatAttempt(existing, isTime)) continue;
 
     const token = value.toUpperCase();
@@ -562,16 +562,17 @@ export async function saveRunRowAction(formData: FormData): Promise<void> {
       },
       null,
     );
-    if (!result.ok) redirect(categoryPath(formData, "error=run_cell"));
+    if (!result.ok) {
+      return { status: "error", message: `Попытка ${round}: ${result.error}` };
+    }
 
-    await saveRun(
-      { ...result.value, remainingMs: existing?.remainingMs ?? null },
-      context,
+    writes.push(
+      saveRun({ ...result.value, remainingMs: existing?.remainingMs ?? null }, context, existing),
     );
   }
 
-  publishResults();
-  redirect(categoryPath(formData, "saved=run"));
+  await Promise.all(writes);
+  return { status: "saved", savedAt: Date.now() };
 }
 
 /** What an attempt cell shows — and therefore what "unchanged" compares against. */
