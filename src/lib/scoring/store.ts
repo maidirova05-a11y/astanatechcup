@@ -385,6 +385,45 @@ export async function saveMatchResult(
 }
 
 /**
+ * Swap who plays in a match — the fix for a pairing entered against the wrong
+ * start number. Only the corners a judge filled by hand can move: a slot wired
+ * to an earlier match belongs to that match's winner, and editing it here
+ * would silently disagree with the bracket.
+ */
+export async function setMatchTeams(
+  id: string,
+  teams: { redTeamId: string | null; blueTeamId: string | null },
+  context: ScoringContext,
+): Promise<void> {
+  const db = getDb();
+  const before = await getMatch(id);
+  if (!before) return;
+
+  const patch: Partial<typeof scoringMatches.$inferInsert> = {};
+  if (!before.redFromMatchId && teams.redTeamId !== before.redTeamId) {
+    patch.redTeamId = teams.redTeamId;
+  }
+  if (!before.blueFromMatchId && teams.blueTeamId !== before.blueTeamId) {
+    patch.blueTeamId = teams.blueTeamId;
+  }
+  if (Object.keys(patch).length === 0) return;
+
+  await db
+    .update(scoringMatches)
+    .set({ ...patch, updatedAt: new Date() })
+    .where(eq(scoringMatches.id, id));
+
+  await audit(
+    "match",
+    id,
+    "updated",
+    { redTeamId: before.redTeamId, blueTeamId: before.blueTeamId },
+    patch,
+    context,
+  );
+}
+
+/**
  * Bracket wiring, the other half of `redFromMatchId`/`blueFromMatchId`: once
  * a match has a winner, fill that team into whichever next-round slot names
  * this match as its source.
@@ -683,6 +722,27 @@ export async function saveRun(
   );
 
   return row;
+}
+
+/**
+ * Remove one attempt — the fix for a result typed into the wrong team's row.
+ *
+ * Unlike a played match, an attempt row carries no wiring to anything else,
+ * so deleting it cannot orphan a result elsewhere. The value is kept in the
+ * audit trail, which is where a protest will look for it.
+ */
+export async function deleteRun(
+  teamId: string,
+  roundNumber: number,
+  context: ScoringContext,
+): Promise<boolean> {
+  const db = getDb();
+  const before = await getRun(teamId, roundNumber);
+  if (!before) return false;
+
+  await db.delete(scoringRuns).where(eq(scoringRuns.id, before.id));
+  await audit("run", before.id, "deleted", before, null, context);
+  return true;
 }
 
 /* ── Snapshots ──────────────────────────────────────────────────────────── */

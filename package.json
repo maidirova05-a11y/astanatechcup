@@ -15,6 +15,7 @@
     "check": "npm run check:messages && npm run check:scoring && npm run check:csp && npm run check:client && npm run typecheck && npm run lint",
     "keygen": "node scripts/keygen.mjs",
     "setup:local": "node scripts/setup-local-db.mjs",
+    "seed:demo": "tsx --conditions=react-server --env-file=.env.local scripts/seed-demo-scoring.ts",
     "admin:hash": "node scripts/hash-admin-password.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

@@ -229,6 +229,36 @@ export const matchResultSchema = z.object({
 
 export type MatchResultFields = z.infer<typeof matchResultSchema>;
 
+/**
+ * One row of the console's match table — the three fields a judge fills in
+ * without leaving the grid.
+ *
+ * Deliberately NOT a subset of `matchResultSchema`: that schema describes a
+ * whole protocol, and parsing a row against it would read the absent card
+ * counts as zeros and wipe cards a referee had already filed from the full
+ * sheet. A row edit touches the score and the outcome and nothing else; the
+ * action carries the rest of the protocol across untouched.
+ */
+export const matchRowSchema = z.object({
+  id: z.string().uuid(),
+  redScore: matchScore,
+  blueScore: matchScore,
+  outcome: z.enum(["red", "blue", "draw", "open"]),
+  /**
+   * Who plays in each corner. Absent when the row does not offer the choice —
+   * a bracket slot fed by an earlier match — and then left untouched.
+   */
+  redTeamId: z.string().uuid().optional(),
+  blueTeamId: z.string().uuid().optional(),
+});
+
+/** One team, edited in place in the console's roster table. */
+export const teamUpdateSchema = z
+  .object({ id: z.string().uuid() })
+  .and(teamSchema);
+
+export type MatchRowFields = z.infer<typeof matchRowSchema>;
+
 /* ── Runs ───────────────────────────────────────────────────────────────── */
 
 const runStateSchema = z.enum(["ok", "dnf", "foul", "dsq"]);

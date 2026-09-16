@@ -5,7 +5,6 @@
     "description": "The 3rd national technology championship of Kazakhstan. Robotics, drones, programming and esports. 2,500 participants, 720 teams. Winners represent Kazakhstan at the international RobotChallenge.",
     "ogAlt": "AstanaTechCup — national robotics championship of Kazakhstan"
   },
-
   "common": {
     "tbd": "to be confirmed",
     "loading": "Loading…",
@@ -33,7 +32,6 @@
     "sec": "s",
     "noLimit": "no limit"
   },
-
   "nav": {
     "disciplines": "Disciplines",
     "journey": "How to enter",
@@ -45,7 +43,6 @@
     "categories": "Categories",
     "results": "Results"
   },
-
   "hero": {
     "badge": "3rd national championship · {year}",
     "titleLine1": "Build a robot.",
@@ -66,7 +63,6 @@
     "organizedBy": "Organiser",
     "coOrganizedBy": "Co-organiser"
   },
-
   "countdown": {
     "days": "{count, plural, one {day} other {days}}",
     "hours": "{count, plural, one {hour} other {hours}}",
@@ -75,7 +71,6 @@
     "expired": "Time is up",
     "ariaLabel": "{days} days, {hours} hours and {minutes} minutes left until entries close"
   },
-
   "stats": {
     "title": "The championship in numbers",
     "subtitle": "Figures from last season",
@@ -85,7 +80,6 @@
     "edition": "third edition",
     "note": "Figures from the previous championship, held at L. N. Gumilyov Eurasian National University."
   },
-
   "flagship": {
     "eyebrow": "Flagship discipline",
     "title": "RoboSumo",
@@ -100,7 +94,6 @@
     "cta": "Enter RoboSumo",
     "provisionalNote": "Age categories, team size and weight classes will be confirmed in the regulations."
   },
-
   "disciplines": {
     "eyebrow": "Disciplines",
     "title": "Six disciplines — pick yours",
@@ -147,7 +140,6 @@
       }
     }
   },
-
   "categories": {
     "eyebrow": "Rulebook",
     "title": "Every category at the championship",
@@ -364,7 +356,6 @@
       }
     }
   },
-
   "results": {
     "eyebrow": "Scoreboard",
     "title": "Competition results",
@@ -373,11 +364,8 @@
     "metaDescription": "Live AstanaTechCup results: group tables, match sheets and attempt rankings across every category of the championship.",
     "empty": "The competition has not started yet. The first result a judge files will appear here.",
     "emptyCategory": "No results in this category yet.",
-    "notStarted": "Not started yet",
-    "standings": "Group table",
     "leaderboard": "Ranking",
     "recent": "Latest sheets",
-    "bracket": "Playoff bracket",
     "tbd": "TBD",
     "colPos": "#",
     "colTeam": "Team",
@@ -389,8 +377,6 @@
     "colAgainst": "A",
     "colDiff": "GD",
     "colPoints": "Pts",
-    "colResult": "Result",
-    "colAttempts": "Attempts",
     "colBestTime": "Best time",
     "colAverage": "Average",
     "colBest": "Best",
@@ -403,15 +389,41 @@
     "stagePlayoff": "Knockout",
     "stageFinal": "Final",
     "groupLabel": "Group {label}",
-    "roundLabel": "Round {label}",
     "rulesLink": "Category rules",
     "updated": "Updated: {time}",
     "updatedNever": "No updates yet",
     "liveNote": "This page refreshes itself roughly every half minute.",
-    "attemptShort": "A{number}",
-    "notConfigured": "The results system is not connected on this deployment yet."
+    "notConfigured": "The results system is not connected on this deployment yet.",
+    "open": "View",
+    "allClasses": "All championship classes",
+    "statusWaiting": "Not started",
+    "statusRunning": "{done} of {total}",
+    "statusFinished": "Finished",
+    "backToAll": "All results",
+    "stages": "Stages",
+    "groups": "Groups",
+    "groupNone": "No group",
+    "emptyGroup": "No teams in this group yet.",
+    "fullTable": "Full group table",
+    "qualified": "Through to the next round:",
+    "crossLegend": "Each cell carries the match number and the score from the row team's side. Green is a win, amber a draw, red a loss, grey a match not yet played.",
+    "noBracket": "The playoff bracket has not been drawn yet.",
+    "bracketView": "Bracket view",
+    "viewTable": "Table",
+    "viewTree": "Tree",
+    "colMatch": "Match",
+    "colScore": "Score",
+    "colRed": "Red corner",
+    "colBlue": "Blue corner",
+    "notPlayed": "—",
+    "sourceWinner": "Winner of {match}",
+    "sourceGroup": "{place} in Group {group}",
+    "sourceGroupPlain": "{place} in group",
+    "classMetaTitle": "{class} ({code}) — results",
+    "classMetaDescription": "Standings and the playoff bracket for {class} ({category}) at AstanaTechCup.",
+    "legendAttempts": "1, 2, 3 are the attempts. B is the {best}.",
+    "editLink": "Edit (judges only)"
   },
-
   "journey": {
     "eyebrow": "Your route",
     "title": "From entry to podium — seven steps",
@@ -448,7 +460,6 @@
       }
     }
   },
-
   "prizes": {
     "eyebrow": "Awards",
     "title": "The top prize isn't a trophy",
@@ -476,7 +487,6 @@
       }
     }
   },
-
   "audiences": {
     "eyebrow": "Who it's for",
     "title": "Choose your role",
@@ -520,7 +530,6 @@
       }
     }
   },
-
   "registration": {
     "eyebrow": "Registration",
     "title": "Enter your team",
@@ -533,12 +542,10 @@
     "feeIncludes2": "Certificates for participants and a commendation for your organisation",
     "feeIncludes3": "Access to the venue, the pit area and technical support",
     "deadlineNote": "Entries close on {date}",
-
     "sectionTeam": "About the team",
     "sectionMembers": "Team members",
     "sectionContact": "Contact person",
     "sectionConsent": "Consent",
-
     "fieldTeamName": "Team name",
     "fieldTeamNameHint": "How your team will be announced at the venue",
     "fieldDiscipline": "Discipline",
@@ -548,7 +555,6 @@
     "fieldRegion": "Region",
     "fieldRegionPlaceholder": "Choose a region",
     "fieldCity": "City or town",
-
     "memberLabel": "Member {number}",
     "fieldMemberName": "Full name",
     "fieldMemberAge": "Age",
@@ -557,7 +563,6 @@
     "teamSizeHint": "This discipline allows up to {max} members",
     "teamSizeHintUnknown": "Team size will be confirmed in the regulations",
     "ageHint": "This discipline is for ages {min}–{max}",
-
     "fieldContactName": "Full name",
     "fieldContactRole": "You are",
     "fieldContactRolePlaceholder": "Choose your role",
@@ -569,27 +574,23 @@
     "fieldContactPhone": "Phone",
     "fieldContactPhoneHint": "Format: +7 700 000 00 00",
     "fieldComment": "Note for the organising committee",
-
     "consentData": "I consent to the processing of the team members' personal data in accordance with the privacy policy.",
     "consentDataLink": "privacy policy",
     "consentGuardian": "I am the legal guardian of the under-age members of this team, or I hold their written consent to this entry.",
     "consentMedia": "I allow the team to be photographed and filmed at the venue, and those materials to be published in event coverage.",
     "consentMediaOptional": "Optional. It has no bearing on your entry.",
     "consentRules": "I have read the championship regulations and the terms of participation.",
-
     "submit": "Submit entry and continue to payment",
     "submitNoPayment": "Submit entry",
     "submitting": "Submitting…",
     "closed": "Entries are closed",
     "closedBody": "Entries for the {year} championship are no longer being accepted. Watch out for the announcement of the next season.",
-
     "successTitle": "Entry received",
     "successBody": "We've sent confirmation to {email}. Your reference is {reference}. Keep it — you'll need it when contacting the organising committee.",
     "successPayment": "All that's left is the entry fee. Payment is handled on the payment provider's secure page.",
     "successPaymentCta": "Continue to payment",
     "paymentDeferredBody": "Online payment of the entry fee isn't available yet. The organising committee will be in touch with a payment link.",
     "successAnother": "Submit another entry",
-
     "errorTitle": "Entry not submitted",
     "errorGeneric": "Something went wrong. Please try again in a minute.",
     "errorRateLimit": "Too many attempts. Please wait a moment and try again.",
@@ -597,7 +598,6 @@
     "errorDeadline": "Entries have already closed.",
     "errorDuplicate": "An entry with this email and team name has already been submitted.",
     "errorValidation": "Please check the highlighted fields.",
-
     "validation": {
       "teamNameRequired": "Enter a team name",
       "teamNameShort": "That name is too short",
@@ -625,7 +625,6 @@
       "consentRulesRequired": "Please confirm you have read the regulations"
     }
   },
-
   "faq": {
     "eyebrow": "Frequently asked",
     "title": "Answered in advance",
@@ -675,7 +674,6 @@
     "stillQuestions": "Didn't find your answer?",
     "askUs": "Write to the organising committee and we'll reply."
   },
-
   "gallery": {
     "eyebrow": "Last time out",
     "title": "Last season's championship",
@@ -683,7 +681,6 @@
     "watchTrailer": "Watch the trailer",
     "empty": "Photos and video from previous championships will be published here."
   },
-
   "partners": {
     "eyebrow": "Behind the championship",
     "title": "Organisers and partners",
@@ -695,7 +692,6 @@
     "sponsorBody": "The championship brings together thousands of school and university students, their parents and their teachers from across the country. We're happy to discuss partnership formats, from backing a single discipline to headline partnership.",
     "sponsorCta": "Discuss partnership"
   },
-
   "contacts": {
     "eyebrow": "Get in touch",
     "title": "Organising committee",
@@ -712,7 +708,6 @@
     "openMap": "Open in maps",
     "empty": "Contact details for the organising committee will be published here."
   },
-
   "footer": {
     "tagline": "Kazakhstan's national technology championship.",
     "sections": "Sections",
@@ -723,7 +718,6 @@
     "rights": "© {year} {organizer}. All rights reserved.",
     "madeFor": "AstanaTechCup · Astana, Kazakhstan"
   },
-
   "consent": {
     "title": "We use cookies",
     "body": "Essential cookies keep the registration form working and protect it from spam. Analytics cookies help us understand which parts of the site are useful — you can turn those off.",
@@ -731,7 +725,6 @@
     "reject": "Essential only",
     "more": "Learn more"
   },
-
   "payment": {
     "successTitle": "Payment received",
     "successBody": "The entry fee has been received. Entry {reference} is confirmed and the details are on their way to your inbox.",
@@ -742,19 +735,16 @@
     "unavailableTitle": "Payment temporarily unavailable",
     "unavailableBody": "Your entry has been saved. The organising committee will be in touch with a link to pay the entry fee."
   },
-
   "notFound": {
     "title": "Page not found",
     "body": "That page doesn't seem to exist. Head back to the home page — everything about the championship is there.",
     "cta": "Home page"
   },
-
   "error": {
     "title": "Something went wrong",
     "body": "We already know about the problem. Try reloading the page.",
     "cta": "Reload"
   },
-
   "privacy": {
     "title": "Privacy policy",
     "updated": "Last updated: {date}",
@@ -779,7 +769,6 @@
     "s9Title": "9. Security",
     "s9Body": "Data is transmitted over an encrypted connection, access to it is restricted, and actions on entries are logged. Personal data is never written to service logs in the clear."
   },
-
   "terms": {
     "title": "Terms of participation",
     "updated": "Last updated: {date}",
@@ -801,7 +790,6 @@
     "s8Title": "8. Changes",
     "s8Body": "The organiser may adjust the dates, venue and regulations, giving registered teams timely notice through the contact details provided in their entry."
   },
-
   "regions": {
     "label": "Region",
     "abai": "Abai Region",

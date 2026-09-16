@@ -23,12 +23,17 @@ import {
   createMatch,
   createTeam,
   createTeamsBulk,
+  deleteRun,
   deleteScheduledMatch,
   generateEliminationBracket,
   generateRoundRobin,
   getMatch,
+  getRun,
+  getTeam,
   saveMatchResult,
   saveRun,
+  setMatchTeams,
+  updateTeam,
 } from "@/lib/scoring/store";
 import {
   bulkTeamSchema,
@@ -36,9 +41,12 @@ import {
   generateRoundRobinSchema,
   matchCreateSchema,
   matchResultSchema,
+  matchRowSchema,
   parseRun,
   teamSchema,
+  teamUpdateSchema,
 } from "@/lib/validation/scoring";
+import { formatClock } from "@/lib/scoring/format";
 import { getScoringContext } from "./auth";
 import type { JudgeLoginState, ScoringFormState } from "./form-state";
 import type { SessionRole } from "@/lib/db/schema";
@@ -181,12 +189,17 @@ function fields(formData: FormData): Record<string, string> {
 /**
  * Push the change to the public scoreboard immediately.
  *
- * The results page is cached for thirty seconds so a crowd refreshing it does
- * not become a load test against Postgres. That is fine for a page nobody is
- * waiting on, and wrong for the ten seconds after a final — hence this.
+ * Both results routes: the index, which shows every class and the latest
+ * results across all of them, and the per-category board a hall full of
+ * people is actually watching. Each renders per request (a cached document
+ * cannot carry the CSP nonce — see the note on the results page), so this is
+ * belt and braces rather than the only thing keeping them fresh; it costs
+ * nothing and it is the line that would matter if either page were ever
+ * given a revalidate window again.
  */
 function publishResults(): void {
   revalidatePath("/[locale]/results", "page");
+  revalidatePath("/[locale]/results/[category]", "page");
 }
 
 /* ── Teams ──────────────────────────────────────────────────────────────── */
@@ -338,6 +351,236 @@ export async function deleteMatchAction(formData: FormData): Promise<void> {
   }
 
   redirect(categoryPath(formData));
+}
+
+/**
+ * Save one row of the console's match table.
+ *
+ * The same table the public board shows, with the score and the outcome
+ * editable in place — which is how a referee working a group of sixteen
+ * actually files results: down the list, one line at a time, without opening
+ * and closing twenty protocols.
+ *
+ * Three things it deliberately does NOT do:
+ *
+ *  · It does not infer the winner from the scores. Every rulebook here lets a
+ *    referee award a match against the score, so the outcome is a field, not
+ *    a calculation — the same rule the full protocol follows.
+ *  · It does not touch cards or notes. They are not on this row, and a form
+ *    that silently zeroes the fields it does not show is a form that loses a
+ *    red card nobody notices until the appeal.
+ *  · It does not let a slot that has no team be declared the winner. An empty
+ *    bracket slot is "TBD", and naming it a winner would advance nobody into
+ *    the next round while marking the match closed.
+ */
+export async function saveMatchRowAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.match.row"))) {
+    redirect(categoryPath(formData, "error=csrf"));
+  }
+
+  // An empty corner select ("TBD") means "no change", not an invalid id.
+  const rowFields = fields(formData);
+  for (const key of ["redTeamId", "blueTeamId"]) {
+    if (rowFields[key] === "") delete rowFields[key];
+  }
+  const parsed = matchRowSchema.safeParse(rowFields);
+  if (!parsed.success) {
+    redirect(categoryPath(formData, "error=match"));
+  }
+
+  const { id, redScore, blueScore, outcome } = parsed.data;
+  let match = await getMatch(id);
+  if (!match) redirect(categoryPath(formData, "error=match"));
+
+  /**
+   * A pairing typed against the wrong start number is fixed in the same row as
+   * its score. Both teams must belong to this class and be different — the
+   * same checks the "new match" form makes — and a corner wired to an earlier
+   * match is never offered, so it never arrives here.
+   */
+  const redTeamId = parsed.data.redTeamId ?? match.redTeamId;
+  const blueTeamId = parsed.data.blueTeamId ?? match.blueTeamId;
+
+  if (redTeamId !== match.redTeamId || blueTeamId !== match.blueTeamId) {
+    if (redTeamId && blueTeamId && redTeamId === blueTeamId) {
+      redirect(categoryPath(formData, "error=match"));
+    }
+    for (const teamId of [redTeamId, blueTeamId]) {
+      if (!teamId) continue;
+      const team = await getTeam(teamId);
+      if (!team || team.categoryId !== match.categoryId || team.classId !== match.classId) {
+        redirect(categoryPath(formData, "error=match"));
+      }
+    }
+    await setMatchTeams(id, { redTeamId, blueTeamId }, context);
+    match = (await getMatch(id))!;
+  }
+
+  const winnerTeamId =
+    outcome === "red" ? match.redTeamId : outcome === "blue" ? match.blueTeamId : null;
+
+  if ((outcome === "red" || outcome === "blue") && winnerTeamId === null) {
+    redirect(categoryPath(formData, "error=slot"));
+  }
+
+  await saveMatchResult(
+    id,
+    {
+      redScore,
+      blueScore,
+      // Carried across from the stored protocol, not re-read from the form.
+      redYellow: match.redYellow,
+      redRed: match.redRed,
+      blueYellow: match.blueYellow,
+      blueRed: match.blueRed,
+      notes: match.notes,
+      /**
+       * A score with no outcome is a match being played, which is exactly
+       * what "live" means. Choosing an outcome closes the sheet; clearing it
+       * again re-opens one that was closed by mistake.
+       */
+      state: outcome === "open" ? "live" : "completed",
+      winnerTeamId,
+      isDraw: outcome === "draw",
+    },
+    context,
+  );
+
+  publishResults();
+  redirect(categoryPath(formData, "saved=row"));
+}
+
+/**
+ * Save one row of the roster table — a corrected name, start number,
+ * organisation, region or group.
+ *
+ * Nothing else has to be touched afterwards. Standings, cross-tables, bracket
+ * slots and the public board all read the team by id and render its current
+ * name, so a typo fixed here is fixed everywhere on the next render.
+ */
+export async function updateTeamAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.team.update"))) {
+    redirect(categoryPath(formData, "error=csrf"));
+  }
+
+  const parsed = teamUpdateSchema.safeParse(fields(formData));
+  if (!parsed.success) redirect(categoryPath(formData, "error=team"));
+
+  const { id, categoryId, classId, ...patch } = parsed.data;
+  const before = await getTeam(id);
+  if (!before || before.categoryId !== categoryId || before.classId !== classId) {
+    redirect(categoryPath(formData, "error=team"));
+  }
+
+  let duplicate = false;
+  try {
+    await updateTeam(id, patch, context);
+  } catch (error) {
+    // The unique (category, class, code) index again: a start number that is
+    // already taken in this class.
+    logger.warn("judge.team.update_duplicate", { message: String(error) });
+    duplicate = true;
+  }
+  if (duplicate) redirect(categoryPath(formData, "error=code"));
+
+  publishResults();
+  redirect(categoryPath(formData, "saved=team_updated"));
+}
+
+/**
+ * Save one team's row of the attempts table: every attempt cell at once, the
+ * way a spreadsheet row is saved.
+ *
+ * Each cell takes what a referee would write on the sheet — a time
+ * (`31.075`, `1:02.340`), a points total, or `DNF` / `DSQ` / `FOUL` — and an
+ * EMPTY cell deletes the attempt, which is the fix for a result typed into
+ * the wrong team's row. Unchanged cells are skipped, so a save writes an
+ * audit entry only for what actually moved.
+ *
+ * Notes and remaining time are not on this row and are carried over from the
+ * stored attempt untouched. Leap is not saved from here at all: its total is
+ * the output of an itemised sheet, and a typed total would disagree with the
+ * sheet it claims to come from.
+ */
+export async function saveRunRowAction(formData: FormData): Promise<void> {
+  const context = await getScoringContext();
+  if (!(await assertRequestCsrf(formData, "judge.run.row"))) {
+    redirect(categoryPath(formData, "error=csrf"));
+  }
+
+  const raw = fields(formData);
+  const category = getCategory(raw.categoryId ?? "");
+  const teamId = raw.teamId ?? "";
+  if (!category || category.scoring.kind !== "run" || category.id === "leap") {
+    redirect(categoryPath(formData, "error=run_cell"));
+  }
+
+  const team = teamId ? await getTeam(teamId) : null;
+  if (!team || team.categoryId !== category.id || team.classId !== raw.classId) {
+    redirect(categoryPath(formData, "error=run_cell"));
+  }
+
+  const isTime = category.scoring.metric === "time";
+
+  for (let round = 1; round <= category.scoring.rounds; round++) {
+    const key = `attempt_${round}`;
+    if (!(key in raw)) continue;
+
+    const value = raw[key].trim();
+    const existing = await getRun(team.id, round);
+
+    if (value === "") {
+      if (existing) await deleteRun(team.id, round, context);
+      continue;
+    }
+
+    if (existing && value === formatAttempt(existing, isTime)) continue;
+
+    const token = value.toUpperCase();
+    const state =
+      token === "DNF" || token === "СХОД"
+        ? "dnf"
+        : token === "DSQ" || token === "ДИСК"
+          ? "dsq"
+          : token === "FOUL" || token === "ФОЛ"
+            ? "foul"
+            : "ok";
+
+    const result = parseRun(
+      {
+        categoryId: category.id,
+        classId: team.classId,
+        teamId: team.id,
+        roundNumber: String(round),
+        state,
+        time: isTime && state === "ok" ? value.replace(",", ".") : "",
+        points: !isTime && state === "ok" ? value : "",
+        remaining: "",
+        notes: existing?.notes ?? "",
+      },
+      null,
+    );
+    if (!result.ok) redirect(categoryPath(formData, "error=run_cell"));
+
+    await saveRun(
+      { ...result.value, remainingMs: existing?.remainingMs ?? null },
+      context,
+    );
+  }
+
+  publishResults();
+  redirect(categoryPath(formData, "saved=run"));
+}
+
+/** What an attempt cell shows — and therefore what "unchanged" compares against. */
+function formatAttempt(
+  run: { state: string; timeMs: number | null; points: number | null },
+  isTime: boolean,
+): string {
+  if (run.state !== "ok") return run.state.toUpperCase();
+  return isTime ? formatClock(run.timeMs ?? 0) : String(run.points ?? 0);
 }
 
 export async function saveMatchAction(

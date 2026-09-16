@@ -66,6 +66,19 @@ export type CategoryClass = {
   id: string;
   /** Proper noun from the rulebook — identical in every language. */
   label: string;
+  /**
+   * The class's short code, as RobotChallenge itself numbers these classes on
+   * its results system: C11 LEGO Sumo, C13 Mini Sumo, C73 LEGO Line Follower,
+   * C9F Drone Soccer, and so on. Where a class IS an age group the group
+   * letter is part of the code — A junior, B senior, E adult, F open — which
+   * is why Rugby is C61A/C61B while Mini Sumo, open to two groups at once, is
+   * plain C13.
+   *
+   * Not decorative: this is the identifier announced over the PA, written on
+   * the start list and quoted on a protest form, so it has to match what the
+   * international results board shows for the same class.
+   */
+  code: string;
   groups: readonly AgeGroup[];
   control: Control;
   envelope: Envelope;
@@ -176,6 +189,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "lego",
         label: "LEGO Sumo",
+        code: "C11",
         groups: ["junior", "senior"],
         control: "autonomous",
         envelope: { width: 15, length: 15, height: 32, weight: 1000 },
@@ -184,6 +198,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "mega",
         label: "Mega Sumo",
+        code: "C17",
         groups: ["adult"],
         control: "autonomous",
         envelope: { width: 20, length: 20, height: null, weight: 3000 },
@@ -192,6 +207,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "mega-rc",
         label: "Remote Mega Sumo",
+        code: "C18",
         groups: ["senior", "adult"],
         control: "remote",
         envelope: { width: 20, length: 20, height: null, weight: 3000 },
@@ -200,6 +216,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "mini",
         label: "Mini Sumo",
+        code: "C13",
         groups: ["senior", "adult"],
         control: "autonomous",
         envelope: { width: 10, length: 10, height: null, weight: 500 },
@@ -208,6 +225,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "mini-rc",
         label: "Remote Mini Sumo",
+        code: "C14",
         groups: ["senior", "adult"],
         control: "remote",
         envelope: { width: 10, length: 10, height: null, weight: 500 },
@@ -216,6 +234,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "micro",
         label: "Micro Sumo",
+        code: "C19",
         groups: ["adult"],
         control: "autonomous",
         envelope: { width: 5, length: 5, height: 5, weight: 100 },
@@ -224,6 +243,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "nano",
         label: "Nano Sumo",
+        code: "C1A",
         groups: ["adult"],
         control: "autonomous",
         envelope: { width: 2.5, length: 2.5, height: 2.5, weight: 25 },
@@ -232,6 +252,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "humanoid",
         label: "Humanoid Sumo",
+        code: "C1B",
         groups: ["adult"],
         control: "autonomous",
         envelope: { width: 20, length: 20, height: 50, weight: 3000 },
@@ -240,6 +261,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "humanoid-rc",
         label: "Remote Humanoid Sumo",
+        code: "C1C",
         groups: ["adult"],
         control: "remote",
         envelope: { width: 20, length: 20, height: 50, weight: 3000 },
@@ -276,6 +298,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "lego",
         label: "LEGO Line Follower",
+        code: "C73",
         groups: ["junior", "senior", "adult"],
         control: "autonomous",
         envelope: { width: 30, length: 30, height: null, weight: 3000 },
@@ -284,6 +307,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "open",
         label: "Line Follower",
+        code: "C74",
         groups: ["junior", "senior", "adult"],
         control: "autonomous",
         envelope: { width: 30, length: 30, height: null, weight: 3000 },
@@ -292,6 +316,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "enhanced",
         label: "Line Follower Enhanced",
+        code: "C75",
         groups: ["senior", "adult"],
         control: "autonomous",
         envelope: { width: 30, length: 30, height: null, weight: 3000 },
@@ -325,6 +350,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "junior",
         label: "Rugby Junior",
+        code: "C61A",
         groups: ["junior"],
         control: "remote",
         envelope: { width: 20, length: 20, height: 20, weight: 1500 },
@@ -333,6 +359,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "senior",
         label: "Rugby Senior",
+        code: "C61B",
         groups: ["senior"],
         control: "remote",
         envelope: { width: 20, length: 20, height: 20, weight: 3000 },
@@ -365,6 +392,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "junior",
         label: "Drone Soccer Junior",
+        code: "C9FA",
         groups: ["junior"],
         control: "remote",
         // Drones are measured across the protective cage, not as a box, so
@@ -375,6 +403,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "senior",
         label: "Drone Soccer Senior",
+        code: "C9FB",
         groups: ["senior"],
         control: "remote",
         envelope: { width: 22, length: null, height: null, weight: 300 },
@@ -411,6 +440,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "junior",
         label: "Ring Master Junior",
+        code: "C9EA",
         groups: ["junior"],
         control: "remote",
         envelope: { width: 25, length: 25, height: 25, weight: 2000 },
@@ -419,6 +449,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "senior",
         label: "Ring Master Senior",
+        code: "C9EB",
         groups: ["senior"],
         control: "remote",
         envelope: { width: 25, length: 25, height: 25, weight: 2000 },
@@ -455,6 +486,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "junior",
         label: "Bowling Junior",
+        code: "C91A",
         groups: ["junior"],
         control: "autonomous",
         // 20 × 20 at inspection; may expand to 30 × 30 once running.
@@ -464,6 +496,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "senior",
         label: "Bowling Senior",
+        code: "C91B",
         groups: ["senior"],
         control: "autonomous",
         envelope: { width: 20, length: 20, height: null, weight: null },
@@ -502,6 +535,7 @@ export const CATEGORIES: readonly Category[] = [
       {
         id: "open",
         label: "Leap",
+        code: "CL5F",
         groups: ["junior"],
         control: "remote",
         // "Robot size must not exceed the START area" — no absolute figure is
@@ -593,3 +627,38 @@ export function categoryGroups(category: Category): AgeGroup[] {
 
 /** Total classes across the catalogue — the headline number on the page. */
 export const TOTAL_CLASSES = CATEGORIES.reduce((n, c) => n + c.classes.length, 0);
+
+/**
+ * Every class as a flat list, each still carrying the category it belongs to.
+ *
+ * The results board is indexed by CLASS, not by category: a referee, a team
+ * and a spectator all think in "Mini Sumo", never in "sumo in general", and
+ * the international board this one mirrors gives every class its own card and
+ * its own code. `(categoryId, classId)` is also exactly the key the scoring
+ * tables use, so this list is the natural spine of the whole results section.
+ */
+export type CatalogueEntry = {
+  category: Category;
+  cls: CategoryClass;
+  /** 1-based position in this list — the number printed on the index card. */
+  index: number;
+};
+
+export const CLASS_CATALOGUE: readonly CatalogueEntry[] = CATEGORIES.flatMap(
+  (category) => category.classes.map((cls) => ({ category, cls })),
+).map((entry, i) => ({ ...entry, index: i + 1 }));
+
+export function getCatalogueEntry(
+  categoryId: string,
+  classId: string,
+): CatalogueEntry | undefined {
+  return CLASS_CATALOGUE.find(
+    (entry) => entry.category.id === categoryId && entry.cls.id === classId,
+  );
+}
+
+/** Looked up from a URL or a start list, so case is not the visitor's problem. */
+export function getEntryByCode(code: string): CatalogueEntry | undefined {
+  const wanted = code.trim().toUpperCase();
+  return CLASS_CATALOGUE.find((entry) => entry.cls.code === wanted);
+}

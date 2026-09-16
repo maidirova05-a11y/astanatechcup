@@ -3,22 +3,20 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { requireScoringSession } from "../auth";
-import {
-  JudgeShell,
-  Card,
-  Flash,
-  StateBadge,
-  STATE_LABELS,
-} from "@/components/judge/JudgeShell";
+import { JudgeShell, Card, Flash } from "@/components/judge/JudgeShell";
 import { CSRF_FIELD, CSRF_HEADER } from "@/lib/security/csrf";
 import { getCategory, type Category, type CategoryClass } from "@/config/categories";
 import { getCategorySnapshot } from "@/lib/scoring/store";
-import { formatClock } from "@/lib/scoring/format";
 import { buildStandings } from "@/lib/scoring/standings";
 import { seedFromGroupStandings } from "@/lib/scoring/bracket";
 import { BracketSeedEditor, type SeedRow } from "@/components/judge/BracketSeedEditor";
+import { MatchGrid } from "@/components/judge/MatchGrid";
+import { RunGrid } from "@/components/judge/RunGrid";
+import { TeamGrid } from "@/components/judge/TeamGrid";
+import { CrossTable } from "@/components/sections/CrossTable";
+import type { Translator } from "@/components/sections/ResultTables";
+import { buildCrossTable, compareByCreation, numberMatches } from "@/lib/scoring/table";
 import {
-  archiveTeamAction,
   createMatchAction,
   createTeamAction,
   createTeamsBulkAction,
@@ -57,6 +55,10 @@ export default async function JudgeCategoryPage({
   // Region names are already translated for the public form; the console reads
   // the Russian column rather than keeping a second list of oblasts.
   const tr = await getTranslations({ locale: "ru", namespace: "regions" });
+  // The console shows the SAME cross-table the public board does, so a referee
+  // and a spectator are looking at one artefact rather than two renderings of
+  // it. Its column headings come from the public catalogue.
+  const tres = await getTranslations({ locale: "ru", namespace: "results" });
   const headerList = await headers();
   const csrfToken = headerList.get(CSRF_HEADER) ?? "";
 
@@ -68,21 +70,11 @@ export default async function JudgeCategoryPage({
   const matches = snapshot.matches.filter((m) => m.classId === selectedClass.id);
   const runs = snapshot.runs.filter((r) => r.classId === selectedClass.id);
 
-  // Null is a bracket slot nobody has reached yet — not a lookup failure,
-  // so it gets its own word rather than falling into the "—"/"?" used for a
-  // team id that genuinely cannot be found.
-  const nameOf = (id: string | null) =>
-    id === null
-      ? "TBD"
-      : (snapshot.teams.find((team) => team.id === id)?.name ??
-        snapshot.archived.get(id)?.name ??
-        "—");
-  const codeOf = (id: string | null) =>
-    id === null
-      ? "—"
-      : (snapshot.teams.find((team) => team.id === id)?.code ??
-        snapshot.archived.get(id)?.code ??
-        "?");
+  // Every team a match in this class can name, withdrawn ones included: a
+  // played match still has to show who played it after a team goes home.
+  const teamsById = new Map(
+    [...snapshot.teams, ...snapshot.archived.values()].map((team) => [team.id, team]),
+  );
 
   return (
     <JudgeShell
@@ -124,17 +116,16 @@ export default async function JudgeCategoryPage({
             teams={teams}
             matches={matches}
             csrfToken={csrfToken}
-            nameOf={nameOf}
-            codeOf={codeOf}
+            teamsById={teamsById}
+            t={tres}
           />
         ) : (
           <RunsPanel
-            categoryId={categoryId}
+            category={category}
             cls={selectedClass}
             teams={teams}
             runs={runs}
-            rounds={category.scoring.rounds}
-            metric={category.scoring.metric}
+            csrfToken={csrfToken}
           />
         )}
 
@@ -159,8 +150,8 @@ function MatchesPanel({
   teams,
   matches,
   csrfToken,
-  nameOf,
-  codeOf,
+  teamsById,
+  t,
 }: {
   category: Category;
   categoryId: string;
@@ -168,9 +159,13 @@ function MatchesPanel({
   teams: ScoringTeamRow[];
   matches: ScoringMatchRow[];
   csrfToken: string;
-  nameOf: (id: string | null) => string;
-  codeOf: (id: string | null) => string;
+  teamsById: Map<string, ScoringTeamRow>;
+  t: Translator;
 }) {
+  const numbers = numberMatches(matches);
+  const blocks = splitIntoBlocks(matches);
+  const scheduled = matches.filter((match) => match.state === "scheduled");
+
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
@@ -257,56 +252,122 @@ function MatchesPanel({
           <p className="text-sm text-muted">Матчей в этом классе пока нет.</p>
         </Card>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {matches.map((match) => (
-            <li key={match.id}>
-              <div className="rounded-lg border border-line bg-surface">
-                <Link
-                  href={`/judge/${categoryId}/match/${match.id}`}
-                  className="flex items-center justify-between gap-4 p-4"
-                >
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="truncate font-semibold">
-                      {codeOf(match.redTeamId)} {nameOf(match.redTeamId)}
-                      <span className="mx-2 text-subtle">—</span>
-                      {codeOf(match.blueTeamId)} {nameOf(match.blueTeamId)}
-                    </span>
-                    <span className="flex flex-wrap items-center gap-2 text-xs text-subtle">
-                      <StateBadge state={match.state} />
-                      {match.roundLabel && <span>{match.roundLabel}</span>}
-                      {match.groupLabel && <span>Группа {match.groupLabel}</span>}
-                    </span>
-                  </div>
-                  <span className="tabular shrink-0 font-display text-2xl font-extrabold">
-                    {match.redScore}:{match.blueScore}
-                  </span>
-                </Link>
+        <div className="flex flex-col gap-6">
+          {blocks.map((block) => (
+            <section key={block.key} className="flex flex-col gap-3">
+              <h3 className="text-base font-bold">{block.title}</h3>
 
-                {/* Only a match nobody has scored yet can be removed; a filed
-                    sheet is corrected, never deleted. */}
-                {match.state === "scheduled" && (
-                  <form
-                    action={deleteMatchAction}
-                    className="border-t border-line px-4 py-2"
-                  >
-                    <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
-                    <input type="hidden" name="categoryId" value={categoryId} />
-                    <input type="hidden" name="id" value={match.id} />
-                    <button
-                      type="submit"
-                      className="inline-flex min-h-11 items-center text-xs font-medium text-muted hover:text-danger"
-                    >
-                      Удалить незаполненный протокол
-                    </button>
-                  </form>
-                )}
-              </div>
-            </li>
+              {/* The group's ladder, with every filled cell linking to the
+                  protocol behind it: a referee who spots a wrong score points
+                  at the cell rather than hunting for the pairing in a list.
+                  The rows below it are for entering results; this is for
+                  finding the one that needs fixing. */}
+              {block.group !== null && (
+                <CrossTable
+                  table={buildCrossTable(
+                    teams.filter((team) => team.groupLabel === block.group!.label),
+                    block.matches,
+                    category,
+                    numbers,
+                    block.group.label,
+                  )}
+                  t={t}
+                  title={block.title}
+                  hrefOf={(matchId) => `/judge/${categoryId}/match/${matchId}`}
+                />
+              )}
+
+              <MatchGrid
+                categoryId={categoryId}
+                classId={cls.id}
+                matches={block.matches}
+                numbers={numbers}
+                teams={teamsById}
+                classTeams={teams}
+                csrfToken={csrfToken}
+              />
+            </section>
           ))}
-        </ul>
+
+          {/* A filed sheet is corrected, never deleted — only a protocol
+              nobody has scored can be removed, and that is exactly what has
+              to be possible before a bracket can be rebuilt. Tucked away
+              because it is a rare action next to a screen full of common
+              ones. */}
+          {scheduled.length > 0 && (
+            <details className="rounded-lg border border-line bg-surface">
+              <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold">
+                Удалить незаполненные протоколы ({scheduled.length})
+              </summary>
+              <ul className="flex flex-col gap-2 border-t border-line p-5">
+                {scheduled.map((match) => (
+                  <li key={match.id} className="flex items-center justify-between gap-3">
+                    <span className="min-w-0 truncate text-sm">
+                      <span className="tabular mr-2 font-bold">
+                        {numbers.get(match.id) ?? "—"}
+                      </span>
+                      {teamsById.get(match.redTeamId ?? "")?.name ?? "TBD"}
+                      <span className="mx-2 text-subtle">—</span>
+                      {teamsById.get(match.blueTeamId ?? "")?.name ?? "TBD"}
+                    </span>
+                    <form action={deleteMatchAction} className="shrink-0">
+                      <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
+                      <input type="hidden" name="categoryId" value={categoryId} />
+                      <input type="hidden" name="classId" value={cls.id} />
+                      <input type="hidden" name="id" value={match.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 items-center text-xs font-medium text-muted hover:text-danger"
+                      >
+                        Удалить
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
       )}
     </section>
   );
+}
+
+/**
+ * Matches, split into the blocks they are numbered in: one per group, then
+ * the whole elimination bracket.
+ *
+ * Same split as lib/scoring/table.ts uses for numbering, and in the same
+ * order, so "M7" on this screen is "M7" on the public board.
+ */
+type Block = {
+  key: string;
+  title: string;
+  matches: ScoringMatchRow[];
+  /** Null for the playoff block; a round robin has a ladder, a bracket has not. */
+  group: { label: string | null } | null;
+};
+
+function splitIntoBlocks(matches: ScoringMatchRow[]): Block[] {
+  const groupLabels = [
+    ...new Set(matches.filter((m) => m.stage === "group").map((m) => m.groupLabel)),
+  ].sort((a, b) => (a ?? "").localeCompare(b ?? ""));
+
+  const blocks: Block[] = groupLabels.map((label) => ({
+    key: `group:${label ?? ""}`,
+    title: label ? `Группа ${label}` : "Групповой этап",
+    matches: matches
+      .filter((m) => m.stage === "group" && m.groupLabel === label)
+      .sort(compareByCreation),
+    group: { label },
+  }));
+
+  const bracket = matches.filter((m) => m.stage !== "group").sort(compareByCreation);
+  if (bracket.length > 0) {
+    blocks.push({ key: "bracket", title: "Плей-офф", matches: bracket, group: null });
+  }
+
+  return blocks;
 }
 
 /**
@@ -446,26 +507,19 @@ function BracketGenerators({
 /* ── Runs ───────────────────────────────────────────────────────────────── */
 
 function RunsPanel({
-  categoryId,
+  category,
   cls,
   teams,
   runs,
-  rounds,
-  metric,
+  csrfToken,
 }: {
-  categoryId: string;
+  category: Category;
   cls: CategoryClass;
   teams: ScoringTeamRow[];
   runs: ScoringRunRow[];
-  rounds: number;
-  metric: "time" | "points";
+  csrfToken: string;
 }) {
-  const byTeam = new Map<string, ScoringRunRow[]>();
-  for (const run of runs) {
-    const list = byTeam.get(run.teamId);
-    if (list) list.push(run);
-    else byTeam.set(run.teamId, [run]);
-  }
+  const rounds = category.scoring.kind === "run" ? category.scoring.rounds : 0;
 
   return (
     <section className="flex flex-col gap-4">
@@ -483,59 +537,13 @@ function RunsPanel({
           </p>
         </Card>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {teams.map((team) => {
-            const teamRuns = byTeam.get(team.id) ?? [];
-            return (
-              <li key={team.id} className="rounded-lg border border-line bg-surface p-4">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="tabular font-display text-lg font-extrabold text-brand">
-                    {team.code}
-                  </span>
-                  <span className="font-semibold">{team.name}</span>
-                  {team.organization && (
-                    <span className="text-xs text-subtle">{team.organization}</span>
-                  )}
-                </div>
-
-                {/* One tap per attempt. Big targets, because this is the
-                    control a referee uses most and they are wearing gloves. */}
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => {
-                    const run = teamRuns.find((r) => r.roundNumber === round);
-                    return (
-                      <li key={round}>
-                        <Link
-                          href={`/judge/${categoryId}/run/${team.id}/${round}`}
-                          className={
-                            run
-                              ? "inline-flex min-h-11 flex-col justify-center rounded-md border border-line-strong bg-surface-muted px-3 py-1.5"
-                              : "inline-flex min-h-11 items-center rounded-md border border-dashed border-line-strong px-3 py-1.5 text-sm text-muted"
-                          }
-                        >
-                          <span className="text-2xs uppercase tracking-wider text-subtle">
-                            Попытка {round}
-                          </span>
-                          {run ? (
-                            <span className="tabular text-sm font-bold">
-                              {run.state !== "ok"
-                                ? STATE_LABELS[run.state]
-                                : metric === "time"
-                                  ? formatClock(run.timeMs ?? 0)
-                                  : `${run.points ?? 0} очк.`}
-                            </span>
-                          ) : (
-                            <span className="text-sm">внести</span>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </li>
-            );
-          })}
-        </ul>
+        <RunGrid
+          category={category}
+          classId={cls.id}
+          teams={teams}
+          runs={runs}
+          csrfToken={csrfToken}
+        />
       )}
     </section>
   );
@@ -677,36 +685,13 @@ function TeamsPanel({
           </p>
         </Card>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {teams.map((team) => (
-            <li
-              key={team.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3"
-            >
-              <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
-                <span className="tabular font-display font-extrabold text-brand">
-                  {team.code}
-                </span>
-                <span className="truncate font-semibold">{team.name}</span>
-                {team.groupLabel && (
-                  <span className="text-xs text-subtle">гр. {team.groupLabel}</span>
-                )}
-              </div>
-
-              <form action={archiveTeamAction}>
-                <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
-                <input type="hidden" name="categoryId" value={categoryId} />
-                <input type="hidden" name="id" value={team.id} />
-                <button
-                  type="submit"
-                  className="inline-flex min-h-11 shrink-0 items-center text-xs font-medium text-muted hover:text-danger"
-                >
-                  Снять
-                </button>
-              </form>
-            </li>
-          ))}
-        </ul>
+        <TeamGrid
+          categoryId={categoryId}
+          classId={cls.id}
+          teams={teams}
+          csrfToken={csrfToken}
+          regionLabel={regionLabel}
+        />
       )}
     </section>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, routing, LOCALE_TAGS } from "@/i18n/routing";
-import { Results, type ResultsData } from "@/components/sections/Results";
+import { ResultsIndex, type ResultsData } from "@/components/sections/ResultsIndex";
 import { CATEGORIES } from "@/config/categories";
 import { getCategorySnapshot, type CategorySnapshot } from "@/lib/scoring/store";
 import { env, features } from "@/lib/env";
@@ -114,5 +114,5 @@ export default async function ResultsPage({
 
   const data: ResultsData = { snapshots, configured: reachable };
 
-  return <Results locale={locale} data={data} />;
+  return <ResultsIndex locale={locale} data={data} />;
 }

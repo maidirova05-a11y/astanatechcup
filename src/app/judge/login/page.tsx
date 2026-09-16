@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { CSRF_HEADER } from "@/lib/security/csrf";
 import { getSession } from "@/lib/admin/session";
-import { assertScoringEnabled } from "../auth";
+import { SCORING_AUTH_BYPASSED, assertScoringEnabled } from "../auth";
 import { JudgeLoginForm } from "@/components/judge/JudgeLoginForm";
 import { Logo } from "@/components/layout/Logo";
 import { features } from "@/lib/env";
@@ -16,7 +16,8 @@ export default async function JudgeLoginPage() {
   assertScoringEnabled();
 
   const session = await getSession();
-  if (session) redirect("/judge");
+  // Locally the console needs no password, so the form would be a dead end.
+  if (session || SCORING_AUTH_BYPASSED) redirect("/judge");
 
   const headerList = await headers();
   const csrfToken = headerList.get(CSRF_HEADER) ?? "";
