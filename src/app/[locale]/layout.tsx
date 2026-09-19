@@ -85,6 +85,28 @@ export async function generateMetadata({
       date: false,
       address: false,
     },
+
+    /*
+     * Site-ownership proof for the two consoles that matter here. Until one of
+     * these verifies, the property cannot be claimed at all: no sitemap
+     * submission, no index coverage report, no way to ask for a recrawl.
+     *
+     * Emitted ONLY when the token is present. Both consoles re-check the tag
+     * periodically and withdraw verification when it vanishes or turns up
+     * empty, so an unconfigured deploy must ship no tag rather than a blank
+     * one that reads as a failed check.
+     *
+     * `other` is used for Yandex because next/metadata has no first-class
+     * field for it — Google, Bing and Yahoo do.
+     */
+    verification: {
+      ...(env.GOOGLE_SITE_VERIFICATION
+        ? { google: env.GOOGLE_SITE_VERIFICATION }
+        : {}),
+      ...(env.YANDEX_SITE_VERIFICATION
+        ? { other: { "yandex-verification": env.YANDEX_SITE_VERIFICATION } }
+        : {}),
+    },
   };
 }
 
