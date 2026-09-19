@@ -148,6 +148,100 @@ function eventSchema(appUrl: string, locale: Locale, description: string): Json 
 }
 
 /**
+ * The landing page itself, as distinct from the site and from the event.
+ *
+ * Without it the FAQ and the breadcrumb have nothing to hang off, and a crawler
+ * has to guess which URL the questions belong to. With it they are pinned to
+ * this locale's home page.
+ */
+function webPageSchema(
+  appUrl: string,
+  locale: Locale,
+  title: string,
+  description: string,
+): Json {
+  return {
+    "@type": "WebPage",
+    "@id": `${appUrl}/${locale}#webpage`,
+    url: `${appUrl}/${locale}`,
+    name: title,
+    description,
+    inLanguage: LOCALE_TAGS[locale],
+    isPartOf: { "@id": `${appUrl}/#website` },
+    about: { "@id": `${appUrl}/#event` },
+    primaryImageOfPage: `${appUrl}/${locale}/opengraph-image`,
+    breadcrumb: { "@id": `${appUrl}/${locale}#breadcrumb` },
+  };
+}
+
+/**
+ * The questions the page already renders.
+ *
+ * ── The rule that makes this safe ────────────────────────────────────────
+ * Google drops FAQ rich results — and can hold it against the domain — when
+ * the structured answers do not appear verbatim in the visible HTML. So the
+ * caller passes the SAME strings `components/sections/Faq.tsx` renders,
+ * resolved through the same translator with the same interpolation values.
+ * Nothing here re-writes, trims or summarises them.
+ * ─────────────────────────────────────────────────────────────────────────
+ */
+function faqSchema(
+  appUrl: string,
+  locale: Locale,
+  items: readonly { question: string; answer: string }[],
+): Json | null {
+  if (items.length === 0) return null;
+
+  return {
+    "@type": "FAQPage",
+    "@id": `${appUrl}/${locale}#faq`,
+    inLanguage: LOCALE_TAGS[locale],
+    isPartOf: { "@id": `${appUrl}/${locale}#webpage` },
+    about: { "@id": `${appUrl}/#event` },
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+}
+
+/**
+ * A breadcrumb trail, given here as a single root crumb.
+ *
+ * One item is not a wasted node: it is what makes a result render as
+ * "astanatechcup.kz › AstanaTechCup" instead of a bare URL, and it is the
+ * parent that `breadcrumbSchema` on /categories and /results points back at.
+ */
+export function breadcrumbSchema(
+  appUrl: string,
+  locale: Locale,
+  siteName: string,
+  trail: readonly { name: string; path: string }[] = [],
+): Json {
+  const suffix = trail.length ? trail[trail.length - 1].path : "";
+
+  return {
+    "@type": "BreadcrumbList",
+    "@id": `${appUrl}/${locale}${suffix}#breadcrumb`,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: siteName,
+        item: `${appUrl}/${locale}`,
+      },
+      ...trail.map((crumb, index) => ({
+        "@type": "ListItem",
+        position: index + 2,
+        name: crumb.name,
+        item: `${appUrl}/${locale}${crumb.path}`,
+      })),
+    ],
+  };
+}
+
+/**
  * One `@graph` rather than three separate script tags: the nodes cross-reference
  * each other by `@id` (the event points at the organiser, the site points at the
  * publisher), and a single graph is how a crawler is meant to resolve those.
@@ -157,18 +251,24 @@ export function buildStructuredData({
   locale,
   title,
   description,
+  faq = [],
 }: {
   appUrl: string;
   locale: Locale;
   title: string;
   description: string;
+  /** Verbatim copies of the questions the FAQ section renders. */
+  faq?: readonly { question: string; answer: string }[];
 }): Json {
   return {
     "@context": "https://schema.org",
     "@graph": [
       organizationSchema(appUrl),
       websiteSchema(appUrl, locale, title),
+      webPageSchema(appUrl, locale, title, description),
+      breadcrumbSchema(appUrl, locale, `${EVENT.name} ${EVENT_YEAR}`),
       eventSchema(appUrl, locale, description),
-    ],
+      faqSchema(appUrl, locale, faq),
+    ].filter((node): node is Json => node !== null),
   };
 }

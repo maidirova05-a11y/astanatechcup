@@ -1,7 +1,13 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { buildStructuredData } from "@/lib/seo/structured-data";
-import { EVENT_YEAR } from "@/config/event";
+import {
+  ENTRY_FEE,
+  EVENT_YEAR,
+  FAQ_KEYS,
+  REGISTRATION_DEADLINE,
+} from "@/config/event";
+import { formatEventDate } from "@/lib/utils";
 import { env } from "@/lib/env";
 import type { Locale } from "@/i18n/routing";
 
@@ -25,13 +31,33 @@ import type { Locale } from "@/i18n/routing";
  */
 export async function StructuredData({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "meta" });
+  const tFaq = await getTranslations({ locale, namespace: "faq" });
   const nonce = (await headers()).get("x-nonce") ?? undefined;
+
+  /*
+   * The FAQ, resolved EXACTLY as `components/sections/Faq.tsx` resolves it:
+   * same key list, same namespace, same interpolation values. That is the whole
+   * safety argument for emitting FAQPage markup — Google checks the answers
+   * against text the visitor can see, and ignores (or penalises) markup that
+   * says something the page does not. Duplicating the values here rather than
+   * paraphrasing them is deliberate; if the two ever have to diverge, the fix
+   * is to delete this block, not to let it drift.
+   */
+  const faqValues = {
+    amount: ENTRY_FEE.amount,
+    currency: ENTRY_FEE.currency,
+    date: formatEventDate(REGISTRATION_DEADLINE, locale),
+  };
 
   const graph = buildStructuredData({
     appUrl: env.APP_URL,
     locale,
     title: t("title", { year: EVENT_YEAR }),
     description: t("description"),
+    faq: FAQ_KEYS.map((key) => ({
+      question: tFaq(`items.${key}.q`, faqValues),
+      answer: tFaq(`items.${key}.a`, faqValues),
+    })),
   });
 
   const json = JSON.stringify(graph).replace(/</g, "\\u003c");
