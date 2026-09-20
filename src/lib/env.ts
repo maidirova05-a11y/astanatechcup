@@ -41,6 +41,19 @@ const schema = z.object({
     .default("http://localhost:3000"),
 
   /**
+   * Site-ownership tokens for Google Search Console and Yandex Webmaster.
+   *
+   * Optional, and emitted only when set — see the note in
+   * app/[locale]/layout.tsx. Both consoles re-check the tag periodically and
+   * WITHDRAW verification if it disappears or turns up empty, so an
+   * unconfigured deploy must ship no tag at all rather than an empty one.
+   *
+   * Paste only the `content` value, not the whole <meta> element.
+   */
+  GOOGLE_SITE_VERIFICATION: z.string().optional(),
+  YANDEX_SITE_VERIFICATION: z.string().optional(),
+
+  /**
    * HMAC key for CSRF tokens. Generate with:
    *   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
    */
@@ -123,6 +136,8 @@ const schema = z.object({
 const rawEnv: Record<string, string | undefined> = {
   NODE_ENV: process.env.NODE_ENV,
   APP_URL: process.env.APP_URL,
+  GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+  YANDEX_SITE_VERIFICATION: process.env.YANDEX_SITE_VERIFICATION,
   CSRF_SECRET: process.env.CSRF_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
   ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,

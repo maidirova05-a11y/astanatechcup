@@ -8,12 +8,24 @@ import { CATEGORIES } from "@/config/categories";
  * that /ru and /kk are the same page in two languages rather than duplicate
  * content — which matters for a bilingual site whose audience searches in both.
  */
+/**
+ * ONLY INDEXABLE PATHS BELONG HERE.
+ *
+ * /privacy and /terms used to be listed, and both pages export
+ * `robots: { index: false }` — deliberately, since legal boilerplate has no
+ * search value and can outrank real content. A sitemap is a request to index,
+ * so listing them asked Google to index URLs the pages themselves refuse,
+ * which Search Console reports back as "Submitted URL marked 'noindex'". Two
+ * permanent errors on a property whose coverage report should stay readable.
+ *
+ * They are still crawlable and still linked from the footer; they are simply
+ * not advertised. If either page ever becomes indexable, add it back here in
+ * the same commit that removes its `robots` export.
+ */
 const PATHS = [
   "",
   "/categories",
   "/results",
-  "/privacy",
-  "/terms",
   // One board per category. The class inside it is a query parameter, which a
   // crawler is right to ignore: every class of a category carries the same
   // rules and the same teams list, and the canonical URL on each board points
@@ -43,13 +55,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
               ? 0.8
               : path === "/results"
                 ? 0.7
-                : path.startsWith("/results/")
-                  ? 0.6
-                  : 0.3,
+                : 0.6,
         alternates: {
-          languages: Object.fromEntries(
-            routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}${path}`]),
-          ),
+          languages: {
+            ...Object.fromEntries(
+              routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}${path}`]),
+            ),
+            /*
+             * The fallback for a language we do not publish. Present on the
+             * home page's <head> but missing from every sitemap entry, which
+             * left a Turkish or Ukrainian visitor's locale unhandled: Google
+             * then picks whichever version it crawled first. Naming the default
+             * locale makes that deterministic.
+             */
+            "x-default": `${env.APP_URL}/${routing.defaultLocale}${path}`,
+          },
         },
       });
     }

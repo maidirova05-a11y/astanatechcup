@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, routing, LOCALE_TAGS } from "@/i18n/routing";
 import { CategoryCatalogue } from "@/components/sections/CategoryCatalogue";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { env } from "@/lib/env";
 
 /**
@@ -45,9 +46,18 @@ export async function generateMetadata({
     description: t("metaDescription"),
     alternates: {
       canonical: `${env.APP_URL}/${locale}/categories`,
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}/categories`]),
-      ),
+      languages: {
+        ...Object.fromEntries(
+          routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}/categories`]),
+        ),
+          /*
+           * x-default: the version to serve a language we do not publish.
+           * The root layout has always emitted it; these sub-pages did not, so
+           * for /categories and /results Google had no designated fallback and
+           * picked whichever locale it happened to crawl first.
+           */
+        "x-default": `${env.APP_URL}/${routing.defaultLocale}/categories`,
+      },
     },
     openGraph: {
       title: t("metaTitle"),
@@ -67,5 +77,19 @@ export default async function CategoriesPage({
 
   setRequestLocale(locale);
 
-  return <CategoryCatalogue locale={locale} />;
+  const t = await getTranslations({ locale, namespace: "categories" });
+
+  return (
+    <>
+      {/* The crumb name is `title`, not `metaTitle`: it has to be the heading a
+          visitor sees, because Google compares the two. */}
+      <PageStructuredData
+        locale={locale}
+        title={t("metaTitle")}
+        description={t("metaDescription")}
+        trail={[{ name: t("title"), path: "/categories" }]}
+      />
+      <CategoryCatalogue locale={locale} />
+    </>
+  );
 }
