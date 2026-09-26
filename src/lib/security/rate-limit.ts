@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, asc, count, eq, gt, lt } from "drizzle-orm";
+import { and, asc, count, eq, gt, lt, sql } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/lib/db/client";
 import { rateLimitHits } from "@/lib/db/schema";
 import { logger } from "@/lib/log";
@@ -109,14 +109,49 @@ class MemoryRateLimitStore implements RateLimitStore {
 
 class PostgresRateLimitStore implements RateLimitStore {
   private lastPrune = 0;
+  private ready: Promise<void> | null = null;
 
   constructor(private readonly fallback: RateLimitStore) {}
+
+  /**
+   * Migration 0005, applied on first use when it has not been run yet: the
+   * Vercel build does not run `db:migrate`, and until someone did, every
+   * request fell back to memory. Same DDL as the migration, both IF NOT EXISTS,
+   * so a later `db:migrate` simply records 0005 as done.
+   *
+   * The existence check comes first because CREATE ... IF NOT EXISTS still
+   * needs CREATE on the schema — a role without it must not lose the limiter
+   * once the table is there.
+   */
+  private ensureTable(): Promise<void> {
+    this.ready ??= (async () => {
+      const db = getDb();
+      const [row] = await db.execute<{ present: boolean }>(
+        sql`SELECT to_regclass('public.rate_limit_hits') IS NOT NULL AS present`,
+      );
+      if (row?.present) return;
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS "rate_limit_hits" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        "key_hash" varchar(64) NOT NULL,
+        "hit_at" timestamp with time zone DEFAULT now() NOT NULL
+      )`);
+      await db.execute(
+        sql`CREATE INDEX IF NOT EXISTS "rate_limit_hits_lookup_idx" ON "rate_limit_hits" USING btree ("key_hash","hit_at")`,
+      );
+      logger.info("rate_limit.table_created");
+    })().catch((error: unknown) => {
+      this.ready = null;
+      throw error;
+    });
+    return this.ready;
+  }
 
   async hit(key: string, rule: RateLimitRule, now: number): Promise<RateLimitResult> {
     const keyHash = createHash("sha256").update(key).digest("hex");
     const since = new Date(now - rule.windowMs);
 
     try {
+      await this.ensureTable();
       const db = getDb();
       const inWindow = and(eq(rateLimitHits.keyHash, keyHash), gt(rateLimitHits.hitAt, since));
       const [[{ n }], oldestRows] = await Promise.all([
