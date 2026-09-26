@@ -1,16 +1,21 @@
+import "server-only";
+import { createHash } from "node:crypto";
+import { and, asc, count, eq, gt, lt } from "drizzle-orm";
+import { getDb, isDatabaseConfigured } from "@/lib/db/client";
+import { rateLimitHits } from "@/lib/db/schema";
+import { logger } from "@/lib/log";
+
 /**
  * Sliding-window rate limiting.
  *
- * ⚠ DEPLOYMENT NOTE — READ BEFORE GOING LIVE
- * The default store is in-memory, which means limits are enforced *per server
- * instance*. On a single VM that is correct. On Vercel, or behind more than one
- * container, an attacker gets N× the budget. Before launch, do one of:
- *   (a) put Cloudflare (or your WAF) in front and set the rate rules there —
- *       recommended regardless, since it also absorbs volumetric attacks
- *       before they ever reach the app; and/or
- *   (b) implement `RateLimitStore` against Redis/Postgres and pass it to
- *       `configureRateLimitStore()` at startup.
- * The interface exists precisely so (b) is a drop-in.
+ * STORAGE. With a database configured the counters live in Postgres
+ * (`rate_limit_hits`, migration 0005): on Vercel each request may reach a
+ * different instance, and an in-memory map gives an attacker a fresh budget on
+ * every cold start. If the table is missing (migration not yet applied) or the
+ * database is unreachable, the limiter falls back to the in-memory store for
+ * that request — degraded, never failing open to "unlimited" and never taking
+ * the registration form down. A WAF rule in front (Cloudflare) is still
+ * recommended for volumetric attacks.
  */
 
 export type RateLimitResult = {
@@ -100,7 +105,56 @@ class MemoryRateLimitStore implements RateLimitStore {
   }
 }
 
-let store: RateLimitStore = new MemoryRateLimitStore();
+/* ── Postgres implementation ────────────────────────────────────────────── */
+
+class PostgresRateLimitStore implements RateLimitStore {
+  private lastPrune = 0;
+
+  constructor(private readonly fallback: RateLimitStore) {}
+
+  async hit(key: string, rule: RateLimitRule, now: number): Promise<RateLimitResult> {
+    const keyHash = createHash("sha256").update(key).digest("hex");
+    const since = new Date(now - rule.windowMs);
+
+    try {
+      const db = getDb();
+      const inWindow = and(eq(rateLimitHits.keyHash, keyHash), gt(rateLimitHits.hitAt, since));
+      const [[{ n }], oldestRows] = await Promise.all([
+        db.select({ n: count() }).from(rateLimitHits).where(inWindow),
+        db
+          .select({ hitAt: rateLimitHits.hitAt })
+          .from(rateLimitHits)
+          .where(inWindow)
+          .orderBy(asc(rateLimitHits.hitAt))
+          .limit(1),
+      ]);
+
+      const oldest = oldestRows[0]?.hitAt.getTime() ?? now;
+      if (n >= rule.limit) {
+        return { allowed: false, remaining: 0, resetAt: oldest + rule.windowMs };
+      }
+
+      await db.insert(rateLimitHits).values({ keyHash, hitAt: new Date(now) });
+
+      // At most once a minute per instance: keep about a day of rows.
+      if (now - this.lastPrune > 60_000) {
+        this.lastPrune = now;
+        await db.delete(rateLimitHits).where(lt(rateLimitHits.hitAt, new Date(now - 86_400_000)));
+      }
+
+      return { allowed: true, remaining: rule.limit - n - 1, resetAt: oldest + rule.windowMs };
+    } catch (error) {
+      logger.error("rate_limit.store_unavailable", {
+        reason: error instanceof Error ? error.message : String(error),
+      });
+      return this.fallback.hit(key, rule, now);
+    }
+  }
+}
+
+let store: RateLimitStore = isDatabaseConfigured()
+  ? new PostgresRateLimitStore(new MemoryRateLimitStore())
+  : new MemoryRateLimitStore();
 
 /** Swap in a distributed store at startup. See the deployment note above. */
 export function configureRateLimitStore(next: RateLimitStore): void {

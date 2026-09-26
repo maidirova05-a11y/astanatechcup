@@ -22,6 +22,7 @@ Live at **<https://astanatechcup.kz>**.
 | `JUDGE_PASSWORD_HASH` | ❌ missing — without it (and without the admin one) `/judge` returns 404 and `/results` says it is not connected |
 | Scoring migration `0001` | ✅ applied to the Neon database on 2026-08-29 |
 | Stripe / Turnstile | ❌ not configured — both optional, both degrade safely |
+| Rate-limit migration `0005` | ⏳ **apply with `npm run db:migrate`** — until then registration limits fall back to per-instance memory (logged as `rate_limit.store_unavailable`) |
 
 ### Migration `0001` — the scoring tables
 
