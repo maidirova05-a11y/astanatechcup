@@ -607,3 +607,22 @@ export type ScoringRunRow = typeof scoringRuns.$inferSelect;
 export type ScoringStage = (typeof scoringStage.enumValues)[number];
 export type MatchState = (typeof matchState.enumValues)[number];
 export type RunState = (typeof runState.enumValues)[number];
+
+/**
+ * Rate-limit hits for the public write paths (registration, CSP reports).
+ *
+ * The same reasoning as `admin_login_attempts`: on Vercel each request may
+ * land on a fresh instance, so an in-memory counter gives an attacker a new
+ * budget per cold start. `keyHash` is a SHA-256 of rule + client IP — the raw
+ * address is personal data and equality is all the limiter needs. Rows older
+ * than a day are pruned by the limiter (src/lib/security/rate-limit.ts).
+ */
+export const rateLimitHits = pgTable(
+  "rate_limit_hits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    keyHash: varchar("key_hash", { length: 64 }).notNull(),
+    hitAt: timestamp("hit_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("rate_limit_hits_lookup_idx").on(table.keyHash, table.hitAt)],
+);
