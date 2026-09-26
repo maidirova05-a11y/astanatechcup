@@ -1,0 +1,73 @@
+name: Миграции боевой базы
+
+# Кнопка вместо `npm run db:migrate` на своём компьютере:
+# Actions → «Миграции боевой базы» → Run workflow → ввести migrate.
+# Перед миграцией снимается свежая копия базы (если настроены облачные копии).
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Напишите migrate, чтобы применить миграции к боевой базе
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-migrate
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Migrate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+    steps:
+      - name: Подтверждение
+        if: inputs.confirm != 'migrate'
+        run: |
+          echo "::error::Миграции не запущены: в поле подтверждения нужно написать migrate"
+          exit 1
+
+      - name: Секрет с адресом базы
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Не задан секрет PROD_DATABASE_URL — см. BACKUP.md, шаг «Секреты в GitHub»"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Копия базы перед миграцией
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+          S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.BACKUP_S3_REGION || 'auto' }}
+        run: |
+          if [ -z "$S3_BUCKET" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::Облачные копии не настроены — миграция без свежей копии. Откатиться можно через восстановление Neon на момент времени."
+            exit 0
+          fi
+          BACKUP_NAME="${GITHUB_REPOSITORY#*/}" backup/backup.sh
+
+      - name: Применить миграции
+        run: npx drizzle-kit migrate
+
+      - name: Итог
+        run: |
+          command -v psql >/dev/null || exit 0
+          N=$(psql "$DATABASE_URL" -XAtqc 'SELECT count(*) FROM drizzle.__drizzle_migrations')
+          echo "Применено миграций: $N" | tee -a "$GITHUB_STEP_SUMMARY"

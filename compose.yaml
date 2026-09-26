@@ -1,0 +1,73 @@
+# AstanaTechCup целиком на своём сервере: сайт + собственная база Postgres.
+# Запасной вариант на случай, если Vercel или Neon недоступны — см. BACKUP.md.
+#
+#   cp docker.env.example docker.env   # и заполнить
+#   docker compose up -d --build
+#
+# Сайт слушает только 127.0.0.1:3102 — наружу его отдаёт Caddy/nginx с HTTPS.
+# DATABASE_URL здесь намеренно не берётся из окружения: контейнер всегда
+# работает со своей базой и не может случайно подключиться к боевой.
+
+name: astanatechcup
+
+x-db-url: &db-url postgresql://app:app@db:5432/app
+
+services:
+  db:
+    image: postgres:${POSTGRES_MAJOR:-17}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # Применяет миграции drizzle и завершается; сайт стартует после него.
+  migrate:
+    build:
+      context: .
+      target: build
+    command: ["npx", "drizzle-kit", "migrate"]
+    environment:
+      DATABASE_URL: *db-url
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      args:
+        SITE_URL: ${SITE_URL:-https://astanatechcup.kz}
+        # Публичные ключи вшиваются при сборке, поэтому берутся не из
+        # docker.env, а из окружения или файла .env рядом с compose.yaml.
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        NEXT_PUBLIC_ANALYTICS_DOMAIN: ${NEXT_PUBLIC_ANALYTICS_DOMAIN:-}
+        NEXT_PUBLIC_ANALYTICS_SRC: ${NEXT_PUBLIC_ANALYTICS_SRC:-}
+    image: astanatechcup-app
+    restart: unless-stopped
+    env_file: docker.env
+    environment:
+      DATABASE_URL: *db-url
+      APP_URL: ${SITE_URL:-https://astanatechcup.kz}
+      # Настоящий адрес посетителя ставит Caddy/nginx (см. BACKUP.md).
+      TRUSTED_IP_HEADER: x-real-ip
+    ports:
+      - "127.0.0.1:${APP_PORT:-3102}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:

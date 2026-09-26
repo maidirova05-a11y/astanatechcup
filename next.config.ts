@@ -6,6 +6,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  // Self-contained server bundle for the Docker image (see Dockerfile). Vercel
+  // builds leave NEXT_OUTPUT unset and are unaffected.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
+
   // Don't advertise the stack. Cheap, and removes one fingerprinting signal.
   poweredByHeader: false,
 

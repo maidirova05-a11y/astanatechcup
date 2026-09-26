@@ -49,3 +49,7 @@ next-env.d.ts
 !.env.example
 
 .vercel
+
+# Docker-версия и резервные копии (см. BACKUP.md)
+docker.env
+backups/
