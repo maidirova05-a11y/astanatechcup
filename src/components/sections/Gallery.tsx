@@ -45,7 +45,7 @@ export async function Gallery({ locale }: { locale: string }) {
           Keeps a gallery from reading as a uniform contact sheet. */}
       <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
-          "col-span-2 row-span-2 aspect-[4/3] lg:aspect-[16/10]",
+          "col-span-2 row-span-2 aspect-[4/3] lg:aspect-auto",
           "aspect-square",
           "aspect-square",
           "aspect-square",
