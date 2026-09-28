@@ -24,9 +24,12 @@ export async function Stats({ locale }: { locale: string }) {
               {/* dt before dd in the DOM so the pair is announced in the right
                   order; `flex-col-reverse` puts the number on top visually,
                   which is the order the eye wants it in. */}
-              <div className="tile tile-quiet flex h-full flex-col-reverse gap-1.5 p-5 sm:p-6">
+              {/* Sized off the tile's own width (container query units) so the
+                  longest figure, "~2 500", never spills past the border in a
+                  four-column row, whatever the viewport. */}
+              <div className="tile tile-quiet @container flex h-full flex-col-reverse gap-1.5 p-5 sm:p-6">
                 <dt className="text-sm font-medium text-muted">{t(stat.key)}</dt>
-                <dd className="tabular font-display text-4xl font-extrabold leading-none text-brand sm:text-5xl">
+                <dd className="tabular font-display text-[clamp(2rem,22cqi,4.5rem)] font-extrabold leading-none text-brand">
                   <CountUp value={stat.value} prefix={stat.prefix} />
                 </dd>
               </div>

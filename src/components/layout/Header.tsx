@@ -83,7 +83,7 @@ export function Header({ locale }: { locale: string }) {
           <Logo className="h-9" priority />
         </a>
 
-        <nav aria-label={tc("menu")} className="hidden items-center gap-1 lg:flex">
+        <nav aria-label={tc("menu")} className="hidden items-center gap-1 xl:flex">
           {NAV.map((item) => (
             <a
               key={item.key}
@@ -102,7 +102,7 @@ export function Header({ locale }: { locale: string }) {
           <LocaleSwitcher className="hidden sm:inline-flex" />
           <a
             href="#register"
-            className={buttonClasses({ variant: "accent", size: "sm", className: "hidden sm:inline-flex" })}
+            className={buttonClasses({ variant: "accent", size: "sm", className: "hidden whitespace-nowrap sm:inline-flex" })}
           >
             {t("register")}
           </a>
@@ -113,7 +113,7 @@ export function Header({ locale }: { locale: string }) {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={tc("menu")}
-            className="inline-flex size-11 items-center justify-center rounded-full border border-line text-xl lg:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-full border border-line text-xl xl:hidden"
           >
             {menuOpen ? <Close /> : <Menu />}
           </button>
@@ -125,7 +125,7 @@ export function Header({ locale }: { locale: string }) {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="border-t border-line bg-surface lg:hidden"
+          className="border-t border-line bg-surface xl:hidden"
         >
           <nav aria-label={tc("menu")} className="container-page flex flex-col py-4">
             {NAV.map((item) => (

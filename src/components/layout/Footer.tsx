@@ -37,7 +37,7 @@ export async function Footer({ locale }: { locale: string }) {
       <div className="container-page py-16">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
           <div className="flex flex-col gap-4">
-            <Logo className="h-11" plate />
+            <Logo className="h-11 self-start" plate />
             <p className="max-w-sm text-muted">{t("tagline")}</p>
             {/* Both marks are dark-on-transparent, so on this dark surface
                 they need the same white plate the championship mark uses. */}

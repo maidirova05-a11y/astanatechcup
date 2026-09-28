@@ -106,7 +106,7 @@ export async function Hero({ locale }: { locale: string }) {
             </Rise>
 
             <Rise step={6}>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <a href="#register" className={buttonClasses({ variant: "accent", size: "lg" })}>
                   {open ? t("ctaPrimary") : t("closed")}
                   <ArrowRight className="text-lg" />
