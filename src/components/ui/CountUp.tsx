@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { useInView, useReducedMotion } from "motion/react";
-import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * Stat counter that animates once, when scrolled into view.
@@ -13,6 +13,30 @@ import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
  * "0". The count-up only starts after mount, and is skipped entirely under
  * `prefers-reduced-motion`.
  */
+
+/**
+ * Thousands separator per locale — "2 500" in Russian and Kazakh (a
+ * no-break space, so the figure never splits across lines), "2,500" in
+ * English.
+ *
+ * Deliberately NOT `Intl.NumberFormat`: this component renders on the server
+ * and again in the browser, and the two must print identical text or React
+ * throws a hydration error and rebuilds the tree. Node ships full ICU data, so
+ * `kk-KZ` gives "2 500" there, but browsers built with trimmed ICU (Chromium
+ * builds among them) have no Kazakh data and silently fall back to "2,500".
+ */
+const GROUP_SEPARATOR: Record<Locale, string> = {
+  ru: "\u00A0",
+  kk: "\u00A0",
+  en: ",",
+};
+
+function formatInteger(value: number, locale: string): string {
+  const separator = GROUP_SEPARATOR[locale as Locale] ?? ",";
+  const sign = value < 0 ? "-" : "";
+  const digits = String(Math.abs(Math.round(value)));
+  return sign + digits.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+}
 
 type CountUpProps = {
   value: number;
@@ -34,13 +58,7 @@ export function CountUp({
   const reduceMotion = useReducedMotion();
   const [display, setDisplay] = useState(value);
 
-  // Thousands separators differ per locale — "2 500" in Russian and Kazakh,
-  // "2,500" in English. Hardcoding one of them looks wrong in the others.
   const locale = useLocale();
-  const format = useMemo(
-    () => new Intl.NumberFormat(LOCALE_TAGS[locale as Locale] ?? locale),
-    [locale],
-  );
 
   useEffect(() => {
     if (reduceMotion || !inView) return;
@@ -71,7 +89,7 @@ export function CountUp({
       <span className="sr-only">{`${prefix}${value}${suffix}`}</span>
       <span aria-hidden="true" className="tabular">
         {prefix}
-        {format.format(display)}
+        {formatInteger(display, locale)}
         {suffix}
       </span>
     </span>
