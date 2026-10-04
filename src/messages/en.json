@@ -410,7 +410,7 @@
     "noBracket": "The playoff bracket has not been drawn yet.",
     "bracketView": "Bracket view",
     "viewTable": "Table",
-    "viewTree": "Tree",
+    "viewTree": "Bracket",
     "colMatch": "Match",
     "colScore": "Score",
     "colRed": "Red corner",
@@ -422,7 +422,8 @@
     "classMetaTitle": "{class} ({code}) — results",
     "classMetaDescription": "Standings and the playoff bracket for {class} ({category}) at AstanaTechCup.",
     "legendAttempts": "1, 2, 3 are the attempts. B is the {best}.",
-    "editLink": "Edit (judges only)"
+    "editLink": "Edit (judges only)",
+    "champion": "Champion"
   },
   "journey": {
     "eyebrow": "Your route",

@@ -6,6 +6,10 @@
  *                                 results
  *   npm run seed:demo -- --empty  — same rosters and schedules, no results
  *   npm run seed:demo -- --clear  — wipe only, seed nothing
+ *   npm run seed:demo -- --wipe-results
+ *                                 — delete every match and attempt, KEEP the
+ *                                   teams: a clean start list, ready for the
+ *                                   console to build schedules on
  *
  * ── Read this before running it ──────────────────────────────────────────
  * It DELETES every row in scoring_teams, scoring_matches and scoring_runs
@@ -411,6 +415,15 @@ async function main() {
   const withoutResults = flags.has("--empty");
 
   const db = getDb();
+
+  if (flags.has("--wipe-results")) {
+    const runs = await db.delete(scoringRuns).returning({ id: scoringRuns.id });
+    const matches = await db.delete(scoringMatches).returning({ id: scoringMatches.id });
+    console.log(
+      `--wipe-results: deleted ${matches.length} matches and ${runs.length} runs; teams kept.`,
+    );
+    return;
+  }
 
   // Order matters: runs and matches reference teams.
   const wiped = {

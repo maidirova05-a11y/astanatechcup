@@ -151,7 +151,9 @@ export default async function ClassResultsPage({
           classId: cls.id,
           stage: query.stage === "playoff" ? "playoff" : "group",
           group: typeof query.group === "string" && query.group !== "" ? query.group : null,
-          bracket: query.view === "tree" ? "tree" : "table",
+          // The drawn bracket is the default, as on the board this mirrors;
+          // the table of pairings is one tap away.
+          bracket: query.view === "table" ? "table" : "tree",
         }}
       />
     </>

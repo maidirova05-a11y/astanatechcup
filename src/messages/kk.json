@@ -410,7 +410,7 @@
     "noBracket": "Плей-офф торы әзірге құрылмаған.",
     "bracketView": "Тор көрінісі",
     "viewTable": "Кесте",
-    "viewTree": "Ағаш",
+    "viewTree": "Тор",
     "colMatch": "Матч",
     "colScore": "Есеп",
     "colRed": "Қызыл бұрыш",
@@ -422,7 +422,8 @@
     "classMetaTitle": "{class} ({code}) — нәтижелер",
     "classMetaDescription": "AstanaTechCup: {class} ({category}) класының турнирлік кестесі мен плей-офф торы.",
     "legendAttempts": "1, 2, 3 — әрекет нөмірлері. B — {best}.",
-    "editLink": "Өңдеу (төрешілерге)"
+    "editLink": "Өңдеу (төрешілерге)",
+    "champion": "Жеңімпаз"
   },
   "journey": {
     "eyebrow": "Қатысушының жолы",

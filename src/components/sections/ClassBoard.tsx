@@ -13,7 +13,7 @@ import {
 } from "@/lib/scoring/table";
 import type { CategorySnapshot } from "@/lib/scoring/store";
 import { BracketTable } from "./BracketTable";
-import { BracketTree } from "./BracketTree";
+import { BracketDiagram } from "./BracketDiagram";
 import { CrossTable } from "./CrossTable";
 import { Leaderboard, StandingsTable, formatStamp } from "./ResultTables";
 import type { ScoringTeamRow } from "@/lib/db/schema";
@@ -316,16 +316,16 @@ function MatchStages({
             label={t("bracketView")}
             items={[
               {
-                key: "table",
-                label: t("viewTable"),
-                href: link({ bracket: "table" }),
-                current: view.bracket === "table",
-              },
-              {
                 key: "tree",
                 label: t("viewTree"),
                 href: link({ bracket: "tree" }),
                 current: view.bracket === "tree",
+              },
+              {
+                key: "table",
+                label: t("viewTable"),
+                href: link({ bracket: "table" }),
+                current: view.bracket === "table",
               },
             ]}
           />
@@ -341,10 +341,12 @@ function MatchStages({
               t={t}
             />
           ) : (
-            <BracketTree
+            <BracketDiagram
               matches={bracketMatches}
               teams={known}
-              tbdLabel={t("tbd")}
+              numbers={numbers}
+              placements={groupPlacements(teams, matches, category)}
+              t={t}
             />
           )}
         </div>
@@ -393,7 +395,7 @@ function Tabs({
 
 /**
  * The board's whole state as one URL. Defaults are omitted so the common case
- * — first class, group stage, first group, bracket as a table — is a clean
+ * — first class, group stage, first group, bracket drawn as a tree — is a clean
  * `/ru/results/sumo`.
  */
 function classHref(locale: string, entry: CatalogueEntry, view: View): string {
@@ -401,7 +403,7 @@ function classHref(locale: string, entry: CatalogueEntry, view: View): string {
   if (view.classId !== entry.category.classes[0].id) query.set("class", view.classId);
   if (view.stage !== "group") query.set("stage", view.stage);
   if (view.group !== null) query.set("group", view.group);
-  if (view.bracket !== "table") query.set("view", view.bracket);
+  if (view.bracket !== "tree") query.set("view", view.bracket);
 
   const suffix = query.size > 0 ? `?${query}` : "";
   return `/${locale}/results/${entry.category.id}${suffix}`;

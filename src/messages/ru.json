@@ -410,7 +410,7 @@
     "noBracket": "Сетка плей-офф ещё не сформирована.",
     "bracketView": "Вид сетки",
     "viewTable": "Таблицей",
-    "viewTree": "Деревом",
+    "viewTree": "Сеткой",
     "colMatch": "Матч",
     "colScore": "Счёт",
     "colRed": "Красный угол",
@@ -422,7 +422,8 @@
     "classMetaTitle": "{class} ({code}) — результаты",
     "classMetaDescription": "Турнирная таблица и сетка плей-офф класса {class} ({category}) на AstanaTechCup.",
     "legendAttempts": "1, 2, 3 — номера попыток. B — {best}.",
-    "editLink": "Редактировать (для судей)"
+    "editLink": "Редактировать (для судей)",
+    "champion": "Победитель"
   },
   "journey": {
     "eyebrow": "Путь участника",
