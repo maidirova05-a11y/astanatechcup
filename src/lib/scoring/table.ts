@@ -214,7 +214,13 @@ export function buildBracketTable(
 export type CrossCell =
   /** The diagonal: a team does not play itself. */
   | { kind: "self" }
-  /** These two never met — an unfinished draw, or a group edited by hand. */
+  /**
+   * The upper half of the matrix. Every pairing is written once, below the
+   * diagonal; the mirrored cell above it is deliberately empty and drawn as
+   * background, not as a missing result.
+   */
+  | { kind: "mirror" }
+  /** Below the diagonal, but these two have no match — a schedule not built yet. */
   | { kind: "none" }
   | {
       kind: "match";
@@ -290,21 +296,18 @@ export function buildCrossTable(
 
   const standings = buildStandings(ordered, [...matches], category);
   const statsOf = new Map(standings.map((row) => [row.team.id, row]));
-  const rankOf = new Map<string, number>();
-  standings.forEach((row, i) => {
-    const previous = standings[i - 1];
-    rankOf.set(
-      row.team.id,
-      previous && previous.points === row.points ? rankOf.get(previous.team.id)! : i + 1,
-    );
-  });
+  // The standing IS the position in the sorted table. buildStandings has
+  // already broken ties (head-to-head, then difference), so two teams level on
+  // points are not level in the table — and printing "1, 1, 1" beside a
+  // "qualified" list that names only two of them contradicts itself.
+  const rankOf = new Map(standings.map((row, i) => [row.team.id, i + 1]));
 
   const rows: CrossRow[] = ordered.map((team, rowIndex) => {
     const cells: CrossCell[] = ordered.map((other, colIndex) => {
       if (rowIndex === colIndex) return { kind: "self" };
       // Lower triangle only: a pairing belongs in exactly one cell, and a
       // mirrored copy above the diagonal is the same result written twice.
-      if (colIndex > rowIndex) return { kind: "none" };
+      if (colIndex > rowIndex) return { kind: "mirror" };
 
       const match = pairs.get(pairKey(team.id, other.id));
       if (!match) return { kind: "none" };

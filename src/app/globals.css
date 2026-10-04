@@ -522,6 +522,10 @@
     --d-accent: hsl(var(--discipline-hue) 88% 55%);
     --d-accent-soft: hsl(var(--discipline-hue) 92% 95%);
     --d-accent-ring: hsl(var(--discipline-hue) 88% 55% / 0.35);
+    /* The accent as TEXT. --d-accent is a fill colour: at 55% lightness a
+       yellow hue (Robo Sumo is 45°) is unreadable on white. Ink keeps the hue
+       and drops to 30%, which clears 4.5:1 on white for every hue we use. */
+    --d-accent-ink: hsl(var(--discipline-hue) 85% 30%);
     /* Mascots read their body colour from this. */
     --r-accent: var(--d-accent);
   }
@@ -530,6 +534,7 @@
     --d-accent: hsl(var(--discipline-hue) 92% 66%);
     --d-accent-soft: hsl(var(--discipline-hue) 55% 20%);
     --d-accent-ring: hsl(var(--discipline-hue) 92% 66% / 0.4);
+    --d-accent-ink: hsl(var(--discipline-hue) 92% 72%);
   }
 
   /**

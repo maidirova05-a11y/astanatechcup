@@ -58,9 +58,11 @@ export function BracketTable({
                 <th
                   scope="colgroup"
                   colSpan={4}
-                  className="pt-2 text-left text-2xs font-bold uppercase tracking-wider text-subtle"
+                  className="pt-3 text-left"
                 >
-                  {section.label}
+                  <span className="inline-flex rounded-full bg-surface-muted px-3 py-1 text-2xs font-bold uppercase tracking-wider text-muted">
+                    {section.label}
+                  </span>
                 </th>
               </tr>
             )}

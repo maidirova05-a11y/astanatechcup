@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { CATEGORY_ROBOTS, type CategoryRobotName } from "@/components/ui/robots";
 import { ArrowRight, Info } from "@/components/ui/icons";
-import { CLASS_CATALOGUE, type CatalogueEntry } from "@/config/categories";
+import { CATEGORIES, CLASS_CATALOGUE, type CatalogueEntry } from "@/config/categories";
 import { RecentMatches, formatStamp } from "./ResultTables";
 import type { CategorySnapshot } from "@/lib/scoring/store";
 import type { ScoringMatchRow, ScoringTeamRow } from "@/lib/db/schema";
@@ -88,19 +88,43 @@ export async function ResultsIndex({
           {t("allClasses")}
         </h2>
 
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {entries.map(({ entry, state }) => (
-            <li key={`${entry.category.id}:${entry.cls.id}`}>
-              <ClassCard
-                locale={locale}
-                entry={entry}
-                state={state}
-                label={tc(`items.${entry.category.id}.name`)}
-                t={t}
-              />
-            </li>
-          ))}
-        </ul>
+        {/* Grouped under their category. Twenty-one cards in one undivided
+            grid made a visitor read every title to find "the line follower
+            ones"; a heading per category lets the eye jump straight there,
+            while the running numbers still match the order of the catalogue. */}
+        <div className="flex flex-col gap-12">
+          {CATEGORIES.map((category) => {
+            const inCategory = entries.filter(({ entry }) => entry.category.id === category.id);
+            return (
+              <section key={category.id} aria-labelledby={`results-cat-${category.id}`}>
+                <h3
+                  id={`results-cat-${category.id}`}
+                  className="mb-4 flex items-baseline gap-3 text-xl"
+                >
+                  {tc(`items.${category.id}.name`)}
+                  <span className="text-sm font-normal text-subtle">
+                    {inCategory.length}
+                  </span>
+                </h3>
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {inCategory.map(({ entry, state }) => (
+                    <li key={`${entry.category.id}:${entry.cls.id}`}>
+                      <ClassCard
+                        locale={locale}
+                        entry={entry}
+                        state={state}
+                        // The category is already the heading above; the
+                        // line under the class name says who may enter it.
+                        label={entry.cls.groups.map((group) => tc(`groups.${group}`)).join(" · ")}
+                        t={t}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
       </Section>
 
       <LatestResults locale={locale} data={data} t={t} />
@@ -159,7 +183,7 @@ function ClassCard({
         <StatusPill state={state} t={t} />
       </span>
 
-      <span className="flex items-center gap-2 text-sm font-semibold text-(--d-accent)">
+      <span className="flex items-center gap-2 text-sm font-semibold text-(--d-accent-ink)">
         {t("open")}
         <ArrowRight className="text-base" aria-hidden="true" />
       </span>

@@ -311,7 +311,7 @@ async function CategoryBlock({
                 <h2 id={headingId} className="text-3xl">
                   {t(`items.${category.id}.name`)}
                 </h2>
-                <p className="font-semibold text-(--d-accent)">
+                <p className="font-semibold text-(--d-accent-ink)">
                   {t(`items.${category.id}.tagline`)}
                 </p>
               </div>
@@ -347,7 +347,7 @@ async function CategoryBlock({
         <div className="grid gap-6 lg:grid-cols-2">
           <Reveal index={2}>
             <article className="tile flex h-full flex-col gap-4 p-6">
-              <Eyebrow className="text-(--d-accent)">{t("rulesLabel")}</Eyebrow>
+              <Eyebrow className="text-(--d-accent-ink)">{t("rulesLabel")}</Eyebrow>
               <ul className="flex flex-col gap-3">
                 {rules.map((rule) => (
                   <li key={rule} className="flex items-start gap-3 text-sm leading-relaxed">
@@ -364,7 +364,7 @@ async function CategoryBlock({
 
           <Reveal index={3}>
             <article className="tile flex h-full flex-col gap-4 p-6">
-              <Eyebrow className="text-(--d-accent)">{t("scoringLabel")}</Eyebrow>
+              <Eyebrow className="text-(--d-accent-ink)">{t("scoringLabel")}</Eyebrow>
               <ul className="flex flex-col gap-3">
                 {scoring.map((line) => (
                   <li key={line} className="flex items-start gap-3 text-sm leading-relaxed">

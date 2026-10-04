@@ -208,7 +208,15 @@ export function Leaderboard({
                   <span className="font-semibold">{row.team.name}</span>
                 </td>
                 {row.attempts.map((attempt, i) => (
-                  <Td key={i} align="center" className="text-muted">
+                  <Td
+                    key={i}
+                    align="center"
+                    className={
+                      i === countedIndex(row, isTime, category.scoring.kind === "run" && category.scoring.aggregate === "best")
+                        ? "font-bold text-success"
+                        : "text-muted"
+                    }
+                  >
                     {!attempt
                       ? t("noRun")
                       : attempt.state === "dsq"
@@ -231,9 +239,24 @@ export function Leaderboard({
         </table>
       </div>
       <p className="text-xs text-subtle">
-        {t("legendAttempts", { best: aggregateLabel })}
+        {t("legendAttempts", { best: aggregateLabel.toLowerCase() })}
       </p>
     </div>
+  );
+}
+
+/**
+ * Which attempt produced B, so the table can mark it — the question a team
+ * asks first ("which of our runs counted?"). Only for categories where B is
+ * the best attempt; an average has no single attempt behind it.
+ */
+function countedIndex(row: LeaderboardRow, isTime: boolean, best: boolean): number {
+  if (!best || row.ranking === null) return -1;
+  return row.attempts.findIndex(
+    (attempt) =>
+      attempt !== null &&
+      attempt.state === "ok" &&
+      (isTime ? attempt.timeMs : attempt.points) === row.ranking,
   );
 }
 

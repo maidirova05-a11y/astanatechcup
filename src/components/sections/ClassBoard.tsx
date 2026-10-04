@@ -122,7 +122,7 @@ export async function ClassBoard({
 
           <a
             href={`/${locale}/categories#${category.id}`}
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent)"
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent-ink)"
           >
             {t("rulesLink")}
             <ArrowRight className="text-base" aria-hidden="true" />

@@ -85,7 +85,16 @@ export function BracketDiagram({
     const lost = decided && !won && !m.isDraw;
     const fed = Boolean(feederOf(m, side));
     const placement = teamId && !fed ? placements.get(teamId) : undefined;
-    const source = placement ? sourceText({ kind: "group", ...placement }) : null;
+    // On the card, the seeding shorthand every draw sheet uses — "A1" is the
+    // winner of Group A, "D2" the runner-up of D. A sentence ("2 место,
+    // группа D") does not fit beside a start number in a card this size; it
+    // stays available as the card's tooltip.
+    const source = placement
+      ? placement.group
+        ? `${placement.group}${placement.place}`
+        : `#${placement.place}`
+      : null;
+    const sourceTitle = placement ? sourceText({ kind: "group", ...placement }) : null;
 
     return (
       <TeamCard
@@ -93,6 +102,7 @@ export function BracketDiagram({
         code={team?.code ?? null}
         name={team?.name ?? t("tbd")}
         source={source}
+        sourceTitle={sourceTitle}
         score={decided ? (side === "red" ? m.redScore : m.blueScore) : null}
         won={won}
         lost={lost}
@@ -161,16 +171,29 @@ export function BracketDiagram({
 /* ── Pieces ─────────────────────────────────────────────────────────────── */
 
 /**
- * A team in one corner of one match. Solid colour by corner — red and blue are
- * the rulebooks' own names for the two sides — with the score in a box at the
- * end, as on the board this mirrors. Once a match is decided the loser fades,
- * so the path of every team reads left to right at a glance.
+ * A team in one corner of one match.
+ *
+ * Three states, three looks, so the path of every team reads left to right
+ * without reading a single score:
+ *
+ *  · still in it (not played yet, or won) — a SOLID card in the corner's
+ *    colour, red or blue, the rulebooks' own names for the two sides;
+ *  · knocked out here — a WHITE card that keeps a stripe of its corner's
+ *    colour, so it is plainly out but still plainly the red or the blue side.
+ *    Fading the solid card instead turned red losers pink and blue losers grey,
+ *    and grey reads as "disabled", not "lost";
+ *  · nobody yet — a dashed outline.
+ *
+ * Name on top, where the eye lands; start number and where the team came from
+ * underneath, small. The score sits in its own box at the end, as on the
+ * board this mirrors.
  */
 function TeamCard({
   corner,
   code,
   name,
   source,
+  sourceTitle,
   score,
   won,
   lost,
@@ -179,33 +202,40 @@ function TeamCard({
   code: string | null;
   name: string;
   source: string | null;
+  sourceTitle: string | null;
   score: number | null;
   won: boolean;
   lost: boolean;
 }) {
-  const skin =
-    code === null
-      ? "border-2 border-dashed border-line-strong bg-surface text-muted"
+  const empty = code === null;
+  const skin = empty
+    ? "border-2 border-dashed border-line-strong bg-surface text-muted"
+    : lost
+      ? `border border-line bg-surface text-muted border-l-[6px] ${
+          corner === "red" ? "border-l-danger" : "border-l-brand-strong"
+        }`
       : corner === "red"
         ? "bg-danger text-white"
         : "bg-brand-strong text-on-brand";
 
+  const detail = [code, source].filter(Boolean).join(" · ");
+
   return (
     <div
-      className={`flex h-16 w-64 items-stretch overflow-hidden rounded-lg shadow-sm ${skin} ${
-        lost ? "opacity-45" : ""
-      } ${won ? "ring-2 ring-success ring-offset-2 ring-offset-surface" : ""}`}
+      title={sourceTitle ? `${name} — ${sourceTitle}` : undefined}
+      className={`flex h-14 w-56 items-stretch overflow-hidden rounded-lg ${skin} ${
+        won ? "shadow-md ring-2 ring-success ring-offset-2 ring-offset-surface" : "shadow-sm"
+      }`}
     >
-      <div className="flex min-w-0 flex-1 flex-col justify-center px-3">
-        <span className="flex min-w-0 items-baseline gap-2">
-          {code && <span className="tabular shrink-0 text-xs font-extrabold opacity-90">{code}</span>}
-          <span className="truncate text-sm font-bold">{name}</span>
-        </span>
-        {source && <span className="truncate text-2xs opacity-80">{source}</span>}
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 px-3">
+        <span className="truncate text-sm font-bold leading-tight">{name}</span>
+        {detail && (
+          <span className="tabular truncate text-2xs leading-tight opacity-80">{detail}</span>
+        )}
       </div>
       <span
-        className={`tabular flex w-11 shrink-0 items-center justify-center font-display text-lg font-extrabold ${
-          code === null ? "" : "bg-white/20"
+        className={`tabular flex w-10 shrink-0 items-center justify-center font-display text-lg font-extrabold ${
+          empty ? "" : lost ? "bg-surface-muted text-muted" : "bg-black/15"
         }`}
       >
         {score ?? ""}
@@ -233,7 +263,7 @@ function Brace({ y1, y2, label }: { y1: number; y2: number; label: string }) {
   ].join(" ");
 
   return (
-    <div className="relative w-16 shrink-0 self-stretch">
+    <div className="relative w-14 shrink-0 self-stretch">
       <svg
         className="absolute inset-y-0 left-0 h-full w-6 overflow-visible"
         viewBox="0 0 24 100"
@@ -250,7 +280,7 @@ function Brace({ y1, y2, label }: { y1: number; y2: number; label: string }) {
         />
       </svg>
       <span
-        className="tabular absolute left-7 -translate-y-1/2 rounded-md bg-success px-2 py-0.5 text-xs font-extrabold text-white"
+        className="tabular absolute left-6 -translate-y-1/2 rounded-md bg-success px-1.5 py-0.5 text-xs font-extrabold text-white shadow-sm"
         style={{ top: `${ym}%` }}
       >
         {label}
@@ -273,7 +303,7 @@ function Champion({
 }) {
   return (
     <div
-      className={`flex w-64 flex-col justify-center gap-0.5 rounded-lg border-2 px-4 py-3 ${
+      className={`flex w-56 flex-col justify-center gap-0.5 rounded-lg border-2 px-4 py-3 ${
         decided
           ? "border-warning bg-warning-surface"
           : "border-dashed border-line-strong bg-surface text-muted"

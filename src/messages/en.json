@@ -406,7 +406,7 @@
     "emptyGroup": "No teams in this group yet.",
     "fullTable": "Full group table",
     "qualified": "Through to the next round:",
-    "crossLegend": "Each cell carries the match number and the score from the row team's side. Green is a win, amber a draw, red a loss, grey a match not yet played.",
+    "crossLegend": "Each cell carries the match number and the score from the row team's side. Green is a win, amber a draw, red a loss, white a match not yet played.",
     "noBracket": "The playoff bracket has not been drawn yet.",
     "bracketView": "Bracket view",
     "viewTable": "Table",

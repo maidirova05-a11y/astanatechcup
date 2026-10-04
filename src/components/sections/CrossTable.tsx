@@ -66,7 +66,7 @@ export function CrossTable({
 
               {table.teams.map((team) => (
                 <th key={team.id} scope="col" className="p-0">
-                  <span className="tabular flex min-w-16 items-center justify-center rounded-md bg-brand-strong px-2 py-2 text-2xs font-bold text-on-brand">
+                  <span className="tabular flex min-w-14 items-center justify-center whitespace-nowrap rounded-md bg-brand-strong px-2 py-2 text-2xs font-bold text-on-brand">
                     {team.code}
                   </span>
                 </th>
@@ -84,11 +84,11 @@ export function CrossTable({
             {table.rows.map((row) => (
               <tr key={row.team.id}>
                 <th scope="row" className="sticky left-0 z-10 bg-surface-raised p-0 text-left">
-                  <span className="flex items-center gap-2 rounded-md bg-(--d-accent-soft) px-2 py-2">
-                    <span className="tabular shrink-0 font-display text-xs font-extrabold text-(--d-accent)">
+                  <span className="flex h-14 items-center gap-2 rounded-md bg-(--d-accent-soft) px-3">
+                    <span className="tabular shrink-0 font-display text-xs font-extrabold text-(--d-accent-ink)">
                       {row.team.code}
                     </span>
-                    <span className="max-w-40 truncate font-semibold">{row.team.name}</span>
+                    <span className="max-w-36 truncate font-semibold">{row.team.name}</span>
                   </span>
                 </th>
 
@@ -108,12 +108,12 @@ export function CrossTable({
                   <Chip value={row.lost} tone="loss" />
                 </td>
                 <td className="p-0">
-                  <span className="tabular flex min-w-11 items-center justify-center rounded-md border-2 border-line-strong px-2 py-2 font-display font-extrabold">
+                  <span className="tabular flex h-14 min-w-11 items-center justify-center rounded-md border-2 border-line-strong px-2 font-display text-lg font-extrabold">
                     {row.points}
                   </span>
                 </td>
                 <td className="p-0">
-                  <span className="tabular flex min-w-11 items-center justify-center px-2 py-2 text-subtle">
+                  <span className="tabular flex h-14 min-w-9 items-center justify-center px-2 font-bold text-subtle">
                     {row.played > 0 ? row.rank : "—"}
                   </span>
                 </td>
@@ -169,48 +169,50 @@ function Cell({
   t: Translator;
   hrefOf?: (matchId: string) => string;
 }) {
+  // Every cell is the same box — CELL — so rows line up whatever is in them.
+  // Only the fill changes: the diagonal is solid, the mirrored half is a whisper
+  // of background, and a pairing that has no match yet is a dashed outline.
   if (cell.kind === "self") {
-    return (
-      <span
-        aria-hidden="true"
-        className="flex min-w-16 items-center justify-center rounded-md bg-surface-sunken py-5"
-      />
-    );
+    return <span aria-hidden="true" className={`${CELL} bg-line`} />;
+  }
+
+  if (cell.kind === "mirror") {
+    return <span aria-hidden="true" className={`${CELL} bg-surface-sunken/50`} />;
   }
 
   if (cell.kind === "none") {
     return (
-      <span className="flex min-w-16 items-center justify-center rounded-md bg-surface-muted py-5 text-subtle">
-        ·
+      <span className={`${CELL} border border-dashed border-line text-subtle`}>
+        <span className="sr-only">{t("notPlayed")}</span>
       </span>
     );
   }
 
   const tone =
     cell.outcome === "win"
-      ? "border-success/40 bg-success-surface"
+      ? "border-success/50 bg-success-surface"
       : cell.outcome === "loss"
-        ? "border-danger/40 bg-danger-surface"
+        ? "border-danger/50 bg-danger-surface"
         : cell.outcome === "draw"
-          ? "border-warning/40 bg-warning-surface"
+          ? "border-warning/50 bg-warning-surface"
           : "border-line bg-surface";
 
   const body = (
     <>
-      <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+      <span className="text-2xs font-bold uppercase leading-none tracking-wider text-subtle">
         {cell.number}
       </span>
-      <span className="tabular whitespace-nowrap font-display text-sm font-extrabold">
-        {cell.outcome === "pending" ? t("notPlayed") : `${cell.scored} : ${cell.conceded}`}
+      <span className="tabular whitespace-nowrap font-display text-sm font-extrabold leading-none">
+        {cell.outcome === "pending" ? t("notPlayed") : `${cell.scored}:${cell.conceded}`}
       </span>
     </>
   );
 
-  const shape = `flex min-w-16 flex-col items-center gap-0.5 rounded-md border-2 px-1.5 py-1.5 ${tone}`;
+  const shape = `${CELL} flex-col gap-1 border-2 ${tone}`;
   const href = hrefOf?.(cell.matchId);
 
   return href ? (
-    <a href={href} className={shape}>
+    <a href={href} className={`${shape} transition-transform hover:-translate-y-0.5`}>
       {body}
     </a>
   ) : (
@@ -218,18 +220,25 @@ function Cell({
   );
 }
 
+/** One size for every cell of the matrix. */
+const CELL = "flex h-14 min-w-14 items-center justify-center rounded-md";
+
 /** Wins, draws and losses as three coloured counters, as on the board. */
 function Chip({ value, tone }: { value: number; tone: "win" | "draw" | "loss" }) {
+  // A zero is not news. Colouring it as loudly as a 3 turns a table of mostly
+  // zeros into confetti, so only counts that are actually there get colour.
   const skin =
-    tone === "win"
-      ? "bg-success-surface text-success"
-      : tone === "draw"
-        ? "bg-warning-surface text-warning"
-        : "bg-danger-surface text-danger";
+    value === 0
+      ? "text-subtle"
+      : tone === "win"
+        ? "bg-success-surface text-success"
+        : tone === "draw"
+          ? "bg-warning-surface text-warning"
+          : "bg-danger-surface text-danger";
 
   return (
     <span
-      className={`tabular flex min-w-9 items-center justify-center rounded-md px-2 py-2 font-bold ${skin}`}
+      className={`tabular flex h-14 min-w-9 items-center justify-center rounded-md px-2 font-bold ${skin}`}
     >
       {value}
     </span>

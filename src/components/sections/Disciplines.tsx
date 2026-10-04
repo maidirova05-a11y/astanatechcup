@@ -61,7 +61,7 @@ export async function Disciplines({ locale }: { locale: string }) {
 
               <div className="flex flex-col gap-2">
                 <h3 className="text-xl">{t(`items.${discipline.id}.name`)}</h3>
-                <p className="text-sm font-semibold text-(--d-accent)">
+                <p className="text-sm font-semibold text-(--d-accent-ink)">
                   {t(`items.${discipline.id}.tagline`)}
                 </p>
                 <p className="text-muted">{t(`items.${discipline.id}.description`)}</p>
@@ -96,7 +96,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                 href="#register"
                 // min-h-11 keeps the tap target at the 44px minimum without
                 // adding visible bulk to the card.
-                className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent) transition-transform duration-200 group-hover:translate-x-0.5"
+                className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent-ink) transition-transform duration-200 group-hover:translate-x-0.5"
               >
                 {t("cta")}
                 <ArrowRight className="text-base" />
