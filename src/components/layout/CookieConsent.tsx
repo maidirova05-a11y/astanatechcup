@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Analytics } from "./Analytics";
+import { YandexMetrika } from "./YandexMetrika";
 
 /**
  * Cookie consent.
@@ -79,7 +80,12 @@ export function CookieConsent() {
 
   return (
     <>
-      {choice === "granted" && <Analytics />}
+      {choice === "granted" && (
+        <>
+          <Analytics />
+          <YandexMetrika />
+        </>
+      )}
 
       {choice === "undecided" && (
         <div
