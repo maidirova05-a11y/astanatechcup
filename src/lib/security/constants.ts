@@ -39,3 +39,16 @@ export const FORM_TIMESTAMP_FIELD = "form_loaded_at";
 
 /** Cloudflare Turnstile origin, needed by both the CSP and the widget loader. */
 export const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
+
+/** Yandex.Metrika counter, needed by the CSP (its hosts) and the loader. */
+export const YANDEX_METRIKA_ID = 113575877;
+
+/**
+ * Hosts the Metrika tag sends hits and Webvisor data to. mc.yandex.ru answers
+ * first; the tag can fall back to the regional and .com domains.
+ */
+export const YANDEX_METRIKA_ORIGINS = [
+  "https://mc.yandex.ru",
+  "https://mc.yandex.kz",
+  "https://mc.yandex.com",
+];

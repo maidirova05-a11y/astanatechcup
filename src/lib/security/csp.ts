@@ -12,7 +12,7 @@ import { env, features, isDevelopment } from "@/lib/env";
 // Defined in `./constants` (no imports) so the client can reference it without
 // pulling this module — and therefore `@/lib/env` — into the browser bundle.
 export { TURNSTILE_ORIGIN } from "./constants";
-import { TURNSTILE_ORIGIN } from "./constants";
+import { TURNSTILE_ORIGIN, YANDEX_METRIKA_ORIGINS } from "./constants";
 
 /** Cryptographically random, base64, fresh for every HTML response. */
 export function generateNonce(): string {
@@ -44,6 +44,7 @@ export function buildCsp(nonce: string): string {
 
   const connectSrc = ["'self'"];
   const frameSrc = ["'self'"];
+  const imgSrc = ["'self'", "data:", "blob:"];
 
   if (features.turnstile) {
     // Turnstile renders its challenge in an iframe and calls home to verify.
@@ -54,6 +55,14 @@ export function buildCsp(nonce: string): string {
   if (features.analytics && env.NEXT_PUBLIC_ANALYTICS_SRC) {
     connectSrc.push(new URL(env.NEXT_PUBLIC_ANALYTICS_SRC).origin);
   }
+
+  // Yandex.Metrika (YandexMetrika.tsx). The tag itself loads under
+  // strict-dynamic like the Next chunks; these are where it reports to: hits
+  // as fetch/beacon and pixel, Webvisor through an iframe on mc.yandex.ru.
+  // Nothing is sent before the visitor accepts analytics in CookieConsent.
+  connectSrc.push(...YANDEX_METRIKA_ORIGINS);
+  imgSrc.push(...YANDEX_METRIKA_ORIGINS);
+  frameSrc.push("blob:", YANDEX_METRIKA_ORIGINS[0]);
 
   if (isDevelopment) {
     // HMR websocket.
@@ -68,7 +77,7 @@ export function buildCsp(nonce: string): string {
     // critical CSS inline; neither can carry a nonce. Inline *style* is a far
     // weaker vector than inline script, and script-src stays strict.
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:"],
+    "img-src": imgSrc,
     // next/font self-hosts everything, so no third-party font origin is needed.
     "font-src": ["'self'", "data:"],
     "connect-src": connectSrc,
