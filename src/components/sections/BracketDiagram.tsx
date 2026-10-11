@@ -309,7 +309,7 @@ function Champion({
           : "border-dashed border-line-strong bg-surface text-muted"
       }`}
     >
-      <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+      <span className="text-2xs font-bold uppercase tracking-wider text-muted">
         🏆 {label}
       </span>
       <span className="flex min-w-0 items-baseline gap-2">

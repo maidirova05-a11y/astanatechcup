@@ -1,4 +1,5 @@
 import { routing } from "@/i18n/routing";
+import { buttonClasses } from "@/components/ui/Button";
 import { fontVariables } from "@/app/fonts";
 import "@/app/globals.css";
 
@@ -15,15 +16,17 @@ export default function RootNotFound() {
     <html lang="ru-KZ" className={fontVariables}>
       <body className="min-h-dvh bg-surface text-content antialiased">
         <div className="section">
-          <div className="container-prose flex flex-col items-start gap-6">
-            <p className="font-display text-6xl font-extrabold text-brand">404</p>
-            <h1 className="text-4xl">Страница не найдена</h1>
-            <p className="text-lg text-muted">
+          <div className="container-prose flex flex-col items-start gap-5">
+            <p className="font-display text-5xl font-extrabold leading-none text-brand">404</p>
+            <h1 className="text-3xl">Страница не найдена</h1>
+            <p className="max-w-[36rem] text-base leading-relaxed text-muted md:text-lg">
               Похоже, такой страницы нет. Вернитесь на главную — там всё о чемпионате.
             </p>
             <a
               href={`/${routing.defaultLocale}`}
-              className="inline-flex h-14 items-center justify-center rounded-full bg-brand-strong px-8 text-lg font-semibold text-on-brand"
+              // The same button as the localised 404, so the two pages cannot
+              // drift apart. Button.tsx is plain class strings — no client code.
+              className={buttonClasses({ variant: "solid", size: "lg", className: "mt-2" })}
             >
               На главную
             </a>

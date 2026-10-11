@@ -69,25 +69,25 @@ export function BracketTable({
 
             {section.rows.map((row) => (
               <tr key={row.id}>
-                <td className="rounded-l-lg border-y-2 border-l-4 border-line border-l-danger bg-surface px-3 py-3">
+                <td className="rounded-l-lg border-y-2 border-l-4 border-line border-l-danger bg-surface px-3 py-2.5">
                   <Side side={row.red} byId={byId} t={t} align="left" />
                 </td>
 
-                <td className="border-y-2 border-line bg-surface px-2 py-3 text-center">
+                <td className="border-y-2 border-line bg-surface px-2 py-2.5 text-center">
                   <span className="tabular inline-flex min-w-11 items-center justify-center rounded-md bg-surface-muted px-2 py-1 text-xs font-bold">
                     {row.number}
                   </span>
                 </td>
 
-                <td className="border-y-2 border-line bg-surface px-2 py-3 text-center">
-                  <span className="tabular inline-flex min-w-20 items-center justify-center whitespace-nowrap rounded-md border-2 border-line-strong px-3 py-1.5 font-display text-lg font-extrabold">
+                <td className="border-y-2 border-line bg-surface px-2 py-2.5 text-center">
+                  <span className="tabular inline-flex min-w-20 items-center justify-center whitespace-nowrap rounded-md border-2 border-line-strong px-3 py-1 font-display text-base font-extrabold">
                     {row.state === "completed"
                       ? `${row.red.score} : ${row.blue.score}`
                       : t("notPlayed")}
                   </span>
                 </td>
 
-                <td className="rounded-r-lg border-y-2 border-r-4 border-line border-r-brand-strong bg-surface px-3 py-3">
+                <td className="rounded-r-lg border-y-2 border-r-4 border-line border-r-brand-strong bg-surface px-3 py-2.5">
                   <Side side={row.blue} byId={byId} t={t} align="right" />
                 </td>
               </tr>
@@ -109,7 +109,7 @@ function Th({
   return (
     <th
       scope="col"
-      className={`px-3 pb-1 text-2xs font-bold uppercase tracking-wider text-subtle ${
+      className={`whitespace-nowrap px-3 pb-1 text-2xs font-bold uppercase tracking-wider text-muted ${
         align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left"
       }`}
     >
@@ -148,7 +148,7 @@ function Side({
           t("tbd")
         )}
       </span>
-      {source && <span className="text-2xs text-subtle">{source}</span>}
+      {source && <span className="text-2xs text-muted">{source}</span>}
     </span>
   );
 }

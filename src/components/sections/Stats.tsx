@@ -13,7 +13,7 @@ export async function Stats({ locale }: { locale: string }) {
 
   return (
     <section className="border-y border-line bg-surface" aria-labelledby="stats-title">
-      <div className="container-page py-14 sm:py-16">
+      <div className="container-page py-12 sm:py-14">
         <h2 id="stats-title" className="sr-only">
           {t("title")}
         </h2>
@@ -26,10 +26,12 @@ export async function Stats({ locale }: { locale: string }) {
                   which is the order the eye wants it in. */}
               {/* Sized off the tile's own width (container query units) so the
                   longest figure, "~2 500", never spills past the border in a
-                  four-column row, whatever the viewport. */}
+                  four-column row, whatever the viewport. Capped at 56px (the
+                  5xl step) so the figures lead without dwarfing the hero's
+                  headline right above them. */}
               <div className="tile tile-quiet @container flex h-full flex-col-reverse gap-1.5 p-5 sm:p-6">
                 <dt className="text-sm font-medium text-muted">{t(stat.key)}</dt>
-                <dd className="tabular font-display text-[clamp(2rem,22cqi,4.5rem)] font-extrabold leading-none text-brand">
+                <dd className="tabular font-display text-[clamp(1.875rem,20cqi,3.5rem)] font-extrabold leading-none text-brand">
                   <CountUp value={stat.value} prefix={stat.prefix} />
                 </dd>
               </div>
@@ -37,7 +39,7 @@ export async function Stats({ locale }: { locale: string }) {
           ))}
         </dl>
 
-        <p className="mt-10 max-w-2xl text-sm text-subtle">{t("note")}</p>
+        <p className="mt-8 max-w-2xl text-sm text-subtle">{t("note")}</p>
       </div>
     </section>
   );

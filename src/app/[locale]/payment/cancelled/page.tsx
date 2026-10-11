@@ -42,17 +42,17 @@ export default async function PaymentCancelledPage({
 
   return (
     <div className="section">
-      <div className="container-prose flex flex-col items-start gap-7">
-        <span className="flex size-16 items-center justify-center rounded-full bg-warning-surface text-3xl text-warning">
+      <div className="container-prose flex flex-col items-start gap-5">
+        <span className="flex size-14 items-center justify-center rounded-full border-2 border-ink bg-warning-surface text-2xl text-warning">
           <Info />
         </span>
 
-        <h1 className="text-4xl">{t("cancelTitle")}</h1>
-        <p className="text-lg leading-relaxed text-muted">
+        <h1 className="mt-1 text-3xl">{t("cancelTitle")}</h1>
+        <p className="max-w-[36rem] text-base leading-relaxed text-muted md:text-lg">
           {t("cancelBody", { reference: reference ?? "—" })}
         </p>
 
-        <Link href="/#register" className={buttonClasses({ variant: "solid", size: "lg" })}>
+        <Link href="/#register" className={buttonClasses({ variant: "solid", size: "lg", className: "mt-2" })}>
           {t("cancelCta")}
         </Link>
       </div>

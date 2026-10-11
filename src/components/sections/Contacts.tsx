@@ -79,21 +79,21 @@ export async function Contacts({ locale }: { locale: string }) {
       />
 
       {hasAnything ? (
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
           {available.map((channel, index) => (
             <Reveal key={channel.key} index={index}>
               <a
                 href={channel.href(channel.value!)}
                 {...(channel.external ? EXTERNAL_LINK_PROPS : {})}
-                className="group tile tile-quiet tile-interactive flex h-full items-start gap-4 p-6"
+                className="group tile tile-quiet tile-interactive flex h-full items-center gap-4 p-5 sm:p-6"
               >
                 <span
-                  className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-xl text-brand"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-lg text-brand sm:size-12 sm:text-xl"
                   aria-hidden="true"
                 >
                   {channel.icon}
                 </span>
-                <span className="flex flex-col gap-1">
+                <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
                     {t(channel.key)}
                   </span>
@@ -105,15 +105,15 @@ export async function Contacts({ locale }: { locale: string }) {
 
           {CONTACTS.address && (
             <Reveal index={available.length} className="sm:col-span-2 lg:col-span-3">
-              <div className="tile tile-quiet flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-4">
+              <div className="tile tile-quiet flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+                <div className="flex items-center gap-4">
                   <span
-                    className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-xl text-brand"
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-lg text-brand sm:size-12 sm:text-xl"
                     aria-hidden="true"
                   >
                     <MapPin />
                   </span>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
                       {t("address")}
                     </span>
@@ -125,7 +125,7 @@ export async function Contacts({ locale }: { locale: string }) {
                   <a
                     href={CONTACTS.mapsUrl}
                     {...EXTERNAL_LINK_PROPS}
-                    className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-brand"
+                    className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start text-sm font-semibold text-brand sm:self-auto"
                   >
                     {t("openMap")}
                     <ArrowRight className="text-base" />
@@ -136,7 +136,7 @@ export async function Contacts({ locale }: { locale: string }) {
           )}
         </div>
       ) : (
-        <p className="mt-10 rounded-lg border-2 border-dashed border-line-strong bg-surface-raised p-6 text-muted">
+        <p className="mt-8 max-w-3xl rounded-lg border-2 border-dashed border-line-strong bg-surface-raised p-5 text-sm leading-relaxed text-muted sm:mt-10 sm:p-6 sm:text-base">
           {t("empty")}
         </p>
       )}

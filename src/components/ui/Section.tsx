@@ -82,7 +82,7 @@ export function SectionHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-4",
+        "flex flex-col gap-3",
         align === "center" && "items-center text-center",
         // Headers never span the full width — long measure kills readability.
         align === "center" ? "mx-auto max-w-3xl" : "max-w-3xl",
@@ -90,11 +90,24 @@ export function SectionHeader({
       )}
     >
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <Heading id={id} className="text-3xl md:text-4xl">
+      {/* One fluid size, 26px → 40px, instead of stepping from text-3xl to
+          text-4xl at `md`. The step jumped ~10px at a single breakpoint and
+          topped out at 44px, which on a page with a dozen sections read as
+          every heading shouting. 40px still out-ranks every card title. */}
+      <Heading id={id} className="text-[clamp(1.625rem,1.3rem+1.4vw,2.5rem)]">
         {title}
       </Heading>
       {subtitle && (
-        <p className="text-lg text-muted leading-relaxed">{subtitle}</p>
+        // Narrower than the title: ~40rem keeps the subtitle near 70
+        // characters a line, where body copy is comfortable to read.
+        <p
+          className={cn(
+            "max-w-[40rem] text-base leading-relaxed text-muted md:text-lg",
+            align === "center" && "mx-auto",
+          )}
+        >
+          {subtitle}
+        </p>
       )}
     </header>
   );

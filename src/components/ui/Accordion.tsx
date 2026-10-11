@@ -38,8 +38,11 @@ export function AccordionItem({
     >
       <summary
         className={cn(
-          "flex cursor-pointer list-none items-start justify-between gap-6 py-5",
-          "text-lg font-semibold leading-snug",
+          // 17–18px semibold from `md`, 16px on phones: a question is a
+          // label to scan, not a heading, and ten of them in a row at 18px
+          // made the FAQ read louder than the section title above it.
+          "flex cursor-pointer list-none items-start justify-between gap-4 py-4 md:gap-6 md:py-5",
+          "text-base font-semibold leading-snug md:text-lg",
           "transition-colors duration-200 hover:text-brand",
         )}
       >
@@ -57,7 +60,10 @@ export function AccordionItem({
           </svg>
         </span>
       </summary>
-      <div className="pb-6 pr-10 text-muted leading-relaxed">{answer}</div>
+      {/* The right inset keeps the answer clear of the toggle column on wide
+          screens; on a phone that column is only 28px and the inset would
+          cost a tenth of the measure, so it starts at `sm`. */}
+      <div className="max-w-[44rem] pb-5 text-muted leading-relaxed sm:pr-12 md:pb-6">{answer}</div>
     </details>
   );
 }

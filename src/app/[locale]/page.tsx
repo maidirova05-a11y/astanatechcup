@@ -13,6 +13,7 @@ import { Faq } from "@/components/sections/Faq";
 import { Gallery } from "@/components/sections/Gallery";
 import { Partners } from "@/components/sections/Partners";
 import { Contacts } from "@/components/sections/Contacts";
+import { PhotoStrip } from "@/components/sections/PhotoStrip";
 import { StructuredData } from "@/components/seo/StructuredData";
 
 /**
@@ -68,6 +69,9 @@ export default async function HomePage({
       <Audiences locale={locale} />
       <Registration locale={locale} />
       <Faq locale={locale} />
+      {/* A photo band breaks the long run of tiles and copy. Illustrative
+          stock, not the event — see src/config/photos.ts. */}
+      <PhotoStrip locale={locale} />
       <Gallery locale={locale} />
       <Partners locale={locale} />
       <Contacts locale={locale} />

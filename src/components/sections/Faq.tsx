@@ -26,7 +26,7 @@ export async function Faq({ locale }: { locale: string }) {
 
   return (
     <Section id="faq" labelledBy="faq-title" tone="muted">
-      <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:self-start">
           <SectionHeader
             eyebrow={t("eyebrow")}
@@ -35,14 +35,14 @@ export async function Faq({ locale }: { locale: string }) {
             subtitle={t("subtitle")}
           />
 
-          <div className="tile tile-quiet bg-surface-raised p-5">
+          <div className="tile tile-quiet bg-surface-raised p-5 lg:max-w-sm">
             <p className="font-semibold">{t("stillQuestions")}</p>
             <p className="mt-1 text-sm text-muted">{t("askUs")}</p>
             {CONTACTS.email && (
               <a
                 href={`mailto:${CONTACTS.email}`}
                 {...EXTERNAL_LINK_PROPS}
-                className="mt-3 inline-block text-sm font-semibold text-brand underline underline-offset-4"
+                className="mt-1 inline-flex min-h-11 items-center break-all text-sm font-semibold text-brand underline underline-offset-4"
               >
                 {CONTACTS.email}
               </a>

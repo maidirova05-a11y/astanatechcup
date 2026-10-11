@@ -29,13 +29,13 @@ export default function LocaleError({
 
   return (
     <div className="section">
-      <div className="container-prose flex flex-col items-start gap-6">
-        <h1 className="text-4xl">{t("title")}</h1>
-        <p className="text-lg text-muted">{t("body")}</p>
+      <div className="container-prose flex flex-col items-start gap-5">
+        <h1 className="text-3xl">{t("title")}</h1>
+        <p className="max-w-[36rem] text-base leading-relaxed text-muted md:text-lg">{t("body")}</p>
         {error.digest && (
           <p className="font-mono text-xs text-subtle">ID: {error.digest}</p>
         )}
-        <Button variant="solid" size="lg" onClick={reset}>
+        <Button variant="solid" size="lg" onClick={reset} className="mt-2">
           {t("cta")}
         </Button>
       </div>

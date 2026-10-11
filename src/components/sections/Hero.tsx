@@ -25,8 +25,9 @@ import { eventDay, eventMonth, formatEventDate, monthGenitive } from "@/lib/util
  * when and where, what to do next, and how long they have to do it.
  *
  * ── Composition ─────────────────────────────────────────────────────────
- * The mascot holding the championship logo is the anchor — it states the brand
- * and the tone in one image, before a word is read. The headline sits beside
+ * The mascot is the anchor: it is built on screen part by part, powers on,
+ * and only then presents the championship logo — the brand and the tone in
+ * one short story, before a word is read (see HeroRobot). The headline sits beside
  * it, and the deadline card sits beneath the robot rather than opposite it, so
  * the eye travels: robot → headline → CTA → deadline.
  *
@@ -54,13 +55,17 @@ export async function Hero({ locale }: { locale: string }) {
           never intercept a tap or be announced. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="aurora absolute inset-x-0 -top-32 h-[46rem] opacity-50" />
+        <div className="blueprint-grid absolute inset-0" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-surface" />
       </div>
 
-      <div className="container-page relative pb-20 pt-10 sm:pb-24 sm:pt-14 lg:pb-28 lg:pt-16">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+      {/* Vertical padding is budgeted for a 1366×768 laptop: header + hero
+          end just above the fold, so the deadline card is seen whole without
+          scrolling. Taller screens get the extra air back from `2xl`. */}
+      <div className="container-page relative pb-14 pt-8 sm:pb-20 sm:pt-12 lg:pb-12 lg:pt-10 2xl:pb-20 2xl:pt-14">
+        <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-x-14 lg:gap-y-6">
           {/* ── Copy column ── */}
-          <div className="flex flex-col items-start gap-6 lg:order-1">
+          <div className="flex flex-col items-start gap-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             <Rise step={0} as="p" className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-surface-raised px-4 py-2 text-2xs font-bold uppercase tracking-[0.14em] text-brand shadow-[0_3px_0_0_var(--ink)]">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
@@ -70,8 +75,12 @@ export async function Hero({ locale }: { locale: string }) {
             </Rise>
 
             {/* The three lines the brief asked to keep, entering one after the
-                other so the promise builds rather than lands all at once. */}
-            <h1 className="text-4xl sm:text-5xl">
+                other so the promise builds rather than lands all at once.
+                Held at the 4xl step (44px max) on every screen: the copy
+                column tops out near 590px, and at 5xl the third line wraps,
+                so the headline grows to four lines and shouts over the mascot
+                it is meant to sit beside. */}
+            <h1 className="text-4xl">
               <Rise step={1} as="span" className="block">
                 {t("titleLine1")}
               </Rise>
@@ -83,7 +92,7 @@ export async function Hero({ locale }: { locale: string }) {
               </Rise>
             </h1>
 
-            <Rise step={4} as="p" className="max-w-xl text-lg leading-relaxed text-muted">
+            <Rise step={4} as="p" className="max-w-lg leading-relaxed text-muted 2xl:text-lg">
               {t("subtitle")}
             </Rise>
 
@@ -105,7 +114,9 @@ export async function Hero({ locale }: { locale: string }) {
               </dl>
             </Rise>
 
-            <Rise step={6}>
+            {/* Full-width, stacked buttons on a phone — two ragged widths
+                read as a mistake there — and side by side from `sm`. */}
+            <Rise step={6} className="w-full sm:w-auto">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <a href="#register" className={buttonClasses({ variant: "accent", size: "lg" })}>
                   {open ? t("ctaPrimary") : t("closed")}
@@ -154,40 +165,54 @@ export async function Hero({ locale }: { locale: string }) {
             </Rise>
           </div>
 
-          {/* ── Mascot column ── */}
-          <div className="flex flex-col items-center gap-8 lg:order-2">
-            <HeroRobot
-              className="w-full max-w-md lg:max-w-lg"
-              // The mascot wears the structural blue so the magenta stays
-              // exclusively the colour of the call to action.
-              style={{ "--r-accent": "var(--electric-500)" } as CSSProperties}
-            />
+          {/* ── Mascot ──
+              Pulled first with `order-first` so on a phone the build plays
+              above the headline, where it is seen, instead of finishing unseen
+              below the fold. The DOM keeps the copy first for screen readers.
+              On desktop it sits in the right column, over the deadline card;
+              its width is what keeps robot + card inside a laptop's first
+              screen, so it only grows past 20rem on a 2xl display. */}
+          <HeroRobot
+            className="order-first mx-auto w-full max-w-[16rem] sm:max-w-xs lg:order-none lg:col-start-2 lg:row-start-1 lg:max-w-[20rem] 2xl:max-w-md"
+            labels={{
+              chassis: t("assembly.chassis"),
+              body: t("assembly.body"),
+              arms: t("assembly.arms"),
+              head: t("assembly.head"),
+              boot: t("assembly.boot"),
+              ready: t("assembly.ready"),
+            }}
+            // The mascot wears the structural blue so the magenta stays
+            // exclusively the colour of the call to action.
+            style={{ "--r-accent": "var(--electric-500)" } as CSSProperties}
+          />
 
-            <Rise step={8} distance={26} className="w-full">
-              <aside className="tile w-full bg-surface-raised p-6 sm:p-7">
-                {open ? (
-                  <>
-                    <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
-                      {t("deadlineLabel")}
-                    </p>
-                    <Countdown targetMs={COUNTDOWN_TARGET.getTime()} className="mt-4" />
-                    <p className="mt-4 border-t border-line pt-4 text-sm text-muted">
-                      {t("deadlineDate", {
-                        date: formatEventDate(REGISTRATION_DEADLINE, locale),
-                      })}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
-                      {t("closed")}
-                    </p>
-                    <p className="mt-4 text-muted">{t("closedNote", { year: EVENT_YEAR })}</p>
-                  </>
-                )}
-              </aside>
-            </Rise>
-          </div>
+          {/* Capped at the robot's own footprint, so card and mascot read as
+              one column instead of a narrow figure over a wide slab. */}
+          <Rise step={8} distance={26} className="mx-auto w-full max-w-md lg:col-start-2 lg:row-start-2">
+            <aside className="tile w-full bg-surface-raised p-5 sm:p-6">
+              {open ? (
+                <>
+                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                    {t("deadlineLabel")}
+                  </p>
+                  <Countdown targetMs={COUNTDOWN_TARGET.getTime()} className="mt-4" />
+                  <p className="mt-4 border-t border-line pt-4 text-sm text-muted">
+                    {t("deadlineDate", {
+                      date: formatEventDate(REGISTRATION_DEADLINE, locale),
+                    })}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                    {t("closed")}
+                  </p>
+                  <p className="mt-4 text-muted">{t("closedNote", { year: EVENT_YEAR })}</p>
+                </>
+              )}
+            </aside>
+          </Rise>
         </div>
       </div>
     </section>

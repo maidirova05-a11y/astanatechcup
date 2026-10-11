@@ -96,13 +96,18 @@ export function CookieConsent() {
           aria-describedby="consent-body"
           className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4"
         >
+          {/* The same 2px-outline tile as the rest of the page, with the quiet
+              edge: a banner drawn in a different language from every card
+              around it reads as a third-party widget, and people dismiss
+              those without reading. Side by side from `md`, so on a laptop it
+              covers one short strip of the page rather than a block. */}
           <div className="container-page">
-            <div className="mx-auto flex max-w-3xl flex-col gap-4 rounded-xl border border-line bg-surface-raised p-5 shadow-xl sm:p-6">
-              <div className="flex flex-col gap-2">
-                <h2 id="consent-title" className="text-lg font-bold">
+            <div className="tile tile-quiet mx-auto flex max-w-4xl flex-col gap-4 p-4 sm:p-5 md:flex-row md:items-center md:gap-6">
+              <div className="flex flex-col gap-1.5 md:flex-1">
+                <h2 id="consent-title" className="text-base font-bold">
                   {t("title")}
                 </h2>
-                <p id="consent-body" className="text-sm text-muted">
+                <p id="consent-body" className="text-sm leading-relaxed text-muted">
                   {t("body")}{" "}
                   <Link
                     href="/privacy"
@@ -113,7 +118,7 @@ export function CookieConsent() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-2.5 sm:flex-row">
+              <div className="flex flex-col gap-2.5 sm:flex-row md:shrink-0">
                 {/* Reject is listed first and styled with equal weight. */}
                 <Button
                   variant="outline"
