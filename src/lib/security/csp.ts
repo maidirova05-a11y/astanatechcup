@@ -13,6 +13,7 @@ import { env, features, isDevelopment } from "@/lib/env";
 // pulling this module — and therefore `@/lib/env` — into the browser bundle.
 export { TURNSTILE_ORIGIN } from "./constants";
 import {
+  GOOGLE_ANALYTICS_ORIGINS,
   TURNSTILE_ORIGIN,
   YANDEX_METRIKA_ORIGINS,
   YANDEX_METRIKA_SYNC_ORIGIN,
@@ -68,6 +69,9 @@ export function buildCsp(nonce: string): string {
   connectSrc.push(...YANDEX_METRIKA_ORIGINS);
   imgSrc.push(...YANDEX_METRIKA_ORIGINS, YANDEX_METRIKA_SYNC_ORIGIN);
   frameSrc.push("blob:", YANDEX_METRIKA_ORIGINS[0]);
+
+  connectSrc.push(...GOOGLE_ANALYTICS_ORIGINS);
+  imgSrc.push(...GOOGLE_ANALYTICS_ORIGINS);
 
   if (isDevelopment) {
     // HMR websocket.

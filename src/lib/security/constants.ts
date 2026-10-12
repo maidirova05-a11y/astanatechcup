@@ -59,3 +59,18 @@ export const YANDEX_METRIKA_ORIGINS = [
  * every page view logs a CSP violation for the blocked pixel.
  */
 export const YANDEX_METRIKA_SYNC_ORIGIN = "https://yandex.ru";
+
+/** Google Analytics 4 measurement ID, needed by the loader. */
+export const GOOGLE_ANALYTICS_ID = "G-63SVJZWEPP";
+
+/**
+ * Hosts gtag.js sends hits to. The collection endpoint is regional
+ * (region1.google-analytics.com, …analytics.google.com), hence the wildcards;
+ * googletagmanager.com is also contacted once the tag has loaded. The same
+ * hosts go into img-src for the tag's image-beacon fallback.
+ */
+export const GOOGLE_ANALYTICS_ORIGINS = [
+  "https://*.google-analytics.com",
+  "https://*.analytics.google.com",
+  "https://www.googletagmanager.com",
+];
