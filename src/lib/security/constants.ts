@@ -52,3 +52,10 @@ export const YANDEX_METRIKA_ORIGINS = [
   "https://mc.yandex.kz",
   "https://mc.yandex.com",
 ];
+
+/**
+ * The tag also fires a cookie-sync pixel at yandex.ru/an/mapuid/… . It is an
+ * image only, so this origin goes into img-src and nowhere else; without it
+ * every page view logs a CSP violation for the blocked pixel.
+ */
+export const YANDEX_METRIKA_SYNC_ORIGIN = "https://yandex.ru";

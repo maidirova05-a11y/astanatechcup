@@ -12,7 +12,11 @@ import { env, features, isDevelopment } from "@/lib/env";
 // Defined in `./constants` (no imports) so the client can reference it without
 // pulling this module — and therefore `@/lib/env` — into the browser bundle.
 export { TURNSTILE_ORIGIN } from "./constants";
-import { TURNSTILE_ORIGIN, YANDEX_METRIKA_ORIGINS } from "./constants";
+import {
+  TURNSTILE_ORIGIN,
+  YANDEX_METRIKA_ORIGINS,
+  YANDEX_METRIKA_SYNC_ORIGIN,
+} from "./constants";
 
 /** Cryptographically random, base64, fresh for every HTML response. */
 export function generateNonce(): string {
@@ -58,10 +62,11 @@ export function buildCsp(nonce: string): string {
 
   // Yandex.Metrika (YandexMetrika.tsx). The tag itself loads under
   // strict-dynamic like the Next chunks; these are where it reports to: hits
-  // as fetch/beacon and pixel, Webvisor through an iframe on mc.yandex.ru.
+  // as fetch/beacon and pixel, Webvisor through an iframe on mc.yandex.ru,
+  // plus a cookie-sync pixel on yandex.ru (images only).
   // Nothing is sent before the visitor accepts analytics in CookieConsent.
   connectSrc.push(...YANDEX_METRIKA_ORIGINS);
-  imgSrc.push(...YANDEX_METRIKA_ORIGINS);
+  imgSrc.push(...YANDEX_METRIKA_ORIGINS, YANDEX_METRIKA_SYNC_ORIGIN);
   frameSrc.push("blob:", YANDEX_METRIKA_ORIGINS[0]);
 
   if (isDevelopment) {
