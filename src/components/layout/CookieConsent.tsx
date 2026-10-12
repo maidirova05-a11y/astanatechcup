@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Analytics } from "./Analytics";
 import { YandexMetrika } from "./YandexMetrika";
+import { GoogleAnalytics } from "./GoogleAnalytics";
 
 /**
  * Cookie consent.
@@ -84,6 +85,7 @@ export function CookieConsent() {
         <>
           <Analytics />
           <YandexMetrika />
+          <GoogleAnalytics />
         </>
       )}
 
