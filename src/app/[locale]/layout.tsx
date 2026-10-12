@@ -41,6 +41,9 @@ export async function generateMetadata({
 
   const title = t("title", { year: EVENT_YEAR });
   const description = t("description");
+  const keywords = t("keywords", { year: EVENT_YEAR })
+    .split(",")
+    .map((k) => k.trim());
 
   return {
     metadataBase: new URL(env.APP_URL),
@@ -49,6 +52,7 @@ export async function generateMetadata({
       template: `%s · ${t("titleShort", { year: EVENT_YEAR })}`,
     },
     description,
+    keywords,
     applicationName: EVENT.name,
     // hreflang for every locale plus x-default, so Google serves Kazakh
     // speakers the Kazakh page instead of whichever it crawled first.
