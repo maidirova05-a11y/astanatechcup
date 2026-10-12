@@ -87,6 +87,12 @@ export async function Footer({ locale }: { locale: string }) {
             >
               {t("terms")}
             </Link>
+            <Link
+              href="/oferta"
+              className="inline-flex min-h-11 items-center self-start text-sm text-muted transition-colors duration-200 hover:text-content"
+            >
+              {t("oferta")}
+            </Link>
             <NextLink
               href="/coach"
               className="inline-flex min-h-11 items-center self-start text-sm text-muted transition-colors duration-200 hover:text-content"
