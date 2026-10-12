@@ -5,6 +5,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Medal, Certificate, Sparkle, Gift, Trophy } from "@/components/ui/icons";
 import { FINAL_MONTH } from "@/config/event";
 import { monthName } from "@/lib/utils";
+import { PhotoFrame } from "@/components/ui/PhotoFrame";
+import { PHOTOS } from "@/config/photos";
 
 /**
  * Prizes — the emotional peak of the page.
@@ -28,6 +30,7 @@ const ITEMS = ["medals", "diplomas", "special", "valuable"] as const;
 
 export async function Prizes({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "prizes" });
+  const tp = await getTranslations({ locale, namespace: "photos" });
 
   // The city name lives in the catalogs, not in config: "Beijing" is Пекин in
   // Russian and Бейжің in Kazakh, so it is copy, not data.
@@ -49,17 +52,17 @@ export async function Prizes({ locale }: { locale: string }) {
 
       {/* The international slot, given the visual weight the brief gives it. */}
       <Reveal>
-        <div className="tile mt-12 overflow-hidden rounded-xl">
-          <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[auto_1fr] lg:items-center lg:gap-12">
+        <div className="tile mt-10 overflow-hidden rounded-xl sm:mt-12">
+          <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8 sm:p-8 lg:grid-cols-[auto_1fr_minmax(0,22rem)] lg:gap-10 lg:p-10">
             <span
-              className="flex size-20 items-center justify-center rounded-xl border-2 border-accent-edge bg-accent text-4xl text-on-accent shadow-signal"
+              className="flex size-16 items-center justify-center rounded-xl border-2 border-accent-edge bg-accent text-3xl text-on-accent shadow-signal sm:size-20 sm:text-4xl"
               aria-hidden="true"
             >
               <Trophy />
             </span>
 
-            <div className="flex flex-col gap-3">
-              <h3 className="text-2xl">{t("internationalTitle", { city })}</h3>
+            <div className="flex flex-col gap-2.5">
+              <h3 className="text-xl sm:text-2xl">{t("internationalTitle", { city })}</h3>
               <p className="text-2xs font-bold uppercase tracking-[0.16em] text-brand">
                 {t("internationalMonth", {
                   month: monthName(locale, FINAL_MONTH.month),
@@ -70,24 +73,36 @@ export async function Prizes({ locale }: { locale: string }) {
                 {t("internationalBody")}
               </p>
             </div>
+
+            <PhotoFrame
+              photo={PHOTOS.armRobot}
+              alt={tp("armRobot")}
+              quiet
+              sizes="22rem"
+              className="hidden aspect-[16/9] lg:block"
+            />
           </div>
         </div>
       </Reveal>
 
-      <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Secondary prizes. On a phone each card lays out icon-beside-text, so
+          four prizes read as a calm list instead of four tall slabs. */}
+      <ul className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         {ITEMS.map((item, index) => (
           <Reveal as="li" key={item} index={index}>
-            <div className="tile tile-quiet flex h-full flex-col gap-4 p-6">
+            <div className="tile tile-quiet flex h-full items-start gap-4 p-5 sm:flex-col sm:p-6">
               <span
-                className="flex size-12 items-center justify-center rounded-full border-2 border-brand/40 bg-brand/15 text-xl text-brand"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-brand/40 bg-brand/15 text-lg text-brand sm:size-12 sm:text-xl"
                 aria-hidden="true"
               >
                 {ICONS[item]}
               </span>
-              <h3 className="text-lg">{t(`items.${item}.title`)}</h3>
-              <p className="text-sm leading-relaxed text-muted">
-                {t(`items.${item}.body`)}
-              </p>
+              <div className="flex flex-col gap-1.5 sm:gap-2">
+                <h3 className="text-base sm:text-lg">{t(`items.${item}.title`)}</h3>
+                <p className="text-sm leading-relaxed text-muted">
+                  {t(`items.${item}.body`)}
+                </p>
+              </div>
             </div>
           </Reveal>
         ))}

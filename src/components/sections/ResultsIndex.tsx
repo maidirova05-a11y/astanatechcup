@@ -60,8 +60,8 @@ export async function ResultsIndex({
           subtitle={t("subtitle")}
         />
 
-        <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-subtle">
-          <span className="tabular">
+        <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+          <span className="tabular font-semibold">
             {updatedAt
               ? t("updated", { time: formatStamp(updatedAt, locale) })
               : t("updatedNever")}
@@ -77,7 +77,7 @@ export async function ResultsIndex({
         )}
 
         {data.configured && started === 0 && (
-          <p className="mt-6 max-w-2xl rounded-lg border border-line bg-surface p-5 text-muted">
+          <p className="mt-6 max-w-2xl rounded-lg border border-line bg-surface p-4 text-sm text-muted">
             {t("empty")}
           </p>
         )}
@@ -92,21 +92,21 @@ export async function ResultsIndex({
             grid made a visitor read every title to find "the line follower
             ones"; a heading per category lets the eye jump straight there,
             while the running numbers still match the order of the catalogue. */}
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-10">
           {CATEGORIES.map((category) => {
             const inCategory = entries.filter(({ entry }) => entry.category.id === category.id);
             return (
               <section key={category.id} aria-labelledby={`results-cat-${category.id}`}>
                 <h3
                   id={`results-cat-${category.id}`}
-                  className="mb-4 flex items-baseline gap-3 text-xl"
+                  className="mb-4 flex items-baseline gap-2.5 text-lg"
                 >
                   {tc(`items.${category.id}.name`)}
-                  <span className="text-sm font-normal text-subtle">
+                  <span className="tabular text-sm font-semibold text-muted">
                     {inCategory.length}
                   </span>
                 </h3>
-                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                   {inCategory.map(({ entry, state }) => (
                     <li key={`${entry.category.id}:${entry.cls.id}`}>
                       <ClassCard
@@ -149,43 +149,51 @@ function ClassCard({
 }) {
   const Mascot = CATEGORY_ROBOTS[entry.category.mascot as CategoryRobotName];
 
+  // Mascot and name side by side rather than stacked. Twenty-one cards with
+  // the mascot on a row of its own made the index three screens of tiles on a
+  // phone; this is the same card at about half the height. The quiet tile is
+  // the one DESIGN.md gives to dense grids.
   return (
     <a
       href={`/${locale}/results/${entry.category.id}?class=${entry.cls.id}`}
-      className="tile tile-interactive discipline-accent relative flex h-full flex-col gap-4 p-5"
+      className="tile tile-quiet tile-interactive discipline-accent relative flex h-full flex-col gap-4 p-4"
       style={{ "--discipline-hue": String(entry.category.hue) } as React.CSSProperties}
     >
       {/* The index number, as on the board this mirrors: large, faint, and
           purely an aid to saying "number 14" out loud across a hall. */}
       <span
         aria-hidden="true"
-        className="tabular pointer-events-none absolute right-4 top-2 font-display text-5xl font-extrabold text-subtle/20"
+        className="tabular pointer-events-none absolute right-4 top-2 font-display text-4xl font-extrabold text-subtle/25"
       >
         {entry.index}
       </span>
 
-      <span
-        className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-2xl"
-        aria-hidden="true"
-      >
-        <Mascot />
-      </span>
-
-      <span className="flex flex-col gap-1">
-        <span className="text-lg font-bold">{entry.cls.label}</span>
-        <span className="text-sm text-muted">{label}</span>
-      </span>
-
-      <span className="mt-auto flex flex-wrap items-center gap-2">
-        <span className="tabular rounded-full border border-line-strong px-2.5 py-1 text-2xs font-bold tracking-wider">
-          {entry.cls.code}
+      <span className="flex items-center gap-3 pr-10">
+        <span
+          className="flex size-11 shrink-0 items-center justify-center rounded-md bg-(--d-accent-soft) text-2xl"
+          aria-hidden="true"
+        >
+          <Mascot />
         </span>
-        <StatusPill state={state} t={t} />
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="font-display text-base font-extrabold leading-snug">
+            {entry.cls.label}
+          </span>
+          <span className="text-xs text-muted">{label}</span>
+        </span>
       </span>
 
-      <span className="flex items-center gap-2 text-sm font-semibold text-(--d-accent-ink)">
-        {t("open")}
-        <ArrowRight className="text-base" aria-hidden="true" />
+      <span className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="tabular rounded-full border border-line-strong px-2.5 py-0.5 text-2xs font-bold tracking-wider">
+            {entry.cls.code}
+          </span>
+          <StatusPill state={state} t={t} />
+        </span>
+        <span className="flex items-center gap-1.5 text-sm font-semibold text-(--d-accent-ink)">
+          {t("open")}
+          <ArrowRight className="text-base" aria-hidden="true" />
+        </span>
       </span>
     </a>
   );
@@ -200,7 +208,7 @@ function StatusPill({
 }) {
   if (state.kind === "waiting") {
     return (
-      <span className="rounded-full border border-line px-2.5 py-1 text-2xs text-subtle">
+      <span className="rounded-full border border-line px-2.5 py-0.5 text-2xs text-muted">
         {t("statusWaiting")}
       </span>
     );
@@ -208,14 +216,14 @@ function StatusPill({
 
   if (state.kind === "finished") {
     return (
-      <span className="rounded-full border border-success/40 bg-success-surface px-2.5 py-1 text-2xs font-semibold text-success">
+      <span className="rounded-full border border-success/40 bg-success-surface px-2.5 py-0.5 text-2xs font-semibold text-success">
         {t("statusFinished")}
       </span>
     );
   }
 
   return (
-    <span className="rounded-full border border-warning/40 bg-warning-surface px-2.5 py-1 text-2xs font-semibold text-warning">
+    <span className="rounded-full border border-warning/40 bg-warning-surface px-2.5 py-0.5 text-2xs font-semibold text-warning">
       {t("statusRunning", { done: state.done, total: state.total })}
     </span>
   );
@@ -257,7 +265,7 @@ function LatestResults({
 
   return (
     <Section tone="muted" labelledBy="results-latest" tight>
-      <h2 id="results-latest" className="text-xl">
+      <h2 id="results-latest" className="text-lg">
         {t("recent")}
       </h2>
       <div className="mt-4">
@@ -270,7 +278,7 @@ function LatestResults({
       </div>
       <a
         href={`/${locale}/categories`}
-        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand"
+        className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand"
       >
         {t("rulesLink")}
         <ArrowRight className="text-base" aria-hidden="true" />

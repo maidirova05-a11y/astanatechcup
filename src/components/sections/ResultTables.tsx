@@ -31,7 +31,7 @@ export function StandingsTable({ rows, t }: { rows: StandingRow[]; t: Translator
       <div className="tile overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line text-left">
+            <tr className="border-b border-line bg-surface-muted text-left">
               <Th align="right">{t("colPos")}</Th>
               <Th>{t("colTeam")}</Th>
               <Th align="right">{t("colPlayed")}</Th>
@@ -47,14 +47,19 @@ export function StandingsTable({ rows, t }: { rows: StandingRow[]; t: Translator
           <tbody>
             {played.map((row, index) => (
               <tr key={row.team.id} className="border-b border-line last:border-b-0">
-                <Td align="right" className="text-subtle">
+                <Td align="right" className="font-semibold text-muted">
                   {ranks[index]}
                 </Td>
-                <td className="px-3 py-3">
+                {/* Start number first, in the brand colour, as in the
+                    leaderboard and the bracket — one way of writing a team
+                    across every table of the section. */}
+                <td className="whitespace-nowrap px-3 py-2.5">
+                  <span className="tabular mr-2 font-display text-xs font-extrabold text-brand">
+                    {row.team.code}
+                  </span>
                   <span className="font-semibold">{row.team.name}</span>
-                  <span className="ml-2 text-xs text-subtle">{row.team.code}</span>
                   {row.team.groupLabel && (
-                    <span className="ml-2 text-xs text-subtle">
+                    <span className="ml-2 text-xs text-muted">
                       {t("groupLabel", { label: row.team.groupLabel })}
                     </span>
                   )}
@@ -76,7 +81,7 @@ export function StandingsTable({ rows, t }: { rows: StandingRow[]; t: Translator
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-subtle">{t("legendPlayed")}</p>
+      <p className="text-xs text-muted">{t("legendPlayed")}</p>
     </div>
   );
 }
@@ -111,7 +116,7 @@ export function RecentMatches({
         return (
           <li
             key={match.id}
-            className="tile tile-quiet flex items-center justify-between gap-3 p-4"
+            className="tile tile-quiet flex items-center justify-between gap-3 px-4 py-3"
           >
             <div className="flex min-w-0 flex-col gap-1">
               <span className="truncate text-sm">
@@ -127,13 +132,13 @@ export function RecentMatches({
                   {blue?.name ?? "—"}
                 </span>
               </span>
-              <span className="text-2xs text-subtle">
+              <span className="truncate text-xs text-muted">
                 {[caption?.(match), stageLabel[match.stage], match.roundLabel]
                   .filter(Boolean)
                   .join(" · ")}
               </span>
             </div>
-            <span className="tabular shrink-0 font-display text-lg font-extrabold">
+            <span className="tabular shrink-0 font-display text-base font-extrabold">
               {match.redScore}:{match.blueScore}
             </span>
           </li>
@@ -184,7 +189,7 @@ export function Leaderboard({
               category — best run here, the average of two rounds in Bowling —
               so the legend under the table says which. */}
           <thead>
-            <tr className="bg-surface-muted text-left">
+            <tr className="border-b border-line bg-surface-muted text-left">
               <Th align="right">{t("colPos")}</Th>
               <Th>{t("colTeam")}</Th>
               {Array.from({ length: category.scoring.rounds }, (_, i) => (
@@ -198,10 +203,10 @@ export function Leaderboard({
           <tbody>
             {competed.map((row, index) => (
               <tr key={row.team.id} className="border-b border-line last:border-b-0">
-                <Td align="right" className="text-subtle">
+                <Td align="right" className="font-semibold text-muted">
                   {ranks[index]}
                 </Td>
-                <td className="px-3 py-3">
+                <td className="whitespace-nowrap px-3 py-2.5">
                   <span className="tabular mr-2 font-display text-xs font-extrabold text-brand">
                     {row.team.code}
                   </span>
@@ -238,7 +243,7 @@ export function Leaderboard({
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-subtle">
+      <p className="text-xs text-muted">
         {t("legendAttempts", { best: aggregateLabel.toLowerCase() })}
       </p>
     </div>
@@ -276,7 +281,7 @@ export function Th({
   return (
     <th
       scope={scope}
-      className={`px-3 py-3 text-2xs font-bold uppercase tracking-wider text-subtle ${
+      className={`whitespace-nowrap px-3 py-2.5 text-2xs font-bold uppercase tracking-wider text-muted ${
         align === "right" ? "text-right" : align === "center" ? "text-center" : ""
       } ${className}`}
     >
@@ -296,7 +301,7 @@ export function Td({
 }) {
   return (
     <td
-      className={`tabular px-3 py-3 ${
+      className={`tabular whitespace-nowrap px-3 py-2.5 ${
         align === "right" ? "text-right" : align === "center" ? "text-center" : ""
       } ${className}`}
     >

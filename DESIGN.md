@@ -35,35 +35,35 @@ colors:
 typography:
   display-xl:
     fontFamily: Manrope
-    fontSize: clamp(44px, 30px + 4.2vw, 80px)
+    fontSize: clamp(36px, 27px + 2.6vw, 56px)
     fontWeight: 800
     lineHeight: 1.06
     letterSpacing: -0.028em
   display-lg:
     fontFamily: Manrope
-    fontSize: clamp(36px, 27px + 2.6vw, 60px)
+    fontSize: clamp(30px, 25px + 1.6vw, 44px)
     fontWeight: 800
     lineHeight: 1.06
     letterSpacing: -0.028em
   display-md:
     fontFamily: Manrope
-    fontSize: clamp(30px, 25px + 1.6vw, 44px)
+    fontSize: clamp(26px, 22.7px + 1vw, 34px)
     fontWeight: 800
     lineHeight: 1.06
     letterSpacing: -0.028em
   headline:
     fontFamily: Manrope
-    fontSize: clamp(24px, 21px + 0.9vw, 32px)
+    fontSize: clamp(22px, 20px + 0.6vw, 26px)
     fontWeight: 800
     lineHeight: 1.10
   card-title:
     fontFamily: Manrope
-    fontSize: clamp(21px, 19px + 0.55vw, 24px)
+    fontSize: clamp(19px, 18px + 0.35vw, 21px)
     fontWeight: 800
     lineHeight: 1.15
   body:
     fontFamily: Inter
-    fontSize: clamp(16px, 15.4px + 0.2vw, 17px)
+    fontSize: clamp(15px, 14.7px + 0.1vw, 16px)
     fontWeight: 400
     lineHeight: 1.65
   body-sm:
@@ -213,7 +213,7 @@ block. Any replacement face must ship the `cyrillic-ext` subset. A face without
 it renders those letters as tofu, and nobody notices until a Kazakh speaker
 opens the page.
 
-The scale is fluid via `clamp()` — a 1.25 ratio at mobile widening to 1.333 at
+The scale is fluid via `clamp()` — a 1.2 ratio at mobile widening to 1.25 at
 desktop. Headings use `text-wrap: balance`, body copy uses `text-wrap: pretty`.
 
 Numerals in the countdown and the stat counters use `.tabular` so digits do not

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Section } from "@/components/ui/Section";
 import { CATEGORY_ROBOTS, type CategoryRobotName } from "@/components/ui/robots";
-import { ArrowLeft, ArrowRight } from "@/components/ui/icons";
+import { ArrowDown, ArrowLeft, ArrowRight } from "@/components/ui/icons";
 import type { CatalogueEntry } from "@/config/categories";
 import { buildLeaderboard, buildStandings } from "@/lib/scoring/standings";
 import {
@@ -86,48 +86,53 @@ export async function ClassBoard({
       {/* The accent hue is the category's, so a referee moving between two
           classes of the same category has one colour follow them. */}
       <div
-        className="discipline-accent flex flex-col gap-8"
+        className="discipline-accent flex flex-col gap-6"
         style={{ "--discipline-hue": String(category.hue) } as React.CSSProperties}
       >
-        <a
-          href={`/${locale}/results`}
-          className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-semibold text-muted"
-        >
-          <ArrowLeft className="text-base" aria-hidden="true" />
-          {t("backToAll")}
-        </a>
-
-        {/* ── Who is playing ─────────────────────────────────────────────── */}
-        <header className="tile flex flex-wrap items-center justify-between gap-4 p-5">
-          <div className="flex items-center gap-4">
-            <span
-              className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-3xl"
-              aria-hidden="true"
-            >
-              <Mascot />
-            </span>
-            <div className="flex flex-col gap-1">
-              <h1 id="class-title" className="text-2xl">
-                {cls.label}
-              </h1>
-              <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-                <span>{tc(`items.${category.id}.name`)}</span>
-                <span className="tabular rounded-full border border-line-strong px-2.5 py-0.5 text-2xs font-bold tracking-wider">
-                  {cls.code}
-                </span>
-                <span>{cls.groups.map((group) => tc(`groups.${group}`)).join(" · ")}</span>
-              </p>
-            </div>
-          </div>
-
+        {/* The back link and the class card are one unit — where you came
+            from, then where you are — so they sit closer together than the
+            gap between the blocks of the board below them. */}
+        <div className="flex flex-col gap-2">
           <a
-            href={`/${locale}/categories#${category.id}`}
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent-ink)"
+            href={`/${locale}/results`}
+            className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-semibold text-muted transition-colors hover:text-content"
           >
-            {t("rulesLink")}
-            <ArrowRight className="text-base" aria-hidden="true" />
+            <ArrowLeft className="text-base" aria-hidden="true" />
+            {t("backToAll")}
           </a>
-        </header>
+
+          {/* ── Who is playing ───────────────────────────────────────────── */}
+          <header className="tile flex flex-wrap items-center justify-between gap-x-6 gap-y-3 p-4 sm:p-5">
+            <div className="flex min-w-0 items-center gap-4">
+              <span
+                className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-2xl sm:size-14 sm:text-3xl"
+                aria-hidden="true"
+              >
+                <Mascot />
+              </span>
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <h1 id="class-title" className="text-2xl">
+                  {cls.label}
+                </h1>
+                <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-muted">
+                  <span>{tc(`items.${category.id}.name`)}</span>
+                  <span className="tabular rounded-full border border-line-strong px-2 py-0.5 text-2xs font-bold tracking-wider text-content">
+                    {cls.code}
+                  </span>
+                  <span>{cls.groups.map((group) => tc(`groups.${group}`)).join(" · ")}</span>
+                </p>
+              </div>
+            </div>
+
+            <a
+              href={`/${locale}/categories#${category.id}`}
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent-ink)"
+            >
+              {t("rulesLink")}
+              <ArrowRight className="text-base" aria-hidden="true" />
+            </a>
+          </header>
+        </div>
 
         {category.classes.length > 1 && (
           <Tabs
@@ -154,8 +159,8 @@ export async function ClassBoard({
           </p>
         ) : category.scoring.kind === "run" ? (
           /* ── Attempts, no stages ──────────────────────────────────────── */
-          <section className="flex flex-col gap-4">
-            <h2 className="text-xl">{t("leaderboard")}</h2>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg">{t("leaderboard")}</h2>
             <Leaderboard
               rows={buildLeaderboard(teams, runs, category)}
               category={category}
@@ -174,7 +179,7 @@ export async function ClassBoard({
           />
         )}
 
-        <p className="flex flex-wrap items-center justify-between gap-3 text-xs text-subtle">
+        <p className="flex flex-wrap items-center justify-between gap-x-3 border-t border-line pt-2 text-xs text-subtle">
           <span className="tabular">
             {snapshot?.updatedAt
               ? t("updated", { time: formatStamp(snapshot.updatedAt, locale) })
@@ -237,7 +242,7 @@ function MatchStages({
     href({ group: group ?? UNGROUPED, ...params });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <Tabs
         label={t("stages")}
         items={[
@@ -260,7 +265,7 @@ function MatchStages({
         teams.length === 0 ? (
           <p className="text-sm text-muted">{t("emptyCategory")}</p>
         ) : (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {labels.length > 1 && (
               <Tabs
                 small
@@ -291,11 +296,17 @@ function MatchStages({
                       the four columns the board this mirrors prints. Goals for
                       and against decide our ties (see buildStandings), so the
                       full table stays one click away rather than being lost. */}
-                  <details className="rounded-lg border border-line bg-surface">
-                    <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold">
+                  <details className="group rounded-lg border border-line bg-surface [&_summary::-webkit-details-marker]:hidden">
+                    {/* The chevron is the only thing that says this row opens;
+                        with the native marker hidden it was a plain label. */}
+                    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-semibold transition-colors hover:text-brand sm:px-5">
                       {t("fullTable")}
+                      <ArrowDown
+                        className="shrink-0 text-base text-subtle transition-transform group-open:rotate-180"
+                        aria-hidden="true"
+                      />
                     </summary>
-                    <div className="border-t border-line p-5">
+                    <div className="border-t border-line p-3 sm:p-5">
                       <StandingsTable
                         rows={buildStandings(inGroup, played, category)}
                         t={t}
@@ -366,6 +377,12 @@ function Tabs({
   items: { key: string; label: string; href: string; current: boolean }[];
   small?: boolean;
 }) {
+  // Both sizes are 14px text now. Nine sumo classes at 16px wrapped into five
+  // rows on a phone and out-shouted the class title; the level is told apart
+  // by height and weight instead — the class/stage row is the 44px touch
+  // target, the group and view switches under it a step smaller.
+  const size = small ? "min-h-10 px-3.5 text-sm" : "min-h-11 px-4 text-sm";
+
   return (
     <nav aria-label={label}>
       <ul className="flex flex-wrap gap-2">
@@ -376,12 +393,8 @@ function Tabs({
               aria-current={item.current ? "page" : undefined}
               className={
                 item.current
-                  ? `inline-flex min-h-11 items-center rounded-full bg-brand-strong px-4 font-semibold text-on-brand ${
-                      small ? "text-sm" : "text-base"
-                    }`
-                  : `inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 font-medium text-muted ${
-                      small ? "text-sm" : "text-base"
-                    }`
+                  ? `inline-flex items-center rounded-full border border-brand-strong bg-brand-strong font-semibold text-on-brand ${size}`
+                  : `inline-flex items-center rounded-full border border-line bg-surface font-medium text-muted transition-colors hover:border-line-strong hover:text-content ${size}`
               }
             >
               {item.label}

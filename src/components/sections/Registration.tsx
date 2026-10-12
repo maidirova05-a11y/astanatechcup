@@ -12,6 +12,8 @@ import {
   isRegistrationOpen,
 } from "@/config/event";
 import { formatEventDate } from "@/lib/utils";
+import { PhotoFrame } from "@/components/ui/PhotoFrame";
+import { PHOTOS } from "@/config/photos";
 
 /**
  * Registration section.
@@ -25,6 +27,7 @@ import { formatEventDate } from "@/lib/utils";
  */
 export async function Registration({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "registration" });
+  const tp = await getTranslations({ locale, namespace: "photos" });
 
   const headerList = await headers();
   const csrfToken = headerList.get(CSRF_HEADER) ?? "";
@@ -46,7 +49,7 @@ export async function Registration({ locale }: { locale: string }) {
         subtitle={t("subtitle")}
       />
 
-      <div className="mt-14 grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14">
+      <div className="mt-10 grid gap-8 sm:mt-12 lg:grid-cols-[1fr_21rem] lg:gap-12 xl:gap-16">
         <div className="order-2 lg:order-1">
           {open ? (
             <RegistrationForm
@@ -56,10 +59,10 @@ export async function Registration({ locale }: { locale: string }) {
               turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             />
           ) : (
-            <div className="tile flex items-start gap-4 bg-surface-muted p-8">
+            <div className="tile flex items-start gap-4 bg-surface-muted p-6 sm:p-8">
               <Warning className="mt-0.5 shrink-0 text-xl text-accent" />
               <div className="flex flex-col gap-2">
-                <h3 className="text-xl">{t("closed")}</h3>
+                <h3 className="text-lg sm:text-xl">{t("closed")}</h3>
                 <p className="text-muted">{t("closedBody", { year: EVENT_YEAR })}</p>
               </div>
             </div>
@@ -69,13 +72,23 @@ export async function Registration({ locale }: { locale: string }) {
         {/* Fee summary. Sticky on desktop so the price and what it buys stay
             visible while the visitor works down a long form — this is the
             single most common reason someone abandons a paid registration. */}
-        <aside className="order-1 lg:order-2 lg:sticky lg:top-28 lg:self-start">
-          <div className="tile flex flex-col gap-6 bg-surface-muted p-7">
+        <aside className="order-1 flex flex-col gap-5 lg:order-2 lg:sticky lg:top-28 lg:self-start">
+          {/* Desktop only: on a phone the fee card already sits above the
+              form, and a photo there would push the first field off screen. */}
+          <PhotoFrame
+            photo={PHOTOS.teamRobot}
+            alt={tp("teamRobot")}
+            quiet
+            sizes="21rem"
+            className="hidden aspect-[16/10] lg:block"
+            imageClassName="object-[50%_35%]"
+          />
+          <div className="tile flex flex-col gap-5 bg-surface-muted p-6">
             <div className="flex flex-col gap-1">
               <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
                 {t("feeLabel")}
               </p>
-              <p className="font-display text-4xl font-extrabold text-brand">
+              <p className="font-display text-3xl font-extrabold leading-tight text-brand">
                 {t("feeValue", { amount: ENTRY_FEE.amount, currency: ENTRY_FEE.currency })}
               </p>
               <p className="text-sm text-muted">{t("feePer")}</p>
@@ -85,7 +98,7 @@ export async function Registration({ locale }: { locale: string }) {
 
             <div className="flex flex-col gap-3">
               <p className="text-sm font-semibold">{t("feeIncludesTitle")}</p>
-              <ul className="flex flex-col gap-2.5">
+              <ul className="flex flex-col gap-2">
                 {includes.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-muted">
                     <Check className="mt-0.5 shrink-0 text-base text-success" />
@@ -95,7 +108,7 @@ export async function Registration({ locale }: { locale: string }) {
               </ul>
             </div>
 
-            <p className="rounded-md border-2 border-ink bg-surface-raised p-3.5 text-sm font-medium">
+            <p className="rounded-md border-2 border-ink bg-surface-raised px-4 py-3 text-sm font-medium">
               {t("deadlineNote", { date: deadline })}
             </p>
           </div>

@@ -69,7 +69,9 @@ export function Header({ locale }: { locale: string }) {
     <header
       className={cn(
         "sticky top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-300",
-        scrolled
+        // With the menu open the bar goes solid too, so the panel below reads
+        // as one sheet with it rather than a card hanging under a glass strip.
+        scrolled || menuOpen
           ? "bg-surface/85 shadow-sm backdrop-blur-lg"
           : "bg-transparent",
       )}
@@ -113,7 +115,7 @@ export function Header({ locale }: { locale: string }) {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={tc("menu")}
-            className="inline-flex size-11 items-center justify-center rounded-full border border-line text-xl xl:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-full border border-line-strong bg-surface-raised text-xl transition-colors duration-200 hover:bg-surface-muted xl:hidden"
           >
             {menuOpen ? <Close /> : <Menu />}
           </button>
@@ -125,22 +127,24 @@ export function Header({ locale }: { locale: string }) {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="border-t border-line bg-surface xl:hidden"
+          // Scrolls on its own when a landscape phone is shorter than the
+          // menu: the page behind it is locked, so nothing else could.
+          className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-line bg-surface shadow-lg xl:hidden"
         >
-          <nav aria-label={tc("menu")} className="container-page flex flex-col py-4">
+          <nav aria-label={tc("menu")} className="container-page flex flex-col py-3">
             {NAV.map((item) => (
               <a
                 key={item.key}
                 href={item.page ? `/${locale}${item.href}` : item.href}
                 onClick={() => setMenuOpen(false)}
-                className="border-b border-line py-4 text-lg font-semibold last:border-b-0"
+                className="flex min-h-12 items-center border-b border-line py-2.5 text-base font-semibold transition-colors duration-200 last:border-b-0 hover:text-brand"
               >
                 {t(item.key)}
               </a>
             ))}
 
-            <div className="mt-5 flex items-center justify-between gap-3">
-              <LocaleSwitcher />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <LocaleSwitcher size="md" />
               <a
                 href="#register"
                 onClick={() => setMenuOpen(false)}

@@ -42,14 +42,16 @@ export async function Gallery({ locale }: { locale: string }) {
       </div>
 
       {/* Asymmetric mosaic: one wide hero tile plus four supporting tiles.
-          Keeps a gallery from reading as a uniform contact sheet. */}
-      <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          Keeps a gallery from reading as a uniform contact sheet. The
+          supporting tiles are 4:3 rather than square so the whole block stays
+          under one screen tall on a laptop instead of towering over the page. */}
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-4">
         {[
-          "col-span-2 row-span-2 aspect-[4/3] lg:aspect-auto",
-          "aspect-square",
-          "aspect-square",
-          "aspect-square",
-          "aspect-square",
+          "col-span-2 row-span-2 aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto",
+          "aspect-[4/3]",
+          "aspect-[4/3]",
+          "aspect-[4/3]",
+          "aspect-[4/3]",
         ].map((shape, index) => (
           <div
             key={index}
@@ -63,7 +65,7 @@ export async function Gallery({ locale }: { locale: string }) {
         ))}
       </div>
 
-      <p className="mt-5 text-sm text-subtle">{t("empty")}</p>
+      <p className="mt-4 text-sm text-subtle">{t("empty")}</p>
     </Section>
   );
 }

@@ -59,7 +59,7 @@ export function CrossTable({
             <tr>
               <th
                 scope="col"
-                className="sticky left-0 z-20 bg-surface-raised px-2 py-2 text-left text-2xs font-bold uppercase tracking-wider text-subtle"
+                className="sticky left-0 z-20 bg-surface-raised px-2 py-2 text-left text-2xs font-bold uppercase tracking-wider text-muted"
               >
                 {title}
               </th>
@@ -88,7 +88,7 @@ export function CrossTable({
                     <span className="tabular shrink-0 font-display text-xs font-extrabold text-(--d-accent-ink)">
                       {row.team.code}
                     </span>
-                    <span className="max-w-36 truncate font-semibold">{row.team.name}</span>
+                    <span title={row.team.name} className="max-w-28 truncate font-semibold sm:max-w-40">{row.team.name}</span>
                   </span>
                 </th>
 
@@ -108,12 +108,12 @@ export function CrossTable({
                   <Chip value={row.lost} tone="loss" />
                 </td>
                 <td className="p-0">
-                  <span className="tabular flex h-14 min-w-11 items-center justify-center rounded-md border-2 border-line-strong px-2 font-display text-lg font-extrabold">
+                  <span className="tabular flex h-14 min-w-11 items-center justify-center rounded-md border-2 border-line-strong px-2 font-display text-base font-extrabold">
                     {row.points}
                   </span>
                 </td>
                 <td className="p-0">
-                  <span className="tabular flex h-14 min-w-9 items-center justify-center px-2 font-bold text-subtle">
+                  <span className="tabular flex h-14 min-w-9 items-center justify-center px-2 font-bold text-muted">
                     {row.played > 0 ? row.rank : "—"}
                   </span>
                 </td>
@@ -133,13 +133,13 @@ export function CrossTable({
             >
               <span className="tabular text-xs font-bold text-success">{index + 1}</span>
               <span className="font-semibold">{team.name}</span>
-              <span className="tabular text-xs text-subtle">{team.code}</span>
+              <span className="tabular text-xs text-muted">{team.code}</span>
             </span>
           ))}
         </p>
       )}
 
-      <p className="text-xs text-subtle">{t("crossLegend")}</p>
+      <p className="text-xs text-muted">{t("crossLegend")}</p>
     </div>
   );
 }
@@ -148,7 +148,7 @@ function Corner({ children }: { children: React.ReactNode }) {
   return (
     <th
       scope="col"
-      className="px-2 py-2 text-center text-2xs font-bold uppercase tracking-wider text-subtle"
+      className="px-2 py-2 text-center text-2xs font-bold uppercase tracking-wider text-muted"
     >
       {children}
     </th>
@@ -199,7 +199,7 @@ function Cell({
 
   const body = (
     <>
-      <span className="text-2xs font-bold uppercase leading-none tracking-wider text-subtle">
+      <span className="text-2xs font-bold uppercase leading-none tracking-wider text-muted">
         {cell.number}
       </span>
       <span className="tabular whitespace-nowrap font-display text-sm font-extrabold leading-none">

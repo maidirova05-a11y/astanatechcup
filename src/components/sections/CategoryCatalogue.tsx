@@ -67,7 +67,7 @@ function formatEnvelope(
   t: Translator,
   tc: Translator,
   num: (n: number) => string,
-): string {
+): string[] {
   const u = tc("cm");
   const parts: string[] = [];
 
@@ -92,7 +92,9 @@ function formatEnvelope(
     parts.push(t("envelopeWeight", { weight: formatWeight(weight, num, tc) }));
   }
 
-  return parts.length > 0 ? parts.join(" · ") : tc("noLimit");
+  // Returned as parts, not joined: the table sets size and weight on lines of
+  // their own, so "до 1 кг" never wraps into the middle of "15 × 15 × 32 см".
+  return parts.length > 0 ? parts : [tc("noLimit")];
 }
 
 function formatArena(
@@ -191,15 +193,15 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
           subtitle={t("subtitle")}
         />
 
-        <dl className="mt-12 flex flex-wrap items-end gap-x-10 gap-y-6">
+        <dl className="mt-10 flex flex-wrap items-end gap-x-10 gap-y-5">
           <div className="flex flex-col gap-1">
-            <dd className="tabular font-display text-4xl font-extrabold text-brand">
+            <dd className="tabular font-display text-3xl font-extrabold leading-none text-brand md:text-4xl">
               {CATEGORIES.length}
             </dd>
             <dt className="text-sm font-semibold text-muted">{t("statCategories")}</dt>
           </div>
           <div className="flex flex-col gap-1">
-            <dd className="tabular font-display text-4xl font-extrabold text-accent">
+            <dd className="tabular font-display text-3xl font-extrabold leading-none text-accent md:text-4xl">
               {TOTAL_CLASSES}
             </dd>
             <dt className="text-sm font-semibold text-muted">{t("statClasses")}</dt>
@@ -211,7 +213,7 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
             and a reader who came for one set of numbers should not have to
             scroll past six others to reach them. */}
         <nav aria-label={t("tocTitle")} className="mt-10">
-          <p className="text-2xs font-bold uppercase tracking-wider text-subtle">
+          <p className="text-2xs font-bold uppercase tracking-wider text-muted">
             {t("tocTitle")}
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -219,7 +221,7 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
               <li key={category.id}>
                 <a
                   href={`#${category.id}`}
-                  className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold transition-colors hover:border-line-strong hover:bg-surface-raised"
+                  className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold transition-colors hover:border-line-strong hover:text-brand"
                 >
                   {t(`items.${category.id}.name`)}
                 </a>
@@ -295,23 +297,26 @@ async function CategoryBlock({
       tone={index % 2 === 0 ? "default" : "muted"}
     >
       <div
-        className="discipline-accent flex flex-col gap-10"
+        className="discipline-accent flex flex-col gap-8"
         style={{ "--discipline-hue": String(category.hue) } as React.CSSProperties}
       >
         <Reveal>
-          <header className="flex flex-col gap-5">
-            <div className="flex flex-wrap items-center gap-5">
+          <header className="flex flex-col gap-4">
+            {/* Mascot and name stay on one line at every width. Wrapping put
+                the mascot on a row of its own on a phone, above a heading it
+                was meant to sit beside. */}
+            <div className="flex items-center gap-4">
               <span
-                className="flex size-20 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-5xl"
+                className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-3xl sm:size-16 sm:text-4xl"
                 aria-hidden="true"
               >
                 <Mascot />
               </span>
-              <div className="flex flex-col gap-1.5">
-                <h2 id={headingId} className="text-3xl">
+              <div className="flex min-w-0 flex-col gap-1">
+                <h2 id={headingId} className="text-2xl md:text-3xl">
                   {t(`items.${category.id}.name`)}
                 </h2>
-                <p className="font-semibold text-(--d-accent-ink)">
+                <p className="text-sm font-semibold text-(--d-accent-ink) sm:text-base">
                   {t(`items.${category.id}.tagline`)}
                 </p>
               </div>
@@ -323,7 +328,7 @@ async function CategoryBlock({
               ))}
             </div>
 
-            <p className="max-w-3xl text-lg leading-relaxed text-muted">
+            <p className="max-w-3xl leading-relaxed text-muted">
               {t(`items.${category.id}.summary`)}
             </p>
           </header>
@@ -335,7 +340,7 @@ async function CategoryBlock({
             {facts.map((fact) => (
               <li
                 key={fact}
-                className="tile tile-quiet flex items-center gap-3 px-4 py-3 text-sm font-medium"
+                className="tile tile-quiet flex items-center gap-3 px-4 py-2.5 text-sm font-medium"
               >
                 <Trophy className="shrink-0 text-base text-(--d-accent)" aria-hidden="true" />
                 {fact}
@@ -344,9 +349,9 @@ async function CategoryBlock({
           </ul>
         </Reveal>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2">
           <Reveal index={2}>
-            <article className="tile flex h-full flex-col gap-4 p-6">
+            <article className="tile flex h-full flex-col gap-4 p-5 sm:p-6">
               <Eyebrow className="text-(--d-accent-ink)">{t("rulesLabel")}</Eyebrow>
               <ul className="flex flex-col gap-3">
                 {rules.map((rule) => (
@@ -363,7 +368,7 @@ async function CategoryBlock({
           </Reveal>
 
           <Reveal index={3}>
-            <article className="tile flex h-full flex-col gap-4 p-6">
+            <article className="tile flex h-full flex-col gap-4 p-5 sm:p-6">
               <Eyebrow className="text-(--d-accent-ink)">{t("scoringLabel")}</Eyebrow>
               <ul className="flex flex-col gap-3">
                 {scoring.map((line) => (
@@ -390,7 +395,7 @@ async function CategoryBlock({
           />
         </Reveal>
 
-        <p className="text-xs text-subtle">
+        <p className="text-xs text-muted">
           {t("sourceLabel")}:{" "}
           {t("sourceValue", {
             title: category.source.title,
@@ -427,16 +432,16 @@ function ClassTable({
 }) {
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <h3 id={headingId} className="flex items-center gap-2 text-xl">
+      <h3 id={headingId} className="flex items-center gap-2 text-lg">
         <Users className="text-lg text-subtle" aria-hidden="true" />
         {t("classesLabel")}
       </h3>
 
       <div className="tile overflow-x-auto">
-        <table className="w-full min-w-[42rem] border-collapse text-sm">
+        <table className="w-full min-w-[44rem] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line text-left">
-              <Th>{t("colClass")}</Th>
+            <tr className="border-b border-line bg-surface-muted text-left">
+              <Th sticky>{t("colClass")}</Th>
               <Th>{t("colGroups")}</Th>
               <Th>{t("colControl")}</Th>
               <Th>{t("colRobot")}</Th>
@@ -444,17 +449,36 @@ function ClassTable({
             </tr>
           </thead>
           <tbody>
+            {/* Rows align to the top: a row is as tall as its arena
+                description, and centring the one-line cells against a
+                three-line one made every row look misaligned. */}
             {category.classes.map((cls: CategoryClass) => (
-              <tr key={cls.id} className="border-b border-line last:border-b-0">
-                <td className="px-4 py-3.5 font-semibold">{cls.label}</td>
-                <td className="px-4 py-3.5 text-muted">
+              <tr key={cls.id} className="border-b border-line align-top last:border-b-0">
+                {/* Sticky, so the class name stays on screen while the
+                    numbers scroll sideways on a phone. */}
+                <th
+                  scope="row"
+                  className="sticky left-0 z-10 min-w-36 bg-surface-raised px-4 py-3 text-left font-semibold max-lg:shadow-[inset_-1px_0_0_var(--border)]"
+                >
+                  {cls.label}
+                </th>
+                <td className="whitespace-nowrap px-4 py-3 text-muted">
                   {cls.groups.map((group) => t(`groups.${group}`)).join(" · ")}
                 </td>
-                <td className="px-4 py-3.5 text-muted">{t(`control.${cls.control}`)}</td>
-                <td className="tabular px-4 py-3.5 text-muted">
-                  {formatEnvelope(cls.envelope, t, tc, num)}
+                <td className="whitespace-nowrap px-4 py-3 text-muted">
+                  {t(`control.${cls.control}`)}
                 </td>
-                <td className="tabular px-4 py-3.5 text-muted">
+                <td className="tabular px-4 py-3">
+                  {formatEnvelope(cls.envelope, t, tc, num).map((part, i) => (
+                    <span
+                      key={part}
+                      className={`block whitespace-nowrap ${i === 0 ? "text-content" : "text-muted"}`}
+                    >
+                      {part}
+                    </span>
+                  ))}
+                </td>
+                <td className="tabular min-w-48 px-4 py-3 text-muted">
                   {formatArena(cls.arena, t, tc, num)}
                 </td>
               </tr>
@@ -466,11 +490,13 @@ function ClassTable({
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
+function Th({ children, sticky = false }: { children: React.ReactNode; sticky?: boolean }) {
   return (
     <th
       scope="col"
-      className="px-4 py-3 text-2xs font-bold uppercase tracking-wider text-subtle"
+      className={`whitespace-nowrap px-4 py-2.5 text-2xs font-bold uppercase tracking-wider text-muted ${
+        sticky ? "sticky left-0 z-10 bg-surface-muted max-lg:shadow-[inset_-1px_0_0_var(--border)]" : ""
+      }`}
     >
       {children}
     </th>

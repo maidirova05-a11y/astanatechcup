@@ -26,25 +26,25 @@ export async function Partners({ locale }: { locale: string }) {
         title={t("title")}
       />
 
-      <div className="mt-12 grid gap-4 sm:grid-cols-2">
+      <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2">
         {[
           { label: t("organizer"), name: EVENT.organizer, asset: BRAND_ASSETS.organizer },
           { label: t("coOrganizer"), name: EVENT.coOrganizer, asset: BRAND_ASSETS.coOrganizer },
         ].map((entry, index) => (
           <Reveal key={entry.name} index={index}>
-            <div className="tile flex h-full flex-col gap-5 p-6">
+            <div className="tile flex h-full flex-col gap-4 p-5 sm:p-6">
               <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
                 {entry.label}
               </p>
               {/* The mark carries the name, so the alt text is the name and no
                   duplicate text label is rendered beside it. */}
-              <OrganiserLogo asset={entry.asset} className="h-14" />
+              <OrganiserLogo asset={entry.asset} className="h-12 sm:h-14" />
             </div>
           </Reveal>
         ))}
       </div>
 
-      <div className="mt-14">
+      <div className="mt-12">
         <h3 className="text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
           {t("partnersTitle")}
         </h3>
@@ -84,10 +84,10 @@ export async function Partners({ locale }: { locale: string }) {
       </div>
 
       <Reveal>
-        <div className="mt-14 flex flex-col gap-5 rounded-xl border border-line bg-surface-raised p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-          <div className="flex max-w-2xl flex-col gap-2.5">
-            <h3 className="text-2xl">{t("sponsorTitle")}</h3>
-            <p className="text-muted">{t("sponsorBody")}</p>
+        <div className="mt-12 flex flex-col gap-6 rounded-xl border border-line bg-surface-raised p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10">
+          <div className="flex max-w-2xl flex-col gap-2">
+            <h3 className="text-xl sm:text-2xl">{t("sponsorTitle")}</h3>
+            <p className="leading-relaxed text-muted">{t("sponsorBody")}</p>
           </div>
 
           <a
@@ -98,7 +98,11 @@ export async function Partners({ locale }: { locale: string }) {
                   )}`
                 : "#contacts"
             }
-            className={buttonClasses({ variant: "solid", size: "lg", className: "shrink-0" })}
+            className={buttonClasses({
+              variant: "solid",
+              size: "lg",
+              className: "w-full shrink-0 sm:w-auto sm:self-start lg:self-auto",
+            })}
           >
             {t("sponsorCta")}
             <ArrowRight className="text-lg" />

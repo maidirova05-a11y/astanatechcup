@@ -33,21 +33,21 @@ export async function Disciplines({ locale }: { locale: string }) {
         subtitle={t("subtitle")}
       />
 
-      <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-10 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
         {DISCIPLINES.map((discipline, index) => {
           const Mascot = DISCIPLINE_ROBOTS[discipline.id];
 
           return (
           <Reveal as="li" key={discipline.id} index={index}>
             <article
-              className="discipline-accent tile tile-interactive group flex h-full flex-col gap-5 p-6"
+              className="discipline-accent tile tile-interactive group flex h-full flex-col gap-4 p-5 sm:p-6"
               style={{ "--discipline-hue": String(discipline.hue) } as React.CSSProperties}
             >
               <div className="flex items-start justify-between gap-3">
                 {/* The mascot reads its body colour from --r-accent, which
                     `.discipline-accent` points at this card's hue. */}
                 <span
-                  className="flex size-20 items-center justify-center rounded-lg bg-(--d-accent-soft) text-5xl"
+                  className="flex size-16 items-center justify-center rounded-lg bg-(--d-accent-soft) text-4xl"
                   aria-hidden="true"
                 >
                   <Mascot className="transition-transform duration-300 ease-spring group-hover:scale-110 group-hover:-rotate-3" />
@@ -59,17 +59,19 @@ export async function Disciplines({ locale }: { locale: string }) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <h3 className="text-xl">{t(`items.${discipline.id}.name`)}</h3>
                 <p className="text-sm font-semibold text-(--d-accent-ink)">
                   {t(`items.${discipline.id}.tagline`)}
                 </p>
-                <p className="text-muted">{t(`items.${discipline.id}.description`)}</p>
+                <p className="text-sm leading-relaxed text-muted">
+                  {t(`items.${discipline.id}.description`)}
+                </p>
               </div>
 
               {/* Pushed to the bottom so every card's metadata row aligns,
                   regardless of how long the description is. */}
-              <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-5 text-sm">
+              <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-4 text-sm">
                 <div className="flex flex-col gap-0.5">
                   <dt className="text-2xs font-semibold uppercase tracking-wider text-subtle">
                     {t("labelAge")}
@@ -96,7 +98,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                 href="#register"
                 // min-h-11 keeps the tap target at the 44px minimum without
                 // adding visible bulk to the card.
-                className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--d-accent-ink) transition-transform duration-200 group-hover:translate-x-0.5"
+                className="-my-2 inline-flex min-h-11 items-center gap-2 self-start text-sm font-semibold text-(--d-accent-ink) transition-transform duration-200 group-hover:translate-x-0.5"
               >
                 {t("cta")}
                 <ArrowRight className="text-base" />
@@ -107,7 +109,7 @@ export async function Disciplines({ locale }: { locale: string }) {
         })}
       </ul>
 
-      <div className="mt-12 flex flex-col items-start gap-3">
+      <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         {/* The full rulebook set lives on its own page: six cards are what a
             team needs to choose a discipline, and twenty-one classes with
             weight limits are what they need once they have. */}

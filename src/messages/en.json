@@ -61,7 +61,15 @@
     "closed": "Entries are closed",
     "closedNote": "Registration for the {year} championship has closed. Leave your details and we will tell you when the next season opens.",
     "organizedBy": "Organiser",
-    "coOrganizedBy": "Co-organiser"
+    "coOrganizedBy": "Co-organiser",
+    "assembly": {
+      "chassis": "Assembling: chassis",
+      "body": "Assembling: body",
+      "arms": "Assembling: arms",
+      "head": "Assembling: head",
+      "boot": "Booting systems",
+      "ready": "Robot assembled — ready to compete"
+    }
   },
   "countdown": {
     "days": "{count, plural, one {day} other {days}}",
@@ -814,5 +822,17 @@
     "ulytau": "Ulytau Region",
     "shymkent": "Shymkent (city)",
     "other": "Another region or country"
+  },
+  "photos": {
+    "creditLabel": "Illustrative photos",
+    "creditNote": "Photos from Unsplash — illustrations, not pictures of the championship.",
+    "teamRobot": "Close-up of a team robot",
+    "armRobot": "Wheeled robot with an arm on an arena",
+    "girlAssembling": "A girl concentrating on assembling a construction kit",
+    "trackedRobot": "Tracked robot against a blue-purple background",
+    "circuitBoard": "Microcontroller board and parts on a blue table",
+    "cameraRobot": "Robot car with a camera",
+    "lineFollower": "Line-following robot on a track",
+    "coding": "Students coding together"
   }
 }

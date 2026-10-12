@@ -114,18 +114,18 @@ export function RegistrationForm({
       <div
         ref={statusRef}
         tabIndex={-1}
-        className="flex flex-col gap-6 rounded-xl border border-success/30 bg-success-surface p-8 focus:outline-none sm:p-10"
+        className="flex flex-col gap-5 rounded-xl border border-success/30 bg-success-surface p-6 focus:outline-none sm:p-8"
       >
-        <span className="flex size-14 items-center justify-center rounded-full bg-success text-2xl text-white">
+        <span className="flex size-12 items-center justify-center rounded-full bg-success text-xl text-white">
           <Check />
         </span>
 
-        <div className="flex flex-col gap-3">
-          <h3 className="text-2xl">{t("successTitle")}</h3>
-          <p className="text-muted">
+        <div className="flex flex-col gap-2.5">
+          <h3 className="text-xl sm:text-2xl">{t("successTitle")}</h3>
+          <p className="leading-relaxed text-muted">
             {t("successBody", { email: state.email ?? "", reference: state.reference ?? "" })}
           </p>
-          <p className="text-muted">
+          <p className="leading-relaxed text-muted">
             {state.paymentDeferred ? t("paymentDeferredBody") : t("successPayment")}
           </p>
         </div>
@@ -162,7 +162,7 @@ export function RegistrationForm({
         // Server-side validation is authoritative; this only stops the browser
         // duplicating error messages we render ourselves.
         noValidate={false}
-        className="flex flex-col gap-9"
+        className="flex flex-col gap-8"
       >
         {/* Security fields. Not user-visible, all verified server-side. */}
         <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
@@ -188,7 +188,7 @@ export function RegistrationForm({
             ref={statusRef}
             tabIndex={-1}
             role="alert"
-            className="flex items-start gap-3 rounded-lg border border-danger/30 bg-danger-surface p-5 focus:outline-none"
+            className="flex items-start gap-3 rounded-lg border border-danger/30 bg-danger-surface p-4 focus:outline-none sm:p-5"
           >
             <Warning className="mt-0.5 shrink-0 text-lg text-danger" />
             <div className="flex flex-col gap-1">
@@ -201,7 +201,7 @@ export function RegistrationForm({
         )}
 
         <FieldGroup legend={t("sectionTeam")}>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 sm:gap-y-5">
             <TextField
               label={t("fieldTeamName")}
               hint={t("fieldTeamNameHint")}
@@ -293,11 +293,14 @@ export function RegistrationForm({
             </p>
           )}
 
-          <ul className="flex flex-col gap-4">
+          <ul className="flex flex-col gap-3">
             {members.map((member, index) => (
               <li
                 key={member.id}
-                className="grid gap-4 rounded-lg border border-line bg-surface-muted p-4 sm:grid-cols-[1fr_7rem_auto] sm:items-end"
+                // Phone: name across the full row, then age and the remove
+                // button side by side, so the button never sits alone on a
+                // row of its own. From `sm` up: one line, name · age · remove.
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-4 rounded-lg border border-line bg-surface-muted p-4 sm:grid-cols-[1fr_7rem_auto] sm:gap-4"
               >
                 <TextField
                   label={`${t("memberLabel", { number: index + 1 })} — ${t("fieldMemberName")}`}
@@ -307,6 +310,7 @@ export function RegistrationForm({
                   maxLength={LIMITS.memberName.max}
                   autoComplete="off"
                   error={fieldError(`members.${index}.name`)}
+                  className="col-span-2 sm:col-span-1"
                 />
 
                 <TextField
@@ -318,6 +322,7 @@ export function RegistrationForm({
                   min={discipline?.ageMin ?? 4}
                   max={discipline?.ageMax ?? 30}
                   error={fieldError(`members.${index}.age`)}
+                  className="max-w-40 sm:max-w-none"
                 />
 
                 {members.length > 1 && (
@@ -350,7 +355,7 @@ export function RegistrationForm({
         </FieldGroup>
 
         <FieldGroup legend={t("sectionContact")}>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 sm:gap-y-5">
             <TextField
               label={t("fieldContactName")}
               name="contactName"
@@ -457,13 +462,13 @@ export function RegistrationForm({
           />
         )}
 
-        <div className="flex flex-col gap-4 border-t border-line pt-7">
+        <div className="flex flex-col gap-4 border-t border-line pt-6">
           <Button
             type="submit"
             variant="accent"
             size="lg"
             disabled={isPending}
-            className="self-start"
+            className="w-full sm:w-auto sm:self-start"
           >
             {isPending ? t("submitting") : t("submit")}
             {!isPending && <ArrowRight className="text-lg" />}

@@ -13,7 +13,7 @@ type Variant = "accent" | "solid" | "outline" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const BASE = [
-  "inline-flex items-center justify-center gap-2.5",
+  "inline-flex items-center justify-center gap-2",
   // NOT `whitespace-nowrap`: Russian and Kazakh labels run far longer than
   // their English equivalents ("Подать заявку и перейти к оплате" is 402px at
   // one line), and a non-wrapping button overflows a 375px viewport. Labels
@@ -64,11 +64,16 @@ const VARIANTS: Record<Variant, string> = {
  * `min-h` rather than a fixed `h`, so a wrapped two-line label grows the
  * button instead of spilling out of it. All are ≥44px: the WCAG 2.2
  * target-size minimum, and the audience is children and parents on phones.
+ *
+ * `lg` is 52px with a 16px label rather than 56px at 18px: the 2px outline
+ * and the 5px edge already make it the heaviest object in any row, so the
+ * label does not need to shout as well. It steps up to 17–18px from `md`,
+ * where the button sits beside display type.
  */
 const SIZES: Record<Size, string> = {
   sm: "min-h-11 px-4 text-sm",
   md: "min-h-12 px-6 text-base",
-  lg: "min-h-14 px-8 text-lg",
+  lg: "min-h-13 px-7 text-base md:text-lg",
 };
 
 type ButtonOwnProps = {

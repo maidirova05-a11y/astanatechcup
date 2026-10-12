@@ -46,17 +46,17 @@ export default async function PaymentSuccessPage({
 
   return (
     <div className="section">
-      <div className="container-prose flex flex-col items-start gap-7">
-        <span className="flex size-16 items-center justify-center rounded-full bg-success text-3xl text-white">
+      <div className="container-prose flex flex-col items-start gap-5">
+        <span className="flex size-14 items-center justify-center rounded-full border-2 border-ink bg-success text-2xl text-white">
           <Check />
         </span>
 
-        <h1 className="text-4xl">{t("successTitle")}</h1>
-        <p className="text-lg leading-relaxed text-muted">
+        <h1 className="mt-1 text-3xl">{t("successTitle")}</h1>
+        <p className="max-w-[36rem] text-base leading-relaxed text-muted md:text-lg">
           {t("successBody", { reference: reference ?? "—" })}
         </p>
 
-        <Link href="/" className={buttonClasses({ variant: "solid", size: "lg" })}>
+        <Link href="/" className={buttonClasses({ variant: "solid", size: "lg", className: "mt-2" })}>
           {t("successCta")}
         </Link>
       </div>
