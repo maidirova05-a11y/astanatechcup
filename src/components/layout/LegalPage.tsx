@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { Warning } from "@/components/ui/icons";
 
 /**
- * Shared shell for the privacy policy and the terms of participation.
+ * Shared shell for the privacy policy, the terms of participation and the
+ * public offer.
  *
  * The `notice` slot carries the draft warning. Both documents are drafted from
  * the brief, not reviewed by a lawyer, and the site processes children's data —
@@ -18,7 +19,8 @@ export function LegalPage({
 }: {
   title: string;
   updated: string;
-  notice: string;
+  /** Omitted for the public offer, which is the co-organiser's own published document, not a draft. */
+  notice?: string;
   intro?: string;
   sections: { title: string; body: ReactNode }[];
 }) {
@@ -34,10 +36,12 @@ export function LegalPage({
           <p className="text-sm text-subtle">{updated}</p>
         </header>
 
-        <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning-surface p-4 sm:p-5">
-          <Warning className="mt-0.5 shrink-0 text-lg text-warning" />
-          <p className="text-sm leading-relaxed">{notice}</p>
-        </div>
+        {notice && (
+          <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning-surface p-4 sm:p-5">
+            <Warning className="mt-0.5 shrink-0 text-lg text-warning" />
+            <p className="text-sm leading-relaxed">{notice}</p>
+          </div>
+        )}
 
         {intro && <p className="text-base leading-relaxed text-muted md:text-lg">{intro}</p>}
 
@@ -45,7 +49,11 @@ export function LegalPage({
           {sections.map((section) => (
             <section key={section.title} className="flex flex-col gap-2">
               <h2 className="text-lg md:text-xl">{section.title}</h2>
-              <p className="leading-relaxed text-muted">{section.body}</p>
+              {typeof section.body === "string" ? (
+                <p className="leading-relaxed text-muted">{section.body}</p>
+              ) : (
+                <div className="flex flex-col gap-2 leading-relaxed text-muted">{section.body}</div>
+              )}
             </section>
           ))}
         </div>

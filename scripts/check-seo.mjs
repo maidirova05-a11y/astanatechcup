@@ -37,6 +37,7 @@ const PAGES = [
   ['/ru/results/sumo',       { indexable: true,  lang: 'ru-KZ' }],
   ['/ru/privacy',            { indexable: false, lang: 'ru-KZ' }],
   ['/ru/terms',              { indexable: false, lang: 'ru-KZ' }],
+  ['/ru/oferta',             { indexable: false, lang: 'ru-KZ' }],
 ];
 /* ─────────────────────────────────────────────────────────────────────────
  * Общая часть проверки. Ниже, под ── НАСТРОЙКИ ──, лежит всё, что отличает
