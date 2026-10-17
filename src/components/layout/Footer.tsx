@@ -57,7 +57,7 @@ export async function Footer({ locale }: { locale: string }) {
           </div>
 
           <nav aria-label={t("sections")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mb-2 label-caps text-subtle">
               {t("sections")}
             </h2>
             {NAV.map((item) => (
@@ -72,7 +72,7 @@ export async function Footer({ locale }: { locale: string }) {
           </nav>
 
           <nav aria-label={t("legal")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mb-2 label-caps text-subtle">
               {t("legal")}
             </h2>
             <Link

@@ -18,8 +18,8 @@ export function cn(...inputs: ClassValue[]): string {
 const MONTHS: Record<string, { nominative: string[]; genitive: string[] }> = {
   ru: {
     nominative: [
-      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
+      "январь", "февраль", "март", "апрель", "май", "июнь",
+      "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь",
     ],
     genitive: [
       "января", "февраля", "марта", "апреля", "мая", "июня",
@@ -28,8 +28,8 @@ const MONTHS: Record<string, { nominative: string[]; genitive: string[] }> = {
   },
   kk: {
     nominative: [
-      "Қаңтар", "Ақпан", "Наурыз", "Сәуір", "Мамыр", "Маусым",
-      "Шілде", "Тамыз", "Қыркүйек", "Қазан", "Қараша", "Желтоқсан",
+      "қаңтар", "ақпан", "наурыз", "сәуір", "мамыр", "маусым",
+      "шілде", "тамыз", "қыркүйек", "қазан", "қараша", "желтоқсан",
     ],
     genitive: [
       "қаңтар", "ақпан", "наурыз", "сәуір", "мамыр", "маусым",
@@ -54,7 +54,10 @@ function monthTable(locale: string) {
   return MONTHS[locale] ?? MONTHS.ru;
 }
 
-/** "Май" / "Мамыр" — for standalone use, e.g. "Финал — Август". */
+/**
+ * "май" / "мамыр" — for standalone use, e.g. "Финал — август 2027". Lowercase,
+ * because Russian and Kazakh write months that way mid-sentence.
+ */
 export function monthName(locale: string, monthIndex1Based: number): string {
   return monthTable(locale).nominative[monthIndex1Based - 1] ?? "";
 }

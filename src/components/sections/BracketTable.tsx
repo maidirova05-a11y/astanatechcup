@@ -60,7 +60,7 @@ export function BracketTable({
                   colSpan={4}
                   className="pt-3 text-left"
                 >
-                  <span className="inline-flex rounded-full bg-surface-muted px-3 py-1 text-2xs font-bold uppercase tracking-wider text-muted">
+                  <span className="inline-flex rounded-full bg-surface-muted px-3 py-1 label-caps text-muted">
                     {section.label}
                   </span>
                 </th>
@@ -109,7 +109,7 @@ function Th({
   return (
     <th
       scope="col"
-      className={`whitespace-nowrap px-3 pb-1 text-2xs font-bold uppercase tracking-wider text-muted ${
+      className={`whitespace-nowrap px-3 pb-1 label-caps text-muted ${
         align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left"
       }`}
     >

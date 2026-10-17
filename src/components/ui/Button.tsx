@@ -20,7 +20,10 @@ const BASE = [
   // wrap and the height grows instead.
   // Heavier weight than a typical UI button: at this scale and radius, 600
   // reads as timid next to the mascots.
-  "font-bold text-center text-balance",
+  // Display face: button labels are UI chrome, and chrome speaks Manrope —
+  // an Inter label under a Manrope headline was the most visible place the
+  // two faces met at the same weight and size.
+  "font-display font-bold text-center text-balance",
   "max-w-full min-h-11 py-2",
   "rounded-full",
   "transition-[transform,background-color,border-color,box-shadow,color]",
@@ -71,9 +74,12 @@ const VARIANTS: Record<Variant, string> = {
  * where the button sits beside display type.
  */
 const SIZES: Record<Size, string> = {
-  sm: "min-h-11 px-4 text-sm",
-  md: "min-h-12 px-6 text-base",
-  lg: "min-h-13 px-7 text-base md:text-lg",
+  // `leading-tight` after the size, not in BASE: tailwind-merge drops a
+  // leading class that precedes a text-size class. A wrapped two-line label
+  // at the body's 1.6 leading read as two separate buttons.
+  sm: "min-h-11 px-4 text-sm leading-tight",
+  md: "min-h-12 px-6 text-base leading-tight",
+  lg: "min-h-13 px-7 text-base md:text-lg leading-tight",
 };
 
 type ButtonOwnProps = {

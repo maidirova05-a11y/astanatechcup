@@ -90,11 +90,12 @@ export function SectionHeader({
       )}
     >
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      {/* One fluid size, 26px → 40px, instead of stepping from text-3xl to
-          text-4xl at `md`. The step jumped ~10px at a single breakpoint and
-          topped out at 44px, which on a page with a dozen sections read as
-          every heading shouting. 40px still out-ranks every card title. */}
-      <Heading id={id} className="text-[clamp(1.625rem,1.3rem+1.4vw,2.5rem)]">
+      {/* One fluid size, 26px → 40px (`--text-h2` in globals.css), instead of
+          stepping from text-3xl to text-4xl at `md`. The step jumped ~10px at
+          a single breakpoint and topped out at 44px, which on a page with a
+          dozen sections read as every heading shouting. 40px still out-ranks
+          every card title. */}
+      <Heading id={id} className="text-h2">
         {title}
       </Heading>
       {subtitle && (
@@ -102,7 +103,7 @@ export function SectionHeader({
         // characters a line, where body copy is comfortable to read.
         <p
           className={cn(
-            "max-w-[40rem] text-base leading-relaxed text-muted md:text-lg",
+            "mt-1 max-w-[40rem] text-base leading-relaxed text-muted md:text-lg",
             align === "center" && "mx-auto",
           )}
         >
@@ -123,7 +124,7 @@ export function Eyebrow({
   return (
     <p
       className={cn(
-        "inline-flex items-center gap-2.5 text-2xs font-bold uppercase tracking-[0.18em] text-brand",
+        "label-caps inline-flex items-center gap-2.5 text-brand",
         className,
       )}
     >
@@ -156,8 +157,7 @@ export function Pill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1",
-        "text-2xs font-semibold uppercase tracking-wider",
+        "label-caps inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1",
         tones[tone],
         className,
       )}

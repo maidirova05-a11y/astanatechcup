@@ -14,9 +14,9 @@
     "back": "Back",
     "next": "Next",
     "years": "{count, plural, one {# year} other {# years}}",
-    "ageRange": "ages {min}–{max}",
+    "ageRange": "{min}–{max} years",
     "people": "{count, plural, one {# participant} other {# participants}}",
-    "upToPeople": "{count, plural, one {up to # participant} other {up to # participants}}",
+    "upToPeople": "{count, plural, one {up to # person} other {up to # people}}",
     "offline": "In person",
     "required": "required",
     "optional": "optional",
@@ -69,7 +69,7 @@
       "arms": "Assembling: arms",
       "head": "Assembling: head",
       "boot": "Booting systems",
-      "ready": "Robot assembled — ready to compete"
+      "ready": "Ready to compete!"
     }
   },
   "countdown": {
@@ -78,7 +78,7 @@
     "minutes": "{count, plural, one {minute} other {minutes}}",
     "seconds": "{count, plural, one {second} other {seconds}}",
     "expired": "Time is up",
-    "ariaLabel": "{days} days, {hours} hours and {minutes} minutes left until entries close"
+    "ariaLabel": "{days, plural, one {# day} other {# days}}, {hours, plural, one {# hour} other {# hours}} and {minutes, plural, one {# minute} other {# minutes}} left until entries close"
   },
   "stats": {
     "title": "The championship in numbers",
@@ -86,7 +86,7 @@
     "participants": "participants",
     "teams": "teams",
     "regions": "regions of Kazakhstan",
-    "edition": "third edition",
+    "edition": "editions, this one included",
     "note": "Figures from the previous championship, held at L. N. Gumilyov Eurasian National University."
   },
   "flagship": {
@@ -145,7 +145,7 @@
       "esports": {
         "name": "Esports",
         "tagline": "Team competition",
-        "description": "Team esports tournaments with a group stage and play-offs. The largest teams in the championship."
+        "description": "Team esports tournaments with a group stage and play-offs. The biggest line-ups at the championship — up to six players."
       }
     }
   },
@@ -171,7 +171,7 @@
     "colArena": "Arena",
     "sourceLabel": "Source",
     "sourceValue": "{title}, rev. {date}",
-    "sourceNote": "Transcribed from the official RobotChallenge rulebooks. Where this page and the original document disagree, the original document wins.",
+    "sourceNote": "Summarised from the official RobotChallenge rulebooks. Where this page and the original document disagree, the original document wins.",
     "clockLabel": "Clock",
     "clockMatch": "{minutes} min per match",
     "clockRun": "{minutes} min per attempt",
@@ -182,7 +182,7 @@
     "aggregateBest": "The best attempt counts",
     "aggregateAverage": "The average of the attempts counts",
     "metricTime": "Faster time ranks higher",
-    "metricPoints": "More points ranks higher",
+    "metricPoints": "More points rank higher",
     "maxPoints": "Maximum {points} points",
     "dnfNote": "An unfinished attempt is recorded as {value}",
     "unitGoals": "goals",
@@ -199,7 +199,7 @@
     },
     "materials": {
       "wood": "wood",
-      "steel": "iron/steel",
+      "steel": "steel",
       "acrylic": "acrylic",
       "carpet": "carpet",
       "vinyl": "vinyl",
@@ -402,7 +402,7 @@
     "updated": "Updated: {time}",
     "updatedNever": "No updates yet",
     "liveNote": "This page refreshes itself roughly every half minute.",
-    "notConfigured": "The results system is not connected on this deployment yet.",
+    "notConfigured": "The results system isn't connected yet.",
     "open": "View",
     "allClasses": "All championship classes",
     "statusWaiting": "Not started",
@@ -492,8 +492,8 @@
         "body": "Separate prizes for unconventional engineering and standout results."
       },
       "valuable": {
-        "title": "Prizes",
-        "body": "Winners and runners-up receive commemorative and valuable prizes from the organisers and partners."
+        "title": "Prizes and keepsakes",
+        "body": "Winners and runners-up receive keepsakes and prizes from the organisers and partners."
       }
     }
   },
@@ -590,7 +590,7 @@
     "consentMedia": "I allow the team to be photographed and filmed at the venue, and those materials to be published in event coverage.",
     "consentMediaOptional": "Optional. It has no bearing on your entry.",
     "consentRules": "I have read the championship regulations and the terms of participation.",
-    "submit": "Submit entry and continue to payment",
+    "submit": "Submit and pay",
     "submitNoPayment": "Submit entry",
     "submitting": "Submitting…",
     "closed": "Entries are closed",
@@ -650,7 +650,7 @@
       },
       "accommodation": {
         "q": "Is there help with accommodation for teams from out of town?",
-        "a": "Accommodation is being confirmed with the organising committee. Mention it when you submit your entry, with your city and the number of people, and we'll suggest options near the venue and tell you whether any special rates apply for teams."
+        "a": "Check accommodation with the organising committee. Mention it when you submit your entry, with your city and the number of people, and we'll suggest options near the venue and tell you whether any special rates apply for teams."
       },
       "skillLevel": {
         "q": "We've never competed before. Should we still enter?",
@@ -724,8 +724,8 @@
     "legal": "Legal",
     "privacy": "Privacy policy",
     "terms": "Terms of participation",
-    "oferta": "Public Offer",
-    "coachCabinet": "Coaches' cabinet",
+    "oferta": "Public offer",
+    "coachCabinet": "Coach portal",
     "rights": "© {year} {organizer}. All rights reserved.",
     "madeFor": "AstanaTechCup · Astana, Kazakhstan"
   },
@@ -753,7 +753,7 @@
   },
   "error": {
     "title": "Something went wrong",
-    "body": "We already know about the problem. Try reloading the page.",
+    "body": "Try reloading the page. If the error persists, write to the organising committee.",
     "cta": "Reload"
   },
   "privacy": {

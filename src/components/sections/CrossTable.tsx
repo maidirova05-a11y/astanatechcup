@@ -59,7 +59,7 @@ export function CrossTable({
             <tr>
               <th
                 scope="col"
-                className="sticky left-0 z-20 bg-surface-raised px-2 py-2 text-left text-2xs font-bold uppercase tracking-wider text-muted"
+                className="sticky left-0 z-20 bg-surface-raised px-2 py-2 text-left label-caps text-muted"
               >
                 {title}
               </th>
@@ -148,7 +148,7 @@ function Corner({ children }: { children: React.ReactNode }) {
   return (
     <th
       scope="col"
-      className="px-2 py-2 text-center text-2xs font-bold uppercase tracking-wider text-muted"
+      className="px-2 py-2 text-center label-caps text-muted"
     >
       {children}
     </th>
@@ -199,7 +199,7 @@ function Cell({
 
   const body = (
     <>
-      <span className="text-2xs font-bold uppercase leading-none tracking-wider text-muted">
+      <span className="label-caps leading-none  text-muted">
         {cell.number}
       </span>
       <span className="tabular whitespace-nowrap font-display text-sm font-extrabold leading-none">

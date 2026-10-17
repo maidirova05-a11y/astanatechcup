@@ -99,10 +99,10 @@ export function Countdown({ targetMs, className, tone = "light" }: CountdownProp
               : "bg-surface-raised shadow-sm ring-1 ring-line",
           )}
         >
-          <span className="tabular text-2xl font-extrabold leading-none sm:text-3xl">
+          <span className="tabular font-display text-2xl font-extrabold leading-none sm:text-3xl">
             {unit.value === undefined ? PLACEHOLDER : String(unit.value).padStart(2, "0")}
           </span>
-          <span className="mt-1.5 text-2xs font-medium uppercase tracking-wide text-muted">
+          <span className="label-caps mt-1.5 font-bold text-muted">
             {unit.label}
           </span>
         </div>

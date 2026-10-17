@@ -280,7 +280,7 @@ function Brace({ y1, y2, label }: { y1: number; y2: number; label: string }) {
         />
       </svg>
       <span
-        className="tabular absolute left-6 -translate-y-1/2 rounded-md bg-success px-1.5 py-0.5 text-xs font-extrabold text-white shadow-sm"
+        className="tabular absolute left-6 -translate-y-1/2 rounded-md bg-success px-1.5 py-0.5 font-display text-xs font-extrabold text-white shadow-sm"
         style={{ top: `${ym}%` }}
       >
         {label}
@@ -309,12 +309,12 @@ function Champion({
           : "border-dashed border-line-strong bg-surface text-muted"
       }`}
     >
-      <span className="text-2xs font-bold uppercase tracking-wider text-muted">
+      <span className="label-caps text-muted">
         🏆 {label}
       </span>
       <span className="flex min-w-0 items-baseline gap-2">
-        {code && <span className="tabular shrink-0 text-xs font-extrabold text-brand">{code}</span>}
-        <span className="truncate text-base font-extrabold">{name}</span>
+        {code && <span className="tabular shrink-0 font-display text-xs font-extrabold text-brand">{code}</span>}
+        <span className="truncate font-display text-base font-bold">{name}</span>
       </span>
     </div>
   );

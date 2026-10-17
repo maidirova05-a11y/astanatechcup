@@ -94,7 +94,7 @@ export async function Contacts({ locale }: { locale: string }) {
                   {channel.icon}
                 </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                  <span className="label-caps text-subtle">
                     {t(channel.key)}
                   </span>
                   <span className="font-semibold break-words">{channel.value}</span>
@@ -114,7 +114,7 @@ export async function Contacts({ locale }: { locale: string }) {
                     <MapPin />
                   </span>
                   <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                    <span className="label-caps text-subtle">
                       {t("address")}
                     </span>
                     <span className="font-semibold">{CONTACTS.address}</span>

@@ -85,7 +85,7 @@ export async function Registration({ locale }: { locale: string }) {
           />
           <div className="tile flex flex-col gap-5 bg-surface-muted p-6">
             <div className="flex flex-col gap-1">
-              <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
+              <p className="label-caps text-subtle">
                 {t("feeLabel")}
               </p>
               <p className="font-display text-3xl font-extrabold leading-tight text-brand">

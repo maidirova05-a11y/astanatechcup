@@ -71,7 +71,7 @@ export async function Flagship({ locale }: { locale: string }) {
           </a>
 
           {discipline?.provisional && (
-            <p className="flex items-start gap-2.5 rounded-md border-2 border-dashed border-line bg-white/5 p-4 text-sm text-muted">
+            <p className="flex items-start gap-2.5 rounded-md border-2 border-dashed border-line bg-surface-muted/50 p-4 text-sm text-muted">
               <Info className="mt-0.5 shrink-0 text-base" />
               {t("provisionalNote")}
             </p>

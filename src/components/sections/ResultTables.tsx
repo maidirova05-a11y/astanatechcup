@@ -281,7 +281,7 @@ export function Th({
   return (
     <th
       scope={scope}
-      className={`whitespace-nowrap px-3 py-2.5 text-2xs font-bold uppercase tracking-wider text-muted ${
+      className={`whitespace-nowrap px-3 py-2.5 label-caps text-muted ${
         align === "right" ? "text-right" : align === "center" ? "text-center" : ""
       } ${className}`}
     >

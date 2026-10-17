@@ -74,7 +74,7 @@ export async function Journey({ locale }: { locale: string }) {
               </span>
 
               <div className="flex flex-col gap-1.5 pb-2">
-                <p className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                <p className="label-caps text-subtle">
                   {t("stepLabel", { number })}
                 </p>
                 <h3 className="text-lg">{t(`steps.${step}.title`)}</h3>
