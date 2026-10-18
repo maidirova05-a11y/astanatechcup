@@ -55,7 +55,7 @@ export async function Prizes({ locale }: { locale: string }) {
         <div className="tile mt-10 overflow-hidden rounded-xl sm:mt-12">
           <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8 sm:p-8 lg:grid-cols-[auto_1fr_minmax(0,22rem)] lg:gap-10 lg:p-10">
             <span
-              className="flex size-16 items-center justify-center rounded-xl border-2 border-accent-edge bg-accent text-3xl text-on-accent shadow-signal sm:size-20 sm:text-4xl"
+              className="flex size-16 items-center justify-center rounded-xl bg-brand text-3xl text-on-brand ring-4 ring-brand/20 sm:size-20 sm:text-4xl"
               aria-hidden="true"
             >
               <Trophy />
@@ -63,7 +63,7 @@ export async function Prizes({ locale }: { locale: string }) {
 
             <div className="flex flex-col gap-2.5">
               <h3 className="text-xl sm:text-2xl">{t("internationalTitle", { city })}</h3>
-              <p className="text-2xs font-bold uppercase tracking-[0.16em] text-brand">
+              <p className="label-caps text-brand">
                 {t("internationalMonth", {
                   month: monthName(locale, FINAL_MONTH.month),
                   year: FINAL_MONTH.year,
@@ -75,8 +75,8 @@ export async function Prizes({ locale }: { locale: string }) {
             </div>
 
             <PhotoFrame
-              photo={PHOTOS.armRobot}
-              alt={tp("armRobot")}
+              photo={PHOTOS.diploma}
+              alt={tp("diploma")}
               quiet
               sizes="22rem"
               className="hidden aspect-[16/9] lg:block"

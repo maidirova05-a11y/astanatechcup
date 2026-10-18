@@ -77,7 +77,7 @@ export function LocaleSwitcher({
             aria-label={LOCALE_LABELS[locale]}
             lang={locale}
             className={cn(
-              "inline-flex items-center justify-center rounded-full px-3 text-2xs font-bold uppercase tracking-wider transition-colors duration-200",
+              "inline-flex items-center justify-center rounded-full px-3 label-caps transition-colors duration-200",
               size === "md" ? "min-h-11 min-w-12" : "min-h-9 min-w-10",
               active
                 ? "bg-brand text-on-brand"

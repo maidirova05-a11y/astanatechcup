@@ -201,7 +201,7 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
             <dt className="text-sm font-semibold text-muted">{t("statCategories")}</dt>
           </div>
           <div className="flex flex-col gap-1">
-            <dd className="tabular font-display text-3xl font-extrabold leading-none text-accent md:text-4xl">
+            <dd className="tabular font-display text-3xl font-extrabold leading-none text-content md:text-4xl">
               {TOTAL_CLASSES}
             </dd>
             <dt className="text-sm font-semibold text-muted">{t("statClasses")}</dt>
@@ -213,7 +213,7 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
             and a reader who came for one set of numbers should not have to
             scroll past six others to reach them. */}
         <nav aria-label={t("tocTitle")} className="mt-10">
-          <p className="text-2xs font-bold uppercase tracking-wider text-muted">
+          <p className="label-caps text-muted">
             {t("tocTitle")}
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -494,7 +494,7 @@ function Th({ children, sticky = false }: { children: React.ReactNode; sticky?: 
   return (
     <th
       scope="col"
-      className={`whitespace-nowrap px-4 py-2.5 text-2xs font-bold uppercase tracking-wider text-muted ${
+      className={`whitespace-nowrap px-4 py-2.5 label-caps text-muted ${
         sticky ? "sticky left-0 z-10 bg-surface-muted max-lg:shadow-[inset_-1px_0_0_var(--border)]" : ""
       }`}
     >

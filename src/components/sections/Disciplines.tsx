@@ -54,7 +54,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                 </span>
 
                 <div className="flex flex-wrap justify-end gap-1.5">
-                  {discipline.flagship && <Pill tone="accent">{t("flagshipTag")}</Pill>}
+                  {discipline.flagship && <Pill tone="brand">{t("flagshipTag")}</Pill>}
                   {discipline.provisional && <Pill tone="warning">{t("provisionalTag")}</Pill>}
                 </div>
               </div>
@@ -73,7 +73,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                   regardless of how long the description is. */}
               <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-4 text-sm">
                 <div className="flex flex-col gap-0.5">
-                  <dt className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                  <dt className="label-caps text-subtle">
                     {t("labelAge")}
                   </dt>
                   <dd className="font-semibold">
@@ -82,7 +82,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                 </div>
 
                 <div className="flex flex-col gap-0.5">
-                  <dt className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                  <dt className="label-caps text-subtle">
                     {t("labelTeam")}
                   </dt>
                   <dd className="flex items-center gap-1.5 font-semibold">

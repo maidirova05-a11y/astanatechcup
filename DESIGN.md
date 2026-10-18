@@ -13,7 +13,7 @@ colors:
   on-accent: "#ffffff"
   ink: "#00243c"
   ink-muted: "#47576f"
-  ink-subtle: "#8d9db4"
+  ink-subtle: "#5a6b85"
   canvas: "#ffffff"
   surface-muted: "#eef2ff"
   surface-sunken: "#edf1f7"
@@ -27,8 +27,9 @@ colors:
   inverse-surface: "#073152"
   inverse-ink: "#ffffff"
   inverse-ink-muted: "#b8c7ff"
+  inverse-ink-subtle: "#8fa8ff"
   inverse-brand: "#fcd800"
-  semantic-success: "#0e9460"
+  semantic-success: "#0b7a4f"
   semantic-danger: "#d02216"
   semantic-warning: "#96601a"
 
@@ -37,30 +38,32 @@ typography:
     fontFamily: Manrope
     fontSize: clamp(36px, 27px + 2.6vw, 56px)
     fontWeight: 800
-    lineHeight: 1.06
-    letterSpacing: -0.028em
+    lineHeight: 1.10
+    letterSpacing: -0.022em
   display-lg:
     fontFamily: Manrope
     fontSize: clamp(30px, 25px + 1.6vw, 44px)
     fontWeight: 800
-    lineHeight: 1.06
-    letterSpacing: -0.028em
-  display-md:
+    lineHeight: 1.12
+    letterSpacing: -0.022em
+  section-title:
     fontFamily: Manrope
-    fontSize: clamp(26px, 22.7px + 1vw, 34px)
+    fontSize: clamp(26px, 20.8px + 1.4vw, 40px)
     fontWeight: 800
-    lineHeight: 1.06
-    letterSpacing: -0.028em
+    lineHeight: 1.14
+    letterSpacing: -0.022em
   headline:
     fontFamily: Manrope
     fontSize: clamp(22px, 20px + 0.6vw, 26px)
-    fontWeight: 800
-    lineHeight: 1.10
+    fontWeight: 700
+    lineHeight: 1.22
+    letterSpacing: -0.01em
   card-title:
     fontFamily: Manrope
-    fontSize: clamp(19px, 18px + 0.35vw, 21px)
-    fontWeight: 800
-    lineHeight: 1.15
+    fontSize: clamp(17px, 16.3px + 0.2vw, 21px)
+    fontWeight: 700
+    lineHeight: 1.25
+    letterSpacing: -0.01em
   body:
     fontFamily: Inter
     fontSize: clamp(15px, 14.7px + 0.1vw, 16px)
@@ -72,13 +75,15 @@ typography:
     fontWeight: 400
     lineHeight: 1.60
   button:
-    fontFamily: Inter
+    fontFamily: Manrope
     fontWeight: 700
-  eyebrow:
-    fontFamily: Inter
+    lineHeight: 1.25
+  label-caps:
+    fontFamily: Manrope
     fontSize: clamp(11px, 10.6px + 0.14vw, 12px)
-    fontWeight: 700
-    letterSpacing: 0.18em
+    fontWeight: 800
+    lineHeight: 1.45
+    letterSpacing: 0.12em
     textTransform: uppercase
 
 spacing:
@@ -161,7 +166,9 @@ appear.** Components never reference a primitive.
 ### The signal colour rule
 
 `--accent` (#a800b4, the magenta of the logo) is reserved **exclusively** for
-the primary call to action and for deadline urgency. Nothing else on the page may use that hue. That one
+the primary call to action and for deadline urgency. Nothing else on the page may use that hue —
+not a "flagship" pill (that is `tone="brand"`), not a trophy badge (gold), not a
+second statistic. That one
 constraint is what makes the primary action unambiguous on every screen without
 any other element having to shout.
 
@@ -196,6 +203,13 @@ prize block. Both are moments of drama, and both earn it.
 Six disciplines each carry a `hue` value in `src/config/event.ts`, rendered
 through one controlled rotation at fixed saturation and lightness.
 
+The hue is a **fill** colour only: mascot body, icon chip, bullet icons. Text
+that belongs to a discipline (`--d-accent-ink`: taglines, "Apply" links,
+section labels on the category pages) uses `--brand`. A text-safe dark version
+of each hue works for the cool ones but turns RoboSumo's gold into olive-brown,
+which belongs to neither the logo nor the palette. Inside `.on-dark` the light
+tint of the hue is readable and is kept.
+
 The arc is chosen to sit inside the range of the logo rather than to span the
 colour wheel: gold 45° (RoboSumo, the flagship — the trophy hue), cyan 190°,
 teal 160°, electric 220°, violet 265°, magenta 305°. Six related hues read as
@@ -203,7 +217,8 @@ one family; six arbitrary brand colours read as a sticker sheet.
 
 ## Typography
 
-Manrope for display, Inter for body. Both self-hosted through `next/font`, so
+Manrope for display **and all UI chrome**, Inter for running text only. Both
+self-hosted through `next/font`, so
 there is no request to a third-party font host — which keeps `font-src 'self'`
 in the Content-Security-Policy and leaks no visitor IP addresses.
 
@@ -215,6 +230,29 @@ opens the page.
 
 The scale is fluid via `clamp()` — a 1.2 ratio at mobile widening to 1.25 at
 desktop. Headings use `text-wrap: balance`, body copy uses `text-wrap: pretty`.
+
+**Where each face goes.** Two neighbouring sans-serifs of similar weight read
+as a mismatch rather than a pairing — the a, у and к differ just enough to look
+like an error. So the split is by role, not by size: Manrope sets headings,
+numerals, buttons and every small-caps label (`.label-caps`); Inter sets
+paragraphs, list items, form input and nav links. If it is something you
+*click or scan*, it is Manrope; if it is something you *read*, it is Inter.
+
+**Weights.** 800 for h1/h2 and display numerals; 700 for h3/h4, buttons and
+labels; 400 body, 600 for inline emphasis. Inter is loaded at 400–700 only —
+`font-extrabold` on an Inter element synthesises a fake bold, so 800 is only
+ever used together with `font-display`.
+
+**Tracking scales with size.** −0.022em on h1/h2, −0.01em on h3/h4, 0 on body,
++0.12em on uppercase labels. Manrope's Cyrillic is narrower than its Latin;
+the old −0.028em on every heading made 17px Russian card titles look squeezed,
+and +0.18em on uppercase Kazakh labels ran them off a 375px card.
+
+**Line height lives in the theme.** Every `--text-*` step carries its own
+`--text-*--line-height` (1.6 base → 1.1 at 5xl). Display steps stay ≥1.1 so
+Й, Ё and the Kazakh descenders қ ң ұ never touch the line above or below.
+`.label-caps` is the only small-caps style — never hand-roll
+`text-2xs font-bold uppercase tracking-…` again.
 
 Numerals in the countdown and the stat counters use `.tabular` so digits do not
 jitter as they tick.
@@ -246,7 +284,7 @@ travel, accommodation, skill level, unclear rules, fear of not qualifying.
 
 ## Elevation & Depth
 
-Shadows are **tinted with the brand hue** (`rgb(13 28 64 / …)`), never neutral
+Shadows are **tinted with the brand hue** (`rgb(0 36 60 / …)`, the logo navy), never neutral
 grey. Grey shadows on a blue-tinted page read as dirt.
 
 | Token | Use |
@@ -255,7 +293,7 @@ grey. Grey shadows on a blue-tinted page read as dirt.
 | `--shadow-md` | Card hover |
 | `--shadow-lg` | Raised panels, the hero deadline card |
 | `--shadow-xl` | Consent banner, modal surfaces |
-| `--shadow-signal` | Accent buttons only — an orange glow, not a shadow |
+| `--shadow-signal` | Accent buttons only — a magenta glow, not a shadow |
 
 Two decorative treatments, both pure CSS: `.aurora` (soft radial brand glow
 behind hero and flagship art) and `.grid-texture` (circuit-board grid for dark
@@ -488,5 +526,9 @@ form option, the validation rules and the terms all follow automatically.
 - Partner logos not supplied; the wall renders an honest note rather than fake
   logos.
 - Light-only. A full dark mode is a separate design job, and "bright and
-  friendly for children" does not obviously translate into one.
+  friendly for children" does not obviously translate into one. The root is
+  therefore `color-scheme: only light`, which stops Chrome's Auto Dark Mode and
+  Samsung Internet's dark mode from force-inverting the page on phones whose OS
+  is set to dark. Without `only`, those browsers invert it themselves and the
+  magenta, navy outlines and logo plate all come out wrong.
 - Kazakh copy needs a native-speaker review before launch.

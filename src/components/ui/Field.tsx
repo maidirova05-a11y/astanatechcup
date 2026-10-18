@@ -297,7 +297,7 @@ export function FieldGroup({
 }) {
   return (
     <fieldset className={cn("flex flex-col gap-5", className)}>
-      <legend className="mb-1 text-2xs font-bold uppercase tracking-[0.16em] text-brand">
+      <legend className="mb-1 label-caps text-brand">
         {legend}
       </legend>
       {children}

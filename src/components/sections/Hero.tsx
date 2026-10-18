@@ -66,7 +66,7 @@ export async function Hero({ locale }: { locale: string }) {
         <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-x-14 lg:gap-y-6">
           {/* ── Copy column ── */}
           <div className="flex flex-col items-start gap-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
-            <Rise step={0} as="p" className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-surface-raised px-4 py-2 text-2xs font-bold uppercase tracking-[0.14em] text-brand shadow-[0_3px_0_0_var(--ink)]">
+            <Rise step={0} as="p" className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-surface-raised px-4 py-2 label-caps text-brand shadow-[0_3px_0_0_var(--ink)]">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
                 <span className="relative inline-flex size-2 rounded-full bg-accent" />
@@ -193,7 +193,7 @@ export async function Hero({ locale }: { locale: string }) {
             <aside className="tile w-full bg-surface-raised p-5 sm:p-6">
               {open ? (
                 <>
-                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                  <p className="label-caps text-accent">
                     {t("deadlineLabel")}
                   </p>
                   <Countdown targetMs={COUNTDOWN_TARGET.getTime()} className="mt-4" />
@@ -205,7 +205,7 @@ export async function Hero({ locale }: { locale: string }) {
                 </>
               ) : (
                 <>
-                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                  <p className="label-caps text-accent">
                     {t("closed")}
                   </p>
                   <p className="mt-4 text-muted">{t("closedNote", { year: EVENT_YEAR })}</p>

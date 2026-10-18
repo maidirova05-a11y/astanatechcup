@@ -21,13 +21,6 @@ const nextConfig: NextConfig = {
     // attacker-supplied SVG is a script execution vector).
     formats: ["image/avif", "image/webp"],
     dangerouslyAllowSVG: false,
-    // One remote source: Unsplash photography (src/config/photos.ts). It is
-    // fetched by OUR optimizer and served from /_next/image, so the browser
-    // still only ever loads images from our own origin — `img-src 'self'`
-    // in the CSP holds and no visitor request reaches a third party.
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com", pathname: "/photo-*" },
-    ],
   },
 
   // Security headers live in src/proxy.ts, because the Content-Security-Policy

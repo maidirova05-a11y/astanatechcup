@@ -85,7 +85,9 @@
     --ink-200: #dde4ee;
     --ink-300: #bfcadb;
     --ink-400: #8d9db4;
-    --ink-500: #64758f;
+    /* 500 was #64758f, which sat at 4.19:1 on the muted surface. Darkened so
+       --text-subtle clears 4.5:1 on every light surface it lands on. */
+    --ink-500: #5a6b85;
     --ink-600: #47576f;
     --ink-700: #2f3d52;
     --ink-800: #1b2738;
@@ -93,7 +95,9 @@
 
     /* Status. Success and danger are pulled toward the brand temperature. */
     --mint-50: #eafaf3;
-    --mint-600: #0e9460;
+    /* Was #0e9460 — 3.87:1 on white, which failed AA for the "qualified"
+       labels and form checkmarks that use it as text. */
+    --mint-600: #0b7a4f;
     --red-50: #fff1f0;
     --red-600: #d02216;
     --amber-50: #fff8e6;
@@ -112,7 +116,10 @@
 
     --text: var(--deep-900);
     --text-muted: var(--ink-600);
-    --text-subtle: var(--ink-400);
+    /* ink-400 measured 2.76:1 on white and 2.47:1 on the muted surface — it
+       was carrying real copy (stat notes, card labels, footer legal text).
+       ink-500 is 5.42:1 on white, 4.84:1 on --surface-muted. */
+    --text-subtle: var(--ink-500);
 
     /**
      * Outline colour for mascots, chunky borders and hard shadows. This is
@@ -149,7 +156,14 @@
     --warning: var(--amber-700);
     --warning-surface: var(--amber-50);
 
-    color-scheme: light;
+    /*
+     * `only light`, not `light`. The site is light-only by design (see
+     * DESIGN.md), and without `only` Chrome's Auto Dark Mode and Samsung
+     * Internet's dark mode force-invert it on phones whose OS is dark —
+     * magenta turns muddy, navy outlines go pale, the logo plate inverts.
+     * That is most of the audience's phones at night.
+     */
+    color-scheme: only light;
   }
 
   /*
@@ -167,7 +181,9 @@
 
     --text: var(--ink-0);
     --text-muted: var(--electric-200);
-    --text-subtle: color-mix(in oklab, var(--electric-200) 62%, transparent);
+    /* Solid, not translucent: the old 62% mix fell to 3.3:1 on a raised dark
+       tile. electric-300 is 6.99:1 on deep-900, 5.17:1 on a raised tile. */
+    --text-subtle: var(--electric-300);
 
     /* Gold on deep navy — the trophy against the plate. */
     --brand: var(--gold-400);
@@ -208,10 +224,10 @@
    * makes a card look like a physical tile and a button like a key you can
    * press. The blur underneath only grounds it.
    */
-  --shadow-sm: 0 2px 0 0 rgb(20 23 42 / 0.07), 0 1px 3px rgb(20 23 42 / 0.06);
-  --shadow-md: 0 3px 0 0 rgb(20 23 42 / 0.10), 0 4px 10px -2px rgb(20 23 42 / 0.10);
-  --shadow-lg: 0 6px 0 0 rgb(20 23 42 / 0.10), 0 14px 26px -10px rgb(20 23 42 / 0.18);
-  --shadow-xl: 0 8px 0 0 rgb(20 23 42 / 0.10), 0 26px 50px -14px rgb(20 23 42 / 0.26);
+  --shadow-sm: 0 2px 0 0 rgb(0 36 60 / 0.07), 0 1px 3px rgb(0 36 60 / 0.06);
+  --shadow-md: 0 3px 0 0 rgb(0 36 60 / 0.10), 0 4px 10px -2px rgb(0 36 60 / 0.10);
+  --shadow-lg: 0 6px 0 0 rgb(0 36 60 / 0.10), 0 14px 26px -10px rgb(0 36 60 / 0.18);
+  --shadow-xl: 0 8px 0 0 rgb(0 36 60 / 0.10), 0 26px 50px -14px rgb(0 36 60 / 0.26);
   /* Primary button: a darker edge of its own hue, so it reads as moulded. */
   --shadow-signal: 0 5px 0 0 var(--accent-edge), 0 10px 20px -8px rgb(168 0 180 / 0.42);
   /* Sticker shadow for mascot chips and playful callouts. */
@@ -238,6 +254,31 @@
   --text-3xl: clamp(1.625rem, 1.42rem + 1vw, 2.125rem);
   --text-4xl: clamp(1.875rem, 1.55rem + 1.6vw, 2.75rem);
   --text-5xl: clamp(2.25rem, 1.7rem + 2.6vw, 3.5rem);
+
+  /* The section-title step. Every <SectionHeader> uses it, so it is a token
+     rather than an arbitrary value repeated in one component. */
+  --text-h2: clamp(1.625rem, 1.3rem + 1.4vw, 2.5rem);
+
+  /*
+   * Line heights paired with each step. Without these the overridden sizes
+   * kept Tailwind's stock ratios — 1.56 on text-lg, 1.4 on text-xl — and the
+   * steps from lg upward are used almost exclusively on headings, where a
+   * two-line Manrope card title at 1.56 fell apart into two separate lines.
+   * Running text that uses lg sets `leading-relaxed` explicitly.
+   * Display steps sit at 1.1–1.15 rather than 1.0: Cyrillic capitals carry
+   * accents (Й, Ё) and Kazakh descenders (қ, ң, ұ) that collide below that.
+   */
+  --text-2xs--line-height: 1.45;
+  --text-xs--line-height: 1.5;
+  --text-sm--line-height: 1.55;
+  --text-base--line-height: 1.6;
+  --text-lg--line-height: 1.4;
+  --text-xl--line-height: 1.3;
+  --text-2xl--line-height: 1.22;
+  --text-3xl--line-height: 1.16;
+  --text-4xl--line-height: 1.12;
+  --text-5xl--line-height: 1.1;
+  --text-h2--line-height: 1.14;
 }
 
 /* ── 3b. Semantic colour mapping ─────────────────────────────────────────
@@ -304,15 +345,27 @@
     font-feature-settings: "kern", "liga", "calt";
   }
 
+  /*
+   * Display type. Tracking scales with size: -0.028em on every heading made
+   * 16–20px card titles and the consent banner title read as squeezed —
+   * Manrope's Cyrillic is already narrower than its Latin, so a negative
+   * track that suits a 44px Latin headline crowds a 17px Russian one.
+   */
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: 800;
-    line-height: 1.06;
-    /* Slightly tighter than before: at 800 weight it reads as confident
-       rather than cramped, and it is what makes the display type feel set
-       rather than typed. */
-    letter-spacing: -0.028em;
+    line-height: 1.14;
+    letter-spacing: -0.022em;
     text-wrap: balance;
+  }
+
+  /* Card and block titles: 700, near-neutral tracking. At 16–21px an 800
+     weight closes up the counters of а, е, о and the title turns into a
+     dark smudge next to the 400-weight body under it. */
+  h3, h4 {
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
   p, li {
@@ -356,6 +409,25 @@
   .tabular {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+  }
+
+  /*
+   * The one small-caps label style: eyebrows, pills, metadata terms, footer
+   * column heads, countdown units. They used to mix four trackings (wide,
+   * wider, 0.16em, 0.18em) and two weights; now there is one. Set in the
+   * display face so every piece of UI chrome speaks Manrope and Inter is left
+   * to running text — two faces side by side at the same size is what read
+   * as "the fonts don't match". 0.12em, not 0.18em: uppercase Cyrillic is
+   * already wide, and at 0.18em a Kazakh label ran off a 375px card.
+   * No colour here — callers set it.
+   */
+  .label-caps {
+    font-family: var(--font-display);
+    font-size: var(--text-2xs);
+    font-weight: 800;
+    line-height: 1.45;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .container-page {
@@ -524,10 +596,12 @@
     --d-accent: hsl(var(--discipline-hue) 88% 55%);
     --d-accent-soft: hsl(var(--discipline-hue) 92% 95%);
     --d-accent-ring: hsl(var(--discipline-hue) 88% 55% / 0.35);
-    /* The accent as TEXT. --d-accent is a fill colour: at 55% lightness a
-       yellow hue (Robo Sumo is 45°) is unreadable on white. Ink keeps the hue
-       and drops to 30%, which clears 4.5:1 on white for every hue we use. */
-    --d-accent-ink: hsl(var(--discipline-hue) 85% 30%);
+    /* The accent as TEXT. A discipline hue at text-safe lightness is fine
+       for the cool hues but turns RoboSumo's gold (45°) into olive-brown —
+       the one colour on the page that was in neither the logo nor the
+       palette. Text therefore uses the structural brand blue; the hue lives
+       in fills (mascot body, chip, icons), where it reads as itself. */
+    --d-accent-ink: var(--brand);
     /* Mascots read their body colour from this. */
     --r-accent: var(--d-accent);
   }
@@ -627,110 +701,16 @@
   /**
    * Hero robot assembly — see src/components/sections/HeroRobot.tsx.
    *
-   * Every rule reads its start time from `--d` and holds its start state
-   * through the delay (`both`), so nothing flashes in its final place before
-   * its turn. Under reduced motion the global rule zeroes duration and delay,
-   * which lands every element straight on its final keyframe: the robot is
-   * simply there, built, holding the logo. That is why the transient effects
-   * (sparks, scan line, step captions) all END invisible.
+   * The robot itself is WebGL (HeroRobotScene); this block only stages it.
+   * `[data-robot]` carries `data-state`: pending → play (or idle) once the 3D
+   * draws, or static when it never will. Every timed rule reads its start
+   * from `--d` and holds its start state through the delay (`both`), and the
+   * build log stays paused until the 3D is playing, so captions start with
+   * the picture. Under reduced motion the global rule zeroes duration and
+   * delay: the poster is simply there and the log reads "ready".
    */
 
-  /* One part flying in from (--fx, --fy), rotated and scaled, and settling
-     with a spring overshoot. In SVG, px in a CSS transform are viewBox units. */
-  @keyframes part-in {
-    from {
-      opacity: 0;
-      transform: translate(var(--fx, 0), var(--fy, 0)) rotate(var(--fr, 0deg)) scale(var(--fs, 1));
-    }
-    25% {
-      opacity: 1;
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  .part {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: part-in 700ms var(--ease-spring) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  @keyframes spark {
-    0% {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-    25% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-      transform: scale(1.5);
-    }
-  }
-
-  .spark {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: spark 520ms var(--ease-out-expo) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  /* Power-on: the eye opens past full size, blinks once, settles. */
-  @keyframes eye-on {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    35% {
-      opacity: 1;
-      transform: scale(1.25);
-    }
-    55% {
-      transform: scale(1);
-    }
-    68% {
-      transform: scale(1, 0.1);
-    }
-    82%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  .eye {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: eye-on 760ms var(--ease-out-expo) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  /* A path drawn along its length. Needs pathLength="1" on the element.
-     Hidden until it starts: a round cap on a zero-length dash is a dot. */
-  @keyframes draw {
-    from {
-      opacity: 0;
-      stroke-dashoffset: 1;
-    }
-    1% {
-      opacity: 1;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-
-  .draw {
-    stroke-dasharray: 1;
-    animation: draw 420ms var(--ease-out-expo) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  @keyframes fade-in {
+  @keyframes robot-fade-in {
     from {
       opacity: 0;
     }
@@ -739,101 +719,48 @@
     }
   }
 
-  .fade {
-    animation: fade-in 400ms ease-out both;
-    animation-delay: var(--d, 0ms);
+  /* The still of the finished robot. It appears on its own after 2.2s, so a
+     slow or failed load still ends on the robot, and gives way to the canvas
+     the moment WebGL draws. */
+  .robot-poster {
+    animation: robot-fade-in 600ms ease-out 2.2s both;
   }
 
-  /* Antenna beacon: one bright flash on power-up, then a slow pulse. */
-  @keyframes beacon {
-    0%,
-    100% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    30% {
-      opacity: 0.55;
-      transform: scale(1);
-    }
+  [data-robot][data-state="static"] .robot-poster {
+    animation: none;
   }
 
-  .beacon {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: beacon 2.4s ease-in-out infinite both;
-    animation-delay: var(--d, 0ms);
+  [data-robot][data-state="play"] .robot-poster,
+  [data-robot][data-state="idle"] .robot-poster {
+    visibility: hidden;
+    animation: none;
+    opacity: 0;
   }
 
-  /* The pad ring lights when the robot is complete and stays lit. */
-  @keyframes pad-on {
-    from {
-      opacity: 0;
-      transform: scale(0.6);
-    }
-    to {
-      opacity: 0.55;
-      transform: none;
-    }
-  }
-
-  .pad-ring {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: pad-on 700ms var(--ease-spring) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  /* Soft halo behind the logo: flares as it lands, then rests. */
-  @keyframes logo-glow {
-    0% {
-      opacity: 0;
-      transform: scale(0.4);
-    }
-    40% {
-      opacity: 0.9;
-      transform: scale(1.05);
-    }
-    100% {
-      opacity: 0.45;
-      transform: scale(1);
-    }
-  }
-
-  .logo-glow {
-    background: radial-gradient(
-      closest-side,
-      color-mix(in oklab, var(--gold-300) 70%, transparent),
-      color-mix(in oklab, var(--magenta-300) 30%, transparent) 60%,
-      transparent
-    );
-    filter: blur(6px);
-    animation: logo-glow 1.1s var(--ease-out-expo) both;
-    animation-delay: var(--d, 0ms);
-  }
-
-  /* Square, unrounded confetti — the logo is set in a pixel face. */
-  @keyframes confetti {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.4);
-    }
-    15% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(1);
-    }
-  }
-
-  .confetti {
+  .robot-canvas {
     position: absolute;
-    left: 0;
-    top: 0;
-    width: 10px;
-    height: 10px;
-    animation: confetti 1.2s var(--ease-out-expo) both;
-    animation-delay: var(--d, 0ms);
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 450ms ease-out;
+  }
+
+  [data-robot][data-state="play"] .robot-canvas,
+  [data-robot][data-state="idle"] .robot-canvas {
+    opacity: 1;
+  }
+
+  /* Build log, scan line and progress wait for the 3D, then run in step. */
+  [data-robot][data-state="pending"] :is(.log-step, .log-ready, .build-progress, .scan-line) {
+    animation-play-state: paused;
+  }
+
+  /* No build to narrate: land on the end state at once. */
+  [data-robot]:is([data-state="idle"], [data-state="static"])
+    :is(.log-step, .log-ready, .build-progress, .scan-line) {
+    animation-delay: -60s;
   }
 
   /* Blueprint frame around the stage. */
@@ -843,7 +770,7 @@
     height: 1.75rem;
     border-color: color-mix(in oklab, var(--electric-600) 55%, transparent);
     border-radius: 0.25rem;
-    animation: fade-in 500ms ease-out both;
+    animation: robot-fade-in 500ms ease-out both;
   }
 
   @keyframes scan {

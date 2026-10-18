@@ -5,7 +5,6 @@ import { Link } from "@/i18n/navigation";
 import NextLink from "next/link";
 import { Logo, OrganiserLogo } from "./Logo";
 import { BRAND_ASSETS, EVENT, EVENT_YEAR, CONTACTS } from "@/config/event";
-import { PHOTOS, photoPage } from "@/config/photos";
 import { EXTERNAL_LINK_PROPS } from "@/components/ui/Button";
 
 const NAV = [
@@ -26,16 +25,10 @@ const SOCIALS = [
   { key: "telegram", url: CONTACTS.telegram },
 ] as const;
 
-/** One credit per photographer; a repeat author links to their first photo. */
-const CREDITS = Object.values(PHOTOS).filter(
-  (photo, index, all) => all.findIndex((other) => other.author === photo.author) === index,
-);
-
 export async function Footer({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "footer" });
   const tn = await getTranslations({ locale, namespace: "nav" });
   const tc = await getTranslations({ locale, namespace: "contacts" });
-  const tp = await getTranslations({ locale, namespace: "photos" });
 
   const socials = SOCIALS.filter((social) => social.url);
 
@@ -57,7 +50,7 @@ export async function Footer({ locale }: { locale: string }) {
           </div>
 
           <nav aria-label={t("sections")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mb-2 label-caps text-subtle">
               {t("sections")}
             </h2>
             {NAV.map((item) => (
@@ -72,7 +65,7 @@ export async function Footer({ locale }: { locale: string }) {
           </nav>
 
           <nav aria-label={t("legal")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mb-2 label-caps text-subtle">
               {t("legal")}
             </h2>
             <Link
@@ -123,25 +116,6 @@ export async function Footer({ locale }: { locale: string }) {
           <p>{t("rights", { year: EVENT_YEAR, organizer: EVENT.organizer })}</p>
           <p>{t("madeFor")}</p>
         </div>
-
-        {/* Photo credits. Unsplash does not require them, but the photos are
-            illustrative stock, and saying so plainly is what keeps them from
-            being read as pictures of the championship. */}
-        <p className="mt-4 max-w-4xl text-2xs leading-relaxed text-subtle">
-          {tp("creditNote")}{" "}
-          {CREDITS.map((photo, index, all) => (
-            <span key={photo.id}>
-              <a
-                href={photoPage(photo)}
-                {...EXTERNAL_LINK_PROPS}
-                className="underline decoration-line-strong underline-offset-2 hover:text-muted"
-              >
-                {photo.author}
-              </a>
-              {index < all.length - 1 ? ", " : "."}
-            </span>
-          ))}
-        </p>
       </div>
     </footer>
   );

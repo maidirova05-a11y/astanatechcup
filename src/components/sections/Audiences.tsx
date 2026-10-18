@@ -4,7 +4,7 @@ import { Section, SectionHeader } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { ArrowRight, Robot, Users, Certificate, Play, Shield, Sparkle, Chat } from "@/components/ui/icons";
 import { AUDIENCE_ROLES, CONTACTS, type AudienceRole } from "@/config/event";
-import { PHOTOS, photoSrc } from "@/config/photos";
+import { PHOTOS } from "@/config/photos";
 import Image from "next/image";
 
 /**
@@ -92,8 +92,8 @@ export async function Audiences({ locale }: { locale: string }) {
               {index === 0 && (
                 <span className="absolute inset-y-0 right-0 hidden w-[42%] border-l-2 border-ink sm:block">
                   <Image
-                    src={photoSrc(PHOTOS.girlAssembling)}
-                    alt={tp("girlAssembling")}
+                    src={PHOTOS.girlBuilding.src}
+                    alt={tp("girlBuilding")}
                     fill
                     sizes="(min-width: 1024px) 20vw, 40vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -23,10 +23,7 @@ export const viewport: Viewport = {
   // Never lock zoom — pinch-to-zoom is an accessibility requirement, and the
   // audience includes parents reading small print on a phone.
   maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#060e22" },
-  ],
+  themeColor: "#ffffff",
 };
 
 export async function generateMetadata({
