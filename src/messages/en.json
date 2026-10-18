@@ -689,7 +689,7 @@
     "title": "Last season's championship",
     "subtitle": "720 teams, six arenas and two days of competition.",
     "watchTrailer": "Watch the trailer",
-    "empty": "Photos and video from previous championships will be published here."
+    "caption": "AstanaTechCup 2026 · Astana, 7–8 February"
   },
   "partners": {
     "eyebrow": "Behind the championship",
@@ -960,15 +960,19 @@
     "other": "Another region or country"
   },
   "photos": {
-    "creditLabel": "Illustrative photos",
-    "creditNote": "Photos from Unsplash — illustrations, not pictures of the championship.",
-    "teamRobot": "Close-up of a team robot",
-    "armRobot": "Wheeled robot with an arm on an arena",
-    "girlAssembling": "A girl concentrating on assembling a construction kit",
-    "trackedRobot": "Tracked robot against a blue-purple background",
-    "circuitBoard": "Microcontroller board and parts on a blue table",
-    "cameraRobot": "Robot car with a camera",
-    "lineFollower": "Line-following robot on a track",
-    "coding": "Students coding together"
+    "stripLabel": "Photos from AstanaTechCup 2026",
+    "vexField": "Players reaching across a VEX field of orange scoring pieces",
+    "teamBanner": "A team in blue shirts in front of the AstanaTechCup backdrop",
+    "robotInHands": "A smiling boy in glasses holding up his robot",
+    "winnersFlag": "Winners on stage with diplomas and the flag of Kazakhstan",
+    "drone": "A caged drone on the hall floor",
+    "sumoRing": "Two LEGO robots on the RoboSumo ring",
+    "lineFollower": "A line-follower robot taking a curve on the track",
+    "diploma": "Two boys holding a second-place diploma in Lego Sumo",
+    "teamRobot": "Two boys holding their team's robot",
+    "girlBuilding": "A girl building a model city at her team's table",
+    "coding": "A boy in glasses programming his robot on a laptop",
+    "gripper": "A hand loading a cup into a VEX robot's gripper",
+    "projectTable": "Girls looking at a team's project at the exhibition"
   }
 }

@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
  *
  * It carries no copy on purpose: its job is to give the eye a rest and show,
  * before another paragraph does, what the championship is made of — robots,
- * workbenches, kids building. The photos are illustrative stock (see
- * src/config/photos.ts), so nothing here claims to be the event.
+ * workbenches, kids building. They are last season's event photos (see
+ * src/config/photos.ts).
  *
  * ── Rhythm ───────────────────────────────────────────────────────────────
  * Three landscape tiles, the middle one dropped a step, so the band reads as
@@ -22,8 +22,8 @@ type Tile = { key: PhotoKey; shape: string; position?: string };
 
 const TILES: Tile[] = [
   { key: "coding", shape: "col-span-2 aspect-[16/9] sm:col-span-1 sm:aspect-[4/3]" },
-  { key: "circuitBoard", shape: "aspect-[4/3] sm:mt-8" },
-  { key: "cameraRobot", shape: "aspect-[4/3]" },
+  { key: "gripper", shape: "aspect-[4/3] sm:mt-8" },
+  { key: "projectTable", shape: "aspect-[4/3]" },
 ];
 
 export async function PhotoStrip({
@@ -36,7 +36,7 @@ export async function PhotoStrip({
   const t = await getTranslations({ locale, namespace: "photos" });
 
   return (
-    <section aria-label={t("creditLabel")} className={cn("section-tight overflow-hidden", className)}>
+    <section aria-label={t("stripLabel")} className={cn("section-tight overflow-hidden", className)}>
       <div className="container-wide">
         <div className="grid grid-cols-2 items-start gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
           {TILES.map(({ key, shape, position }) => (

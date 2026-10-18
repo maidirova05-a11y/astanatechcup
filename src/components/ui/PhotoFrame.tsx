@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { photoSrc, type Photo } from "@/config/photos";
+import type { Photo } from "@/config/photos";
 
 /**
  * A photo in the site's tile frame.
@@ -35,7 +35,7 @@ export function PhotoFrame({
   return (
     <div className={cn("tile relative overflow-hidden", quiet && "tile-quiet", className)}>
       <Image
-        src={photoSrc(photo)}
+        src={photo.src}
         alt={alt}
         fill
         sizes={sizes}

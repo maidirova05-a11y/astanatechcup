@@ -75,8 +75,8 @@ export async function Prizes({ locale }: { locale: string }) {
             </div>
 
             <PhotoFrame
-              photo={PHOTOS.armRobot}
-              alt={tp("armRobot")}
+              photo={PHOTOS.diploma}
+              alt={tp("diploma")}
               quiet
               sizes="22rem"
               className="hidden aspect-[16/9] lg:block"

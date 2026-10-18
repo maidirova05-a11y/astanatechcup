@@ -82,8 +82,8 @@ export async function Flagship({ locale }: { locale: string }) {
           {/* A real robot in the arena palette, above the three points: the
               column opens on a picture instead of a third wall of cards. */}
           <PhotoFrame
-            photo={PHOTOS.trackedRobot}
-            alt={tp("trackedRobot")}
+            photo={PHOTOS.sumoRing}
+            alt={tp("sumoRing")}
             sizes="(min-width: 1024px) 40vw, 100vw"
             className="aspect-[16/9]"
           />
