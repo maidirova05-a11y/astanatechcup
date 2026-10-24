@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Script from "next/script";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -25,7 +32,11 @@ import {
 } from "@/lib/security/constants";
 import { DISCIPLINES, getDiscipline } from "@/config/event";
 import { REGIONS } from "@/config/regions";
-import { LIMITS } from "@/lib/validation/registration";
+import {
+  ATTRIBUTION_FIELDS,
+  LIMITS,
+  type AttributionField,
+} from "@/lib/validation/registration";
 
 /**
  * Team registration form.
@@ -53,6 +64,91 @@ type Props = {
 
 type Member = { id: number; name: string; age: string };
 
+type AttributionValues = Partial<Record<AttributionField, string>>;
+
+/**
+ * sessionStorage key for the visit's attribution. Session-scoped on purpose:
+ * it is the SOURCE of this visit that matters, and a tab closed and reopened
+ * next week from a different campaign is a different visit. localStorage
+ * would credit the first campaign a device ever saw.
+ */
+const ATTRIBUTION_KEY = "atc.attribution";
+
+const UTM_FIELDS = ATTRIBUTION_FIELDS.filter((f) => f.startsWith("utm_"));
+
+/**
+ * Read the campaign parameters once per visit.
+ *
+ * Order matters: a stored record wins, because by the time the visitor
+ * reaches the form they have usually navigated away from the landing URL and
+ * the utm_* parameters are gone. Only when nothing is stored is the current
+ * URL, `document.referrer` and the current path captured and remembered.
+ *
+ * Everything here is best-effort. sessionStorage throws in some private
+ * windows and when site data is blocked; a form that cannot record where the
+ * visitor came from must still register the team, so every failure path
+ * returns whatever was gathered and nothing else happens.
+ */
+function readAttribution(): AttributionValues {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const stored = window.sessionStorage.getItem(ATTRIBUTION_KEY);
+    if (stored) {
+      const parsed: unknown = JSON.parse(stored);
+      if (parsed && typeof parsed === "object") {
+        const out: AttributionValues = {};
+        for (const field of ATTRIBUTION_FIELDS) {
+          const value = (parsed as Record<string, unknown>)[field];
+          if (typeof value === "string" && value) out[field] = value;
+        }
+        return out;
+      }
+    }
+  } catch {
+    // Unreadable or malformed — fall through and capture afresh.
+  }
+
+  const fresh: AttributionValues = {};
+  try {
+    const params = new URLSearchParams(window.location.search);
+    for (const field of UTM_FIELDS) {
+      const value = params.get(field);
+      if (value) fresh[field] = value.slice(0, 200);
+    }
+    // A same-origin referrer is a page of this site, not a traffic source.
+    const referrer = document.referrer;
+    if (referrer && !referrer.startsWith(window.location.origin)) {
+      fresh.referrer = referrer.slice(0, 600);
+    }
+    fresh.landing_path = window.location.pathname.slice(0, 255);
+  } catch {
+    return fresh;
+  }
+
+  try {
+    window.sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(fresh));
+  } catch {
+    // Storage unavailable: the values still ride along with this page's form.
+  }
+  return fresh;
+}
+
+/**
+ * `readAttribution` as an external store for `useSyncExternalStore`.
+ *
+ * The server snapshot is empty, so server HTML and the hydrating client agree
+ * (no hidden inputs); React then re-renders with the client snapshot and the
+ * inputs appear. Read once and cached, because the hook requires a stable
+ * reference between calls and the visit's source does not change while the
+ * page is open. Nothing ever notifies, hence the no-op subscribe.
+ */
+const EMPTY_ATTRIBUTION: AttributionValues = {};
+let attributionSnapshot: AttributionValues | null = null;
+const getAttributionSnapshot = () => (attributionSnapshot ??= readAttribution());
+const getServerAttributionSnapshot = () => EMPTY_ATTRIBUTION;
+const subscribeToNothing = () => () => {};
+
 let memberIdCounter = 0;
 const newMember = (): Member => ({ id: ++memberIdCounter, name: "", age: "" });
 
@@ -72,6 +168,16 @@ export function RegistrationForm({
   const [disciplineId, setDisciplineId] = useState("");
   const [roster, setRoster] = useState<Member[]>(() => [newMember()]);
   const statusRef = useRef<HTMLDivElement>(null);
+
+  // Empty on the server and during hydration, then the visit's utm_* /
+  // referrer / landing path from the URL or sessionStorage. A submission
+  // without JavaScript simply carries no attribution, which the server
+  // records as unknown.
+  const attribution = useSyncExternalStore(
+    subscribeToNothing,
+    getAttributionSnapshot,
+    getServerAttributionSnapshot,
+  );
 
   // Move focus to the result banner so a screen-reader user is told what
   // happened instead of being left at the submit button.
@@ -168,6 +274,15 @@ export function RegistrationForm({
         <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name={FORM_TIMESTAMP_FIELD} value={formTimestamp} readOnly />
+
+        {/* Marketing attribution — utm_* from the landing URL, the external
+            referrer and the first path of the visit. Sanitised and bounded on
+            the server; never shown back to the visitor. */}
+        {ATTRIBUTION_FIELDS.map((field) =>
+          attribution[field] ? (
+            <input key={field} type="hidden" name={field} value={attribution[field]} readOnly />
+          ) : null,
+        )}
 
         {/* Honeypot. aria-hidden + tabIndex -1 + autoComplete off means no
             human or screen reader ever encounters it. */}

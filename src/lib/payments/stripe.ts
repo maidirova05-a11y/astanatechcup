@@ -128,17 +128,32 @@ export async function verifyStripeWebhook(
     return { ok: false, reason: "invalid_signature" };
   }
 
-  // Only one event type advances an application to paid.
-  if (event.type !== "checkout.session.completed") {
+  /**
+   * Two event types advance an application to paid, both carrying a
+   * Checkout Session. `completed` fires when the payer finishes on the hosted
+   * page — for a card, with the money taken. For a delayed-notification method
+   * (bank debit, some wallets) it fires with `payment_status: "unpaid"`, and
+   * the money arrives later under `async_payment_succeeded`. Without the second
+   * type those entries would sit at pending_payment for ever, paid.
+   */
+  if (
+    event.type !== "checkout.session.completed" &&
+    event.type !== "checkout.session.async_payment_succeeded"
+  ) {
     return { ok: false, reason: `ignored_event:${event.type}` };
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
 
-  // Belt and braces: an unpaid session must never mark the row paid, even if
-  // Stripe delivers the completion event for an async payment method.
+  /**
+   * Belt and braces: an unpaid session must never mark the row paid. This is
+   * reported as `ignored_event`, not as a failure — the route answers 2xx to
+   * ignored events and 4xx to failures, and Stripe retries a 4xx for three
+   * days. A `completed` event for a bank debit that has not cleared yet is
+   * expected traffic, not a signature problem to be retried.
+   */
   if (session.payment_status !== "paid") {
-    return { ok: false, reason: `unpaid_session:${session.payment_status}` };
+    return { ok: false, reason: `ignored_event:unpaid_session:${session.payment_status}` };
   }
 
   return {

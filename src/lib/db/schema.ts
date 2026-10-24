@@ -124,6 +124,29 @@ export const applications = pgTable(
     /** Locale the application was submitted in, so we reply in that language. */
     locale: varchar("locale", { length: 8 }).notNull().default("ru"),
 
+    /* ── Marketing attribution ──────────────────────────────────────────
+     * Which campaign brought the team here. Read from the landing URL's
+     * utm_* parameters, the referring page and the first path visited, held
+     * in the browser's sessionStorage until the form is submitted, and
+     * written once with the entry. All nullable: a registration typed in
+     * from a printed poster has none of it and is no less valid.
+     *
+     * In the clear, deliberately. These describe a traffic source, not a
+     * person — the organisers need to group by them to know whether the
+     * Instagram budget or the school mailing filled the start list. The
+     * referrer is stored as origin + path only, with its query string
+     * dropped before it reaches the server (src/lib/validation/registration.ts),
+     * so another site's session tokens never land in this table.
+     */
+    utmSource: varchar("utm_source", { length: 120 }),
+    utmMedium: varchar("utm_medium", { length: 120 }),
+    utmCampaign: varchar("utm_campaign", { length: 120 }),
+    utmContent: varchar("utm_content", { length: 120 }),
+    utmTerm: varchar("utm_term", { length: 120 }),
+    referrer: varchar("referrer", { length: 500 }),
+    /** Path (no query) of the first page of the visit, e.g. "/ru" or "/kk/categories". */
+    landingPath: varchar("landing_path", { length: 255 }),
+
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

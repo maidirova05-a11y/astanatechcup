@@ -39,6 +39,18 @@ export interface ApplicationStore {
   markPaid(reference: string, paymentReference: string): Promise<ApplicationRow | null>;
   /** Returns false when this event id has already been handled. */
   recordWebhookEvent(id: string, provider: string, type: string): Promise<boolean>;
+  /**
+   * Undo `recordWebhookEvent` when the work it gated did not happen.
+   *
+   * The id is written BEFORE the application is updated, so a retry cannot
+   * double-process. The cost of that order is that a failure after the write
+   * — the database dropping the connection mid-update — leaves an event
+   * marked as done that was not. The provider's retry would then be told
+   * "duplicate" and the payment would never be recorded. Releasing the id on
+   * failure, and answering the provider with a 5xx, is what turns that into
+   * a retry instead.
+   */
+  forgetWebhookEvent(id: string): Promise<void>;
   countByDiscipline(): Promise<Record<string, number>>;
 }
 
@@ -111,6 +123,10 @@ class PostgresStore implements ApplicationStore {
     }
   }
 
+  async forgetWebhookEvent(id: string): Promise<void> {
+    await getDb().delete(webhookEvents).where(eq(webhookEvents.id, id));
+  }
+
   async countByDiscipline(): Promise<Record<string, number>> {
     const rows = await getDb().select().from(applications);
     return tally(rows);
@@ -177,6 +193,10 @@ class MemoryStore implements ApplicationStore {
     if (this.events.has(id)) return false;
     this.events.add(id);
     return true;
+  }
+
+  async forgetWebhookEvent(id: string): Promise<void> {
+    this.events.delete(id);
   }
 
   async countByDiscipline(): Promise<Record<string, number>> {

@@ -14,6 +14,7 @@ import {
   verifyTurnstile,
 } from "@/lib/security/turnstile";
 import {
+  ATTRIBUTION_FIELDS,
   collectFieldErrors,
   registrationSchema,
   type RegistrationData,
@@ -33,8 +34,8 @@ import type { RegisterState } from "./register-state";
  *   1. CSRF token          — cookie-bound, HMAC-signed
  *   2. Rate limit          — burst + hourly, per IP
  *   3. Honeypot + timing   — free bot filtering, no third party
- *   4. Turnstile           — only if configured; fails closed
- *   5. Deadline            — server clock, never the browser's
+ *   4. Deadline            — server clock, never the browser's
+ *   5. Turnstile           — only if configured; fails closed
  *   6. Zod validation      — same schema the client uses, re-run from scratch
  *   7. Persist             — parameterised insert, DB-level duplicate guard
  *   8. Checkout            — hosted redirect; failure never loses the entry
@@ -88,7 +89,18 @@ export async function registerTeam(
     return { status: "error", message: "errorGeneric" };
   }
 
-  /* ── 4. Turnstile ─────────────────────────────────────────────────────── */
+  /* ── 4. Deadline, on the server clock ─────────────────────────────────── */
+
+  // Before Turnstile: this check is free, that one is a round trip to a third
+  // party. After the deadline every submission is rejected anyway, so there is
+  // no reason to spend a Cloudflare call — or to burn a visitor's one-shot
+  // captcha token — finding that out.
+  if (!isRegistrationOpen()) {
+    securityLog.deadlineRejected({ ip });
+    return { status: "error", message: "errorDeadline" };
+  }
+
+  /* ── 5. Turnstile ─────────────────────────────────────────────────────── */
 
   const captchaOk = await verifyTurnstile(
     asString(formData.get("cf-turnstile-response")),
@@ -96,13 +108,6 @@ export async function registerTeam(
   );
   if (!captchaOk) {
     return { status: "error", message: "errorCaptcha" };
-  }
-
-  /* ── 5. Deadline, on the server clock ─────────────────────────────────── */
-
-  if (!isRegistrationOpen()) {
-    securityLog.deadlineRejected({ ip });
-    return { status: "error", message: "errorDeadline" };
   }
 
   /* ── 6. Validation ────────────────────────────────────────────────────── */
@@ -153,6 +158,17 @@ export async function registerTeam(
       consentRules: data.consentRules,
       consentMedia: data.consentMedia ?? false,
       locale,
+      // Sanitised by attributionSchema: truncated, control characters
+      // stripped, referrer reduced to origin + path. Null when absent.
+      attribution: {
+        utmSource: data.utm_source,
+        utmMedium: data.utm_medium,
+        utmCampaign: data.utm_campaign,
+        utmContent: data.utm_content,
+        utmTerm: data.utm_term,
+        referrer: data.referrer,
+        landingPath: data.landing_path,
+      },
     });
   } catch (error) {
     if (error instanceof DuplicateApplicationError) {
@@ -168,6 +184,8 @@ export async function registerTeam(
     region: saved.region,
     memberCount: saved.memberCount,
     locale,
+    utmSource: saved.utmSource,
+    utmCampaign: saved.utmCampaign,
     // Note: no name, email, phone or member data — the logger would redact
     // them anyway, but they are not passed in the first place.
   });
@@ -252,6 +270,11 @@ function formDataToInput(formData: FormData): Record<string, unknown> {
     consentGuardian: formData.get("consentGuardian") ?? false,
     consentRules: formData.get("consentRules") ?? false,
     consentMedia: formData.get("consentMedia") ?? false,
+    // Attribution: strings only. A File under one of these names is dropped
+    // rather than coerced, and a missing field is simply null.
+    ...Object.fromEntries(
+      ATTRIBUTION_FIELDS.map((field) => [field, asString(formData.get(field)) ?? null]),
+    ),
   };
 }
 
