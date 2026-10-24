@@ -7,8 +7,9 @@ import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
 /**
  * schema.org for an indexable page BELOW the landing page.
  *
- * Two nodes and no more: the page itself, and the trail back to the home page.
- * Deliberately NOT the organisation, the event or the FAQ — those are stated
+ * Two nodes, plus whatever the page itself owns (`extraNodes`): the page, and
+ * the trail back to the home page. Deliberately NOT the organisation, the event
+ * or the FAQ — those are stated
  * once, on the landing page, and repeating them here would give a crawler two
  * copies of the same entity to reconcile for no gain.
  *
@@ -29,11 +30,20 @@ export async function PageStructuredData({
   title,
   description,
   trail,
+  extraNodes = [],
 }: {
   locale: Locale;
   title: string;
   description?: string;
   trail: readonly { name: string; path: string }[];
+  /**
+   * Further nodes for this page's graph — e.g. the `ItemList` of categories on
+   * the rules page. They join the same `@graph` so a crawler resolves their
+   * `@id` references against the WebPage node above rather than a second
+   * script tag. Callers build them with the helpers in `lib/seo/structured-data`
+   * from the SAME translations the page renders; nothing here rewrites them.
+   */
+  extraNodes?: readonly Record<string, unknown>[];
 }) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   const appUrl = env.APP_URL;
@@ -54,6 +64,7 @@ export async function PageStructuredData({
         breadcrumb: { "@id": `${appUrl}/${locale}${path}#breadcrumb` },
       },
       breadcrumbSchema(appUrl, locale, `${EVENT.name} ${EVENT_YEAR}`, trail),
+      ...extraNodes,
     ],
   };
 

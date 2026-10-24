@@ -40,7 +40,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "meta" });
 
   const title = t("title", { year: EVENT_YEAR });
-  const description = t("description");
+  const description = t("description", { year: EVENT_YEAR });
   const keywords = t("keywords", { year: EVENT_YEAR })
     .split(",")
     .map((k) => k.trim());

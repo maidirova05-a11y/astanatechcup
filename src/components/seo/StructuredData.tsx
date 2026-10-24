@@ -53,7 +53,7 @@ export async function StructuredData({ locale }: { locale: Locale }) {
     appUrl: env.APP_URL,
     locale,
     title: t("title", { year: EVENT_YEAR }),
-    description: t("description"),
+    description: t("description", { year: EVENT_YEAR }),
     faq: FAQ_KEYS.map((key) => ({
       question: tFaq(`items.${key}.q`, faqValues),
       answer: tFaq(`items.${key}.a`, faqValues),

@@ -242,6 +242,47 @@ export function breadcrumbSchema(
 }
 
 /**
+ * The competition categories as an `ItemList`, for the rules page.
+ *
+ * Each entry is the heading the catalogue renders — the same translation key,
+ * resolved by the caller, so the markup cannot name a category the page does
+ * not. `url` points at the section anchor the page already exposes
+ * (`<section id={category.id}>` in CategoryCatalogue.tsx), which is what lets a
+ * crawler attach the entry to its rules rather than to the page as a whole.
+ *
+ * Nothing from the rulebooks is restated here — no envelopes, no arena sizes.
+ * Those change when a rulebook is revised, and a second copy in structured data
+ * is a second place for them to go stale.
+ */
+export function categoryListSchema(
+  appUrl: string,
+  locale: Locale,
+  pagePath: string,
+  /** The heading the list sits under on the page, e.g. "Все категории чемпионата". */
+  name: string,
+  items: readonly { id: string; name: string; description?: string }[],
+): Json {
+  const pageUrl = `${appUrl}/${locale}${pagePath}`;
+  return {
+    "@type": "ItemList",
+    "@id": `${pageUrl}#categories`,
+    name,
+    inLanguage: LOCALE_TAGS[locale],
+    numberOfItems: items.length,
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    itemListElement: items.map((item, index) =>
+      compact({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        description: item.description,
+        url: `${pageUrl}#${item.id}`,
+      }),
+    ),
+  };
+}
+
+/**
  * One `@graph` rather than three separate script tags: the nodes cross-reference
  * each other by `@id` (the event points at the organiser, the site points at the
  * publisher), and a single graph is how a crawler is meant to resolve those.
