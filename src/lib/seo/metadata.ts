@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
-import { EVENT } from "@/config/event";
+import { EVENT, EVENT_YEAR } from "@/config/event";
 import { routing, LOCALE_TAGS, type Locale } from "@/i18n/routing";
 
 /**
@@ -44,19 +44,39 @@ export function localizedAlternates(locale: Locale, path: string): NonNullable<M
   };
 }
 
+/**
+ * The share card from `app/[locale]/opengraph-image.tsx`.
+ *
+ * Next attaches a file-based image only while no deeper segment sets the
+ * object it lives in. A sub-page that sets `openGraph` or `twitter` replaces
+ * the inherited object whole, image included, so every link shared from
+ * /categories or /results rendered without a picture. Restated here, with the
+ * dimensions and alt the image file exports.
+ */
+export function shareImage(locale: Locale) {
+  return {
+    url: `${env.APP_URL}/${locale}/opengraph-image`,
+    width: 1200,
+    height: 630,
+    type: "image/png",
+    alt: `${EVENT.name} ${EVENT_YEAR}`,
+  };
+}
+
 /** Open Graph for a sub-page, carrying the site-level fields the layout would otherwise have set. */
 export function pageOpenGraph(
   locale: Locale,
   path: string,
-  { title, description }: { title: string; description: string },
+  { title, description }: { title: string; description?: string },
 ): NonNullable<Metadata["openGraph"]> {
   return {
     type: "website",
     siteName: EVENT.name,
     title,
-    description,
+    ...(description ? { description } : {}),
     locale: LOCALE_TAGS[locale].replace("-", "_"),
     url: `${env.APP_URL}/${locale}${path}`,
+    images: [shareImage(locale)],
   };
 }
 
@@ -72,6 +92,6 @@ export function pageMetadata(
     ...(keywords ? { keywords: keywordList(keywords) } : {}),
     alternates: localizedAlternates(locale, path),
     openGraph: pageOpenGraph(locale, path, { title, description }),
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [shareImage(locale)] },
   };
 }

@@ -40,12 +40,17 @@ export function LocaleSwitcher({
 
   function switchTo(locale: Locale) {
     if (locale === current) return;
+    // The query is part of the view: /results/sumo?class=mini must land on
+    // Mini Sumo in the new language, not on the category's first class. Read
+    // at click time rather than via useSearchParams, which would need a
+    // Suspense boundary around the header.
+    const query = Object.fromEntries(new URLSearchParams(window.location.search));
     startTransition(() => {
       // `pathname` here is already locale-stripped by next-intl's navigation
       // helpers, so this swaps the prefix without duplicating it.
       router.replace(
         // @ts-expect-error — dynamic params are re-applied by the router.
-        { pathname, params },
+        { pathname, params, query },
         { locale, scroll: false },
       );
     });

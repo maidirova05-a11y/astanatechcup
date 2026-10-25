@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, routing } from "@/i18n/routing";
 import { LegalPage } from "@/components/layout/LegalPage";
 import { EVENT } from "@/config/event";
+import { localizedAlternates, pageOpenGraph } from "@/lib/seo/metadata";
 
 /**
  * Per-request, because a cached copy cannot carry the CSP nonce the proxy
@@ -29,6 +30,11 @@ export async function generateMetadata({
     title: t("title"),
     // Legal boilerplate has no search value and can outrank real content.
     robots: { index: false, follow: true },
+    // Its own URL, not the home page's that the layout would otherwise lend
+    // it: a noindex page whose canonical names /{locale} tells a crawler it
+    // is a duplicate of the landing page.
+    alternates: localizedAlternates(locale, "/privacy"),
+    openGraph: pageOpenGraph(locale, "/privacy", { title: t("title") }),
   };
 }
 
