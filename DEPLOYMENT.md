@@ -23,6 +23,7 @@ Live at **<https://astanatechcup.kz>**.
 | Scoring migration `0001` | ✅ applied to the Neon database on 2026-08-29 |
 | Stripe / Turnstile | ❌ not configured — both optional, both degrade safely |
 | Rate-limit migration `0005` | ✅ applied by the app itself on first use (`rate_limit.table_created` in the logs); `npm run db:migrate` or the **Миграции боевой базы** workflow later just records it |
+| Attribution migration `0006` | applied by the app itself on first use (`applications.attribution_columns_added` in the logs; `src/lib/db/attribution-columns.ts`); `npm run db:migrate` or the **Миграции боевой базы** workflow later just records it. If it cannot be applied (`applications.attribution_unavailable`), registrations are still taken, without UTM data |
 
 ### Migration `0001` — the scoring tables
 
