@@ -38,12 +38,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "too large" }, { status: 413 });
   }
 
-  // `request.text()` preserves the raw body. Parsing to JSON and re-stringifying
-  // would change whitespace and key order, and the HMAC would never match.
-  const rawBody = await request.text();
-  if (rawBody.length > MAX_BODY_BYTES) {
-    // Chunked or lying Content-Length: the cap applies to what was received.
-    securityLog.webhookSignatureFailure({ reason: "body_too_large", bytes: rawBody.length });
+  // The raw body, decoded exactly as `request.text()` would. Parsing to JSON and
+  // re-stringifying would change whitespace and key order, and the HMAC would
+  // never match.
+  const rawBody = await readBodyCapped(request, MAX_BODY_BYTES);
+  if (rawBody === null) {
+    // Chunked or lying Content-Length: the cap applies to what is received,
+    // and reading stops at the cap rather than buffering the whole body first.
+    securityLog.webhookSignatureFailure({ reason: "body_too_large", bytes: MAX_BODY_BYTES + 1 });
     return NextResponse.json({ error: "too large" }, { status: 413 });
   }
   const signature = request.headers.get("stripe-signature");
@@ -142,6 +144,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
 
   return NextResponse.json({ received: true });
+}
+
+/**
+ * Read the body as UTF-8 text, giving up (null) as soon as more than `max`
+ * BYTES have arrived. `request.text()` would buffer an unbounded chunked body
+ * before any length check could run.
+ */
+async function readBodyCapped(request: NextRequest, max: number): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 /** Anything other than POST is a probe. */
