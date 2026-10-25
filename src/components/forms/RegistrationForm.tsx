@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Script from "next/script";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -25,7 +32,8 @@ import {
 } from "@/lib/security/constants";
 import { DISCIPLINES, getDiscipline } from "@/config/event";
 import { REGIONS } from "@/config/regions";
-import { LIMITS } from "@/lib/validation/registration";
+import { ATTRIBUTION_FIELDS, LIMITS } from "@/lib/validation/registration";
+import { readAttribution, type AttributionValues } from "@/lib/attribution";
 
 /**
  * Team registration form.
@@ -53,6 +61,21 @@ type Props = {
 
 type Member = { id: number; name: string; age: string };
 
+/**
+ * `readAttribution` as an external store for `useSyncExternalStore`.
+ *
+ * The server snapshot is empty, so server HTML and the hydrating client agree
+ * (no hidden inputs); React then re-renders with the client snapshot and the
+ * inputs appear. Read once and cached, because the hook requires a stable
+ * reference between calls and the visit's source does not change while the
+ * page is open. Nothing ever notifies, hence the no-op subscribe.
+ */
+const EMPTY_ATTRIBUTION: AttributionValues = {};
+let attributionSnapshot: AttributionValues | null = null;
+const getAttributionSnapshot = () => (attributionSnapshot ??= readAttribution());
+const getServerAttributionSnapshot = () => EMPTY_ATTRIBUTION;
+const subscribeToNothing = () => () => {};
+
 let memberIdCounter = 0;
 const newMember = (): Member => ({ id: ++memberIdCounter, name: "", age: "" });
 
@@ -72,6 +95,16 @@ export function RegistrationForm({
   const [disciplineId, setDisciplineId] = useState("");
   const [roster, setRoster] = useState<Member[]>(() => [newMember()]);
   const statusRef = useRef<HTMLDivElement>(null);
+
+  // Empty on the server and during hydration, then the visit's utm_* /
+  // referrer / landing path from the URL or sessionStorage. A submission
+  // without JavaScript simply carries no attribution, which the server
+  // records as unknown.
+  const attribution = useSyncExternalStore(
+    subscribeToNothing,
+    getAttributionSnapshot,
+    getServerAttributionSnapshot,
+  );
 
   // Move focus to the result banner so a screen-reader user is told what
   // happened instead of being left at the submit button.
@@ -168,6 +201,15 @@ export function RegistrationForm({
         <input type="hidden" name={CSRF_FIELD} value={csrfToken} />
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name={FORM_TIMESTAMP_FIELD} value={formTimestamp} readOnly />
+
+        {/* Marketing attribution — utm_* from the landing URL, the external
+            referrer and the first path of the visit. Sanitised and bounded on
+            the server; never shown back to the visitor. */}
+        {ATTRIBUTION_FIELDS.map((field) =>
+          attribution[field] ? (
+            <input key={field} type="hidden" name={field} value={attribution[field]} readOnly />
+          ) : null,
+        )}
 
         {/* Honeypot. aria-hidden + tabIndex -1 + autoComplete off means no
             human or screen reader ever encounters it. */}

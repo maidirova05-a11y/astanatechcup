@@ -5,6 +5,7 @@ import { isLocale, routing } from "@/i18n/routing";
 import { LegalPage } from "@/components/layout/LegalPage";
 import { ENTRY_FEE, EVENT, REGISTRATION_DEADLINE } from "@/config/event";
 import { formatEventDate } from "@/lib/utils";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 /**
  * Per-request, because a cached copy cannot carry the CSP nonce the proxy
@@ -27,8 +28,12 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "terms" });
   return {
-    title: t("title"),
     robots: { index: false, follow: true },
+    // Its own URL, not the home page's that the layout would otherwise lend
+    // it: a noindex page whose canonical names /{locale} tells a crawler it
+    // is a duplicate of the landing page.
+    // Its own description too, not the home page's, in <meta> and both cards.
+    ...pageMetadata(locale, "/terms", { title: t("title"), description: t("description") }),
   };
 }
 

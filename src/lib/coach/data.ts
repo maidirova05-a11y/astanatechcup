@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { applications, type ScoringTeamRow } from "@/lib/db/schema";
 import { toApplications, type Application } from "@/lib/db/application";
+import { applicationColumns, withAttribution } from "@/lib/db/attribution-columns";
 import { decryptField } from "@/lib/crypto/field";
 import { getCategory, getCategoryClass, type Category } from "@/config/categories";
 import { getCategorySnapshot, listTeamsByApplicationIds } from "@/lib/scoring/store";
@@ -61,7 +62,7 @@ export async function getCoachOverview(
 
   const db = getDb();
   const rows = await db
-    .select()
+    .select(await applicationColumns())
     .from(applications)
     .where(eq(applications.contactEmailHash, account.emailHash))
     .orderBy(applications.createdAt);
@@ -69,7 +70,7 @@ export async function getCoachOverview(
   // A single corrupt row must not blank the whole cabinet; the count is
   // reported so the coach sees that something is missing rather than
   // silently getting a short list.
-  const { applications: decrypted, failed } = toApplications(rows);
+  const { applications: decrypted, failed } = toApplications(rows.map(withAttribution));
 
   const teams = await listTeamsByApplicationIds(decrypted.map((a) => a.id));
   const views = await buildTeamViews(teams, categoryName);

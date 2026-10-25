@@ -10,6 +10,7 @@ import { fontVariables } from "@/app/fonts";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { AttributionCapture } from "@/components/layout/AttributionCapture";
 import "@/app/globals.css";
 
 /** Both locales are known ahead of time, so both can be statically rendered. */
@@ -40,7 +41,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "meta" });
 
   const title = t("title", { year: EVENT_YEAR });
-  const description = t("description");
+  const description = t("description", { year: EVENT_YEAR });
   const keywords = t("keywords", { year: EVENT_YEAR })
     .split(",")
     .map((k) => k.trim());
@@ -151,6 +152,7 @@ export default async function LocaleLayout({
           </main>
           <Footer locale={locale} />
           <CookieConsent />
+          <AttributionCapture />
         </NextIntlClientProvider>
       </body>
     </html>

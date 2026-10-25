@@ -22,10 +22,32 @@ import { normaliseReference } from "@/lib/reference";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Largest body accepted before the signature is checked. A Checkout Session
+ * event is a few kilobytes; Stripe's own documented ceiling for an event is
+ * well under this. Anything bigger is not Stripe, and reading it into memory
+ * to then fail the HMAC is work an unauthenticated caller should not be able
+ * to make this endpoint do.
+ */
+const MAX_BODY_BYTES = 512 * 1024;
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // `request.text()` preserves the raw body. Parsing to JSON and re-stringifying
-  // would change whitespace and key order, and the HMAC would never match.
-  const rawBody = await request.text();
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    securityLog.webhookBodyTooLarge({ bytes: declared });
+    return NextResponse.json({ error: "too large" }, { status: 413 });
+  }
+
+  // The raw body, decoded exactly as `request.text()` would. Parsing to JSON and
+  // re-stringifying would change whitespace and key order, and the HMAC would
+  // never match.
+  const rawBody = await readBodyCapped(request, MAX_BODY_BYTES);
+  if (rawBody === null) {
+    // Chunked or lying Content-Length: the cap applies to what is received,
+    // and reading stops at the cap rather than buffering the whole body first.
+    securityLog.webhookBodyTooLarge({ overLimit: MAX_BODY_BYTES, streamed: true });
+    return NextResponse.json({ error: "too large" }, { status: 413 });
+  }
   const signature = request.headers.get("stripe-signature");
 
   const verification = await verifyWebhook(rawBody, signature);
@@ -77,7 +99,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ received: true, unmatched: true });
   }
 
-  const updated = await store.markPaid(reference, verification.paymentReference);
+  let updated;
+  try {
+    updated = await store.markPaid(reference, verification.paymentReference);
+  } catch (error) {
+    /**
+     * The update failed AFTER the event id was recorded. Left like this, the
+     * provider's retry would be answered "duplicate" and the payment would
+     * never be written — a team that has paid shown as unpaid on the day.
+     * Release the id so the retry is processed, and answer 5xx so there IS a
+     * retry. If the release itself fails the row stays and the log line below
+     * is what an operator reconciles from.
+     */
+    logger.error("payment.webhook_mark_paid_failed", {
+      reference,
+      eventId: verification.eventId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    try {
+      await store.forgetWebhookEvent(verification.eventId);
+    } catch (releaseError) {
+      logger.error("payment.webhook_release_failed", {
+        eventId: verification.eventId,
+        message: releaseError instanceof Error ? releaseError.message : String(releaseError),
+      });
+    }
+    return NextResponse.json({ error: "temporary" }, { status: 503 });
+  }
 
   if (!updated) {
     // Either unknown, or already past pending_payment. Both are benign and
@@ -96,6 +144,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
 
   return NextResponse.json({ received: true });
+}
+
+/**
+ * Read the body as UTF-8 text, giving up (null) as soon as more than `max`
+ * BYTES have arrived. `request.text()` would buffer an unbounded chunked body
+ * before any length check could run.
+ */
+async function readBodyCapped(request: NextRequest, max: number): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 /** Anything other than POST is a probe. */

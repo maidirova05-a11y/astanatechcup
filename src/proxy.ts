@@ -189,6 +189,10 @@ function isExemptPath(pathname: string): boolean {
     pathname.startsWith("/coach/") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
+    // Machine-readable site summary for AI crawlers (src/app/llms.txt/route.ts).
+    // The matcher already skips `.txt`, as it does robots.txt; named here too so
+    // the exemption is explicit rather than an accident of the file extension.
+    pathname === "/llms.txt" ||
     pathname === "/manifest.webmanifest" ||
     pathname === "/favicon.ico"
   );

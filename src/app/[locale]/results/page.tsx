@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { isLocale, routing, LOCALE_TAGS } from "@/i18n/routing";
+import { isLocale } from "@/i18n/routing";
 import { ResultsIndex, type ResultsData } from "@/components/sections/ResultsIndex";
 import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { CATEGORIES } from "@/config/categories";
 import { getCategorySnapshot, type CategorySnapshot } from "@/lib/scoring/store";
-import { env, features } from "@/lib/env";
+import { features } from "@/lib/env";
 import { logger } from "@/lib/log";
 
 /**
@@ -53,30 +54,11 @@ export async function generateMetadata({
 
   const t = await getTranslations({ locale, namespace: "results" });
 
-  return {
+  return pageMetadata(locale, "/results", {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: {
-      canonical: `${env.APP_URL}/${locale}/results`,
-      languages: {
-        ...Object.fromEntries(
-          routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}/results`]),
-        ),
-          /*
-           * x-default: the version to serve a language we do not publish.
-           * The root layout has always emitted it; these sub-pages did not, so
-           * for /categories and /results Google had no designated fallback and
-           * picked whichever locale it happened to crawl first.
-           */
-        "x-default": `${env.APP_URL}/${routing.defaultLocale}/results`,
-      },
-    },
-    openGraph: {
-      title: t("metaTitle"),
-      description: t("metaDescription"),
-      url: `${env.APP_URL}/${locale}/results`,
-    },
-  };
+    keywords: t("metaKeywords"),
+  });
 }
 
 export default async function ResultsPage({

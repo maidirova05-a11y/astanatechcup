@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { isLocale, routing, LOCALE_TAGS } from "@/i18n/routing";
+import { isLocale, routing } from "@/i18n/routing";
 import { CategoryCatalogue } from "@/components/sections/CategoryCatalogue";
 import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { categoryListSchema } from "@/lib/seo/structured-data";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { CATEGORIES } from "@/config/categories";
 import { env } from "@/lib/env";
 
 /**
@@ -41,30 +44,17 @@ export async function generateMetadata({
 
   const t = await getTranslations({ locale, namespace: "categories" });
 
-  return {
+  /*
+   * Keywords are the page's own — "робосумо регламент", "Drone Soccer
+   * правила" — not the site-wide core from the layout, which Next would
+   * otherwise inherit for every page. A visitor searching for a ruleset should
+   * land here, not on the landing page.
+   */
+  return pageMetadata(locale, "/categories", {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: {
-      canonical: `${env.APP_URL}/${locale}/categories`,
-      languages: {
-        ...Object.fromEntries(
-          routing.locales.map((l) => [LOCALE_TAGS[l], `${env.APP_URL}/${l}/categories`]),
-        ),
-          /*
-           * x-default: the version to serve a language we do not publish.
-           * The root layout has always emitted it; these sub-pages did not, so
-           * for /categories and /results Google had no designated fallback and
-           * picked whichever locale it happened to crawl first.
-           */
-        "x-default": `${env.APP_URL}/${routing.defaultLocale}/categories`,
-      },
-    },
-    openGraph: {
-      title: t("metaTitle"),
-      description: t("metaDescription"),
-      url: `${env.APP_URL}/${locale}/categories`,
-    },
-  };
+    keywords: t("metaKeywords"),
+  });
 }
 
 export default async function CategoriesPage({
@@ -88,6 +78,22 @@ export default async function CategoriesPage({
         title={t("metaTitle")}
         description={t("metaDescription")}
         trail={[{ name: t("title"), path: "/categories" }]}
+        extraNodes={[
+          // The seven categories as an ItemList, named with the SAME strings
+          // the catalogue below renders as its headings and taglines. The
+          // anchors are the section ids CategoryCatalogue already emits.
+          categoryListSchema(
+            env.APP_URL,
+            locale,
+            "/categories",
+            t("title"),
+            CATEGORIES.map((category) => ({
+              id: category.id,
+              name: t(`items.${category.id}.name`),
+              description: t(`items.${category.id}.tagline`),
+            })),
+          ),
+        ]}
       />
       <CategoryCatalogue locale={locale} />
     </>

@@ -1,8 +1,15 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { features } from "@/lib/env";
 import { logger } from "@/lib/log";
 import { getDb } from "./client";
+import {
+  ATTRIBUTION_KEYS,
+  CORE_COLUMNS,
+  applicationColumns,
+  ensureAttributionColumns,
+  withAttribution,
+} from "./attribution-columns";
 import { toRow, type ApplicationInput } from "./application";
 import { applications, webhookEvents, type ApplicationRow } from "./schema";
 
@@ -39,6 +46,18 @@ export interface ApplicationStore {
   markPaid(reference: string, paymentReference: string): Promise<ApplicationRow | null>;
   /** Returns false when this event id has already been handled. */
   recordWebhookEvent(id: string, provider: string, type: string): Promise<boolean>;
+  /**
+   * Undo `recordWebhookEvent` when the work it gated did not happen.
+   *
+   * The id is written BEFORE the application is updated, so a retry cannot
+   * double-process. The cost of that order is that a failure after the write
+   * — the database dropping the connection mid-update — leaves an event
+   * marked as done that was not. The provider's retry would then be told
+   * "duplicate" and the payment would never be recorded. Releasing the id on
+   * failure, and answering the provider with a 5xx, is what turns that into
+   * a retry instead.
+   */
+  forgetWebhookEvent(id: string): Promise<void>;
   countByDiscipline(): Promise<Record<string, number>>;
 }
 
@@ -48,12 +67,14 @@ export interface ApplicationStore {
 const UNIQUE_VIOLATION = "23505";
 
 function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === UNIQUE_VIOLATION
-  );
+  // Drizzle wraps the driver's error in a DrizzleQueryError; the SQLSTATE is
+  // on its `cause`.
+  for (let current = error, depth = 0; depth < 3; depth++) {
+    if (typeof current !== "object" || current === null) return false;
+    if ((current as { code?: string }).code === UNIQUE_VIOLATION) return true;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return false;
 }
 
 class PostgresStore implements ApplicationStore {
@@ -61,8 +82,37 @@ class PostgresStore implements ApplicationStore {
     try {
       // toRow() is the only place personal fields are serialised for storage,
       // and it encrypts every one of them.
-      const [row] = await getDb().insert(applications).values(toRow(input)).returning();
-      return row;
+      const values = toRow(input);
+      if (await ensureAttributionColumns()) {
+        const [row] = await getDb().insert(applications).values(values).returning();
+        return row;
+      }
+      // The attribution columns are not there and could not be added (see
+      // attribution-columns.ts). Take the registration without them rather
+      // than lose it: Drizzle's insert names every column of the table, so
+      // this one is spelled out over the core columns only.
+      const present = Object.entries(CORE_COLUMNS).filter(
+        ([key]) => values[key as keyof typeof values] !== undefined,
+      );
+      await getDb().execute(
+        sql`INSERT INTO ${applications} (${sql.join(
+          present.map(([, column]) => sql.identifier(column.name)),
+          sql`, `,
+        )}) VALUES (${sql.join(
+          present.map(([key, column]) => sql.param(values[key as keyof typeof values], column)),
+          sql`, `,
+        )})`,
+      );
+      logger.warn("registration.attribution_dropped", {
+        reference: values.reference,
+        dropped: ATTRIBUTION_KEYS.filter((key) => values[key] != null).length,
+      });
+      const [row] = await getDb()
+        .select(CORE_COLUMNS)
+        .from(applications)
+        .where(eq(applications.reference, values.reference))
+        .limit(1);
+      return withAttribution(row);
     } catch (error) {
       // Translate the database's duplicate guard into a domain error, so the
       // action can show a helpful message instead of a 500.
@@ -73,11 +123,11 @@ class PostgresStore implements ApplicationStore {
 
   async findByReference(reference: string): Promise<ApplicationRow | null> {
     const rows = await getDb()
-      .select()
+      .select(await applicationColumns())
       .from(applications)
       .where(eq(applications.reference, reference))
       .limit(1);
-    return rows[0] ?? null;
+    return rows[0] ? withAttribution(rows[0]) : null;
   }
 
   async markPaid(reference: string, paymentReference: string): Promise<ApplicationRow | null> {
@@ -97,8 +147,8 @@ class PostgresStore implements ApplicationStore {
           eq(applications.status, "pending_payment"),
         ),
       )
-      .returning();
-    return rows[0] ?? null;
+      .returning(await applicationColumns());
+    return rows[0] ? withAttribution(rows[0]) : null;
   }
 
   async recordWebhookEvent(id: string, provider: string, type: string): Promise<boolean> {
@@ -111,8 +161,14 @@ class PostgresStore implements ApplicationStore {
     }
   }
 
+  async forgetWebhookEvent(id: string): Promise<void> {
+    await getDb().delete(webhookEvents).where(eq(webhookEvents.id, id));
+  }
+
   async countByDiscipline(): Promise<Record<string, number>> {
-    const rows = await getDb().select().from(applications);
+    const rows = await getDb()
+      .select({ discipline: applications.discipline })
+      .from(applications);
     return tally(rows);
   }
 }
@@ -177,6 +233,10 @@ class MemoryStore implements ApplicationStore {
     if (this.events.has(id)) return false;
     this.events.add(id);
     return true;
+  }
+
+  async forgetWebhookEvent(id: string): Promise<void> {
+    this.events.delete(id);
   }
 
   async countByDiscipline(): Promise<Record<string, number>> {

@@ -146,6 +146,9 @@ export const securityLog = {
   honeypotTripped: (context: LogContext) => emit("warn", "security.honeypot", context),
   webhookSignatureFailure: (context: LogContext) =>
     emit("error", "security.webhook_signature_failure", context),
+  /** A webhook body over the size cap — rejected (413) before any signature check. */
+  webhookBodyTooLarge: (context: LogContext) =>
+    emit("warn", "security.webhook_body_too_large", context),
   validationRejected: (context: LogContext) =>
     emit("info", "security.validation_rejected", context),
   deadlineRejected: (context: LogContext) => emit("info", "security.deadline_rejected", context),

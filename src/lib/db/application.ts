@@ -53,6 +53,19 @@ export type ApplicationInput = {
   consentRules: boolean;
   consentMedia: boolean;
   locale: string;
+  /**
+   * Marketing attribution, already sanitised by `attributionSchema`. Optional
+   * so the store can be called from paths that have none (seeding, tests).
+   */
+  attribution?: {
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    utmContent: string | null;
+    utmTerm: string | null;
+    referrer: string | null;
+    landingPath: string | null;
+  };
 };
 
 /**
@@ -89,6 +102,16 @@ export function toRow(input: ApplicationInput): NewApplication {
     consentRules: input.consentRules,
     consentMedia: input.consentMedia,
     locale: input.locale,
+
+    // Traffic source, not personal data — see the schema note. Null when the
+    // visit carried none.
+    utmSource: input.attribution?.utmSource ?? null,
+    utmMedium: input.attribution?.utmMedium ?? null,
+    utmCampaign: input.attribution?.utmCampaign ?? null,
+    utmContent: input.attribution?.utmContent ?? null,
+    utmTerm: input.attribution?.utmTerm ?? null,
+    referrer: input.attribution?.referrer ?? null,
+    landingPath: input.attribution?.landingPath ?? null,
   };
 }
 

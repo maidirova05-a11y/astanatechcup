@@ -217,6 +217,27 @@ for (const [path, options] of PAGES) {
   failures += report(path, result);
 }
 
+/* llms.txt — текстовая сводка для ИИ-краулеров. Должна отдаваться как
+ * text/plain с нашего корня, а не уезжать редиректом в /ru/llms.txt, и не
+ * нести localhost в ссылках. */
+{
+  const response = await fetch(base + '/llms.txt', { redirect: 'manual' });
+  const text = response.status === 200 ? await response.text() : '';
+  const problems = [];
+  if (response.status !== 200) problems.push(`HTTP ${response.status}`);
+  if (!/^text\/plain/i.test(response.headers.get('content-type') ?? '')) problems.push(`content-type ${response.headers.get('content-type')}`);
+  if (text && !text.startsWith('# ')) problems.push('нет заголовка H1 в первой строке');
+  if (text && !text.includes(`https://${HOST}/`)) problems.push(`нет ссылок на https://${HOST}`);
+  if (/https?:\/\/(?:localhost|127\.0\.0\.1)/.test(text)) problems.push('localhost в ссылках');
+  if (problems.length) {
+    console.log(`  ${colours.RED}✗ /llms.txt${colours.OFF}`);
+    problems.forEach((p) => console.log(`      ${colours.RED}${p}${colours.OFF}`));
+    failures += problems.length;
+  } else {
+    console.log(`  ${colours.GREEN}✓${colours.OFF} ${'/llms.txt'.padEnd(30)} ${colours.DIM}${text.split('\n').length} строк${colours.OFF}`);
+  }
+}
+
 /* Каждый адрес из sitemap обязан отдавать 200. */
 const sitemap = await get('/sitemap.xml');
 if (sitemap.status !== 200) {

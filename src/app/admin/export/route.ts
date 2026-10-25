@@ -61,6 +61,15 @@ const COLUMNS = [
   "Язык",
   "Подана",
   "Оплачена",
+  // Marketing attribution — where the team came from. Empty for a visit that
+  // carried no campaign parameters.
+  "UTM source",
+  "UTM medium",
+  "UTM campaign",
+  "UTM content",
+  "UTM term",
+  "Источник (referrer)",
+  "Первая страница",
 ] as const;
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -116,6 +125,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         row.locale,
         row.createdAt.toISOString(),
         row.paidAt ? row.paidAt.toISOString() : "",
+        row.utmSource,
+        row.utmMedium,
+        row.utmCampaign,
+        row.utmContent,
+        row.utmTerm,
+        row.referrer,
+        row.landingPath,
       ]
         .map(csvCell)
         .join(","),

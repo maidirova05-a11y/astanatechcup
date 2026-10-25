@@ -92,6 +92,105 @@ const email = z
       .refine((value) => !/[\r\n,;<>]/.test(value), "emailInvalid"),
   );
 
+/* ── Marketing attribution ──────────────────────────────────────────────── */
+
+export const ATTRIBUTION_LIMITS = {
+  utm: 120,
+  referrer: 500,
+  landingPath: 255,
+} as const;
+
+/** Form field names, shared by the client (hidden inputs) and the server parser. */
+export const ATTRIBUTION_FIELDS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "referrer",
+  "landing_path",
+] as const;
+
+export type AttributionField = (typeof ATTRIBUTION_FIELDS)[number];
+
+/**
+ * Attribution values are the ONE place this schema sanitises instead of
+ * rejecting. They are not typed by the applicant — they are copied out of the
+ * URL and `document.referrer` by the form — and a campaign tag that is too
+ * long or carries a stray control character must never cost a team its
+ * registration. So: control and bidi characters are stripped, whitespace is
+ * collapsed, the value is truncated to the column width, and anything empty
+ * becomes null. The result is never shown back to a visitor.
+ */
+const stripControl = (value: string) =>
+  value.replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/gu, "");
+
+/** Truncate by code points, so an emoji is never cut in half. */
+const truncate = (value: string, max: number) => Array.from(value).slice(0, max).join("");
+
+/**
+ * `z.unknown()` rather than `z.string()`: whatever arrives — a number from a
+ * hand-built request, an array — becomes null instead of a validation error.
+ */
+const attributionText = (max: number) =>
+  z.unknown().transform((value): string | null => {
+    if (typeof value !== "string") return null;
+    // Whitespace first, so "a\tb" becomes "a b" rather than "ab".
+    const collapsed = stripControl(value.replace(/\s+/g, " ")).replace(/ {2,}/g, " ").trim();
+    const clean = truncate(collapsed, max).trim();
+    return clean.length > 0 ? clean : null;
+  });
+
+/**
+ * `document.referrer`, reduced to origin + path. The query string is dropped
+ * on purpose: another site's URL parameters can carry its session tokens or
+ * its own visitor ids, none of which belongs in this database. Anything that
+ * is not an http(s) URL becomes null.
+ */
+const referrerUrl = z
+  .unknown()
+  .transform((value): string | null => {
+    if (typeof value !== "string") return null;
+    const clean = stripControl(value).trim();
+    if (!clean) return null;
+    let url: URL;
+    try {
+      url = new URL(clean);
+    } catch {
+      return null;
+    }
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    const reduced = truncate(`${url.origin}${url.pathname}`, ATTRIBUTION_LIMITS.referrer);
+    return reduced.length > 0 ? reduced : null;
+  });
+
+/** A site-relative path such as "/ru" or "/kk/categories" — nothing else. */
+const landingPath = z
+  .unknown()
+  .transform((value): string | null => {
+    if (typeof value !== "string") return null;
+    // Path only: a query string would just repeat the utm_* fields, and a
+    // fragment is never sent to a server anyway.
+    const clean = truncate(
+      stripControl(value).trim().split(/[?#]/, 1)[0],
+      ATTRIBUTION_LIMITS.landingPath,
+    );
+    // One leading slash, no scheme, no "//host" protocol-relative form.
+    return /^\/(?!\/)\S*$/.test(clean) ? clean : null;
+  });
+
+export const attributionSchema = z.object({
+  utm_source: attributionText(ATTRIBUTION_LIMITS.utm),
+  utm_medium: attributionText(ATTRIBUTION_LIMITS.utm),
+  utm_campaign: attributionText(ATTRIBUTION_LIMITS.utm),
+  utm_content: attributionText(ATTRIBUTION_LIMITS.utm),
+  utm_term: attributionText(ATTRIBUTION_LIMITS.utm),
+  referrer: referrerUrl,
+  landing_path: landingPath,
+});
+
+export type Attribution = z.output<typeof attributionSchema>;
+
 export const memberSchema = z.object({
   name: personName("memberNameRequired"),
   age: z.coerce
@@ -148,6 +247,11 @@ export const registrationSchema = z
     // Deliberately NOT required — bundling photo consent with participation
     // would make it non-consent. It must be refusable at no cost.
     consentMedia: checkbox.optional().default(false),
+
+    // Marketing attribution. Optional, sanitised rather than validated — see
+    // attributionSchema. Absent entirely when the form was submitted without
+    // JavaScript, which is a supported path.
+    ...attributionSchema.shape,
   })
   /**
    * Business rules that depend on more than one field. These are the ones an

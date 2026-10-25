@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { isLocale, routing, LOCALE_TAGS } from "@/i18n/routing";
+import { isLocale } from "@/i18n/routing";
 import { ClassBoard } from "@/components/sections/ClassBoard";
 import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { getCategory, getCatalogueEntry } from "@/config/categories";
 import { getCategorySnapshot, type CategorySnapshot } from "@/lib/scoring/store";
-import { env, features } from "@/lib/env";
+import { features } from "@/lib/env";
 import { logger } from "@/lib/log";
 
 /**
@@ -48,35 +49,23 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "results" });
   const tc = await getTranslations({ locale, namespace: "categories" });
 
-  const title = t("classMetaTitle", { class: cls.label, code: cls.code });
-  const path = `/${locale}/results/${category.id}`;
+  const categoryName = tc(`items.${category.id}.name`);
 
-  return {
-    title,
-    description: t("classMetaDescription", {
+  /*
+   * The canonical is the category board, without `?class=`: every class of a
+   * category carries the same rules and the same teams list, and the sitemap
+   * lists the category URL only. The title and description still name the
+   * class the visitor is looking at, so a shared link reads correctly.
+   */
+  return pageMetadata(locale, `/results/${category.id}`, {
+    title: t("classMetaTitle", { class: cls.label, code: cls.code }),
+    description: t("classMetaDescription", { class: cls.label, category: categoryName }),
+    keywords: t("classMetaKeywords", {
       class: cls.label,
-      category: tc(`items.${category.id}.name`),
+      code: cls.code,
+      category: categoryName,
     }),
-    alternates: {
-      canonical: `${env.APP_URL}${path}`,
-      languages: {
-        ...Object.fromEntries(
-          routing.locales.map((l) => [
-            LOCALE_TAGS[l],
-            `${env.APP_URL}/${l}/results/${category.id}`,
-          ]),
-        ),
-        /*
-         * x-default: the version to serve a language we do not publish. The
-         * root layout has always emitted it; these sub-pages did not, so Google
-         * had no designated fallback here and picked whichever locale it
-         * happened to crawl first.
-         */
-        "x-default": `${env.APP_URL}/${routing.defaultLocale}/results/${category.id}`,
-      },
-    },
-    openGraph: { title, url: `${env.APP_URL}${path}` },
-  };
+  });
 }
 
 export default async function ClassResultsPage({

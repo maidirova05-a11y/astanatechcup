@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "AstanaTechCup {year} — National Robotics & Tech Championship of Kazakhstan",
+    "title": "AstanaTechCup {year} — Robotics & Tech Championship, Astana, Kazakhstan",
     "titleShort": "AstanaTechCup {year}",
-    "description": "The 3rd national technology championship of Kazakhstan. Robotics, drones, programming and esports. 2,500 participants, 720 teams. Winners represent Kazakhstan at the international RobotChallenge.",
-    "keywords": "AstanaTechCup, AstanaTechCup {year}, robotics championship, robotics competition, robotics competition Kazakhstan, robotics competition Astana {year}, national robotics championship, technology championship, IT championship for school students, robotics for school students, VEX Robotics competition, LEGO robotics competition, Arduino competition, drone racing, drone competition, esports tournament for students, RoboSumo, RobotChallenge qualifier, Eurasian National University, SmartHub, AZ Group",
-    "ogAlt": "AstanaTechCup — national robotics championship of Kazakhstan"
+    "description": "Team registration for Kazakhstan's 3rd robotics championship: robosumo, VEX, LEGO, Arduino, drones, esports. Astana, {year}. Winners go to RobotChallenge.",
+    "keywords": "AstanaTechCup, AstanaTechCup {year}, robotics championship Astana {year}, robotics championship Kazakhstan, national robotics championship Kazakhstan, international robotics championship Kazakhstan, robotics competition Kazakhstan registration, robotics competition Astana {year}, robotics tournament for school students Kazakhstan, team registration robotics competition, technology championship Kazakhstan, IT championship for school students, engineering competition for students, robotics for school and university students, team competition for kids 6–18, robotics competition rules, robotics competition categories, robotics championship qualifier, robotics championship final, team entry fee, robotics championship prizes, participant certificate robotics competition, robosumo competition, robo sumo rules, RoboSumo, drone racing championship Kazakhstan, drone racing Astana, drone sport Kazakhstan, drone soccer competition, drone competition for students, VEX robotics Kazakhstan, VEX Robotics competition, LEGO robotics tournament, LEGO robot competition for kids, Arduino competition, Arduino project competition for students, esports tournament for school students, school esports Astana, Line Follower competition, Robot Rugby, Ring Master Challenge, Robot Bowling, RobotChallenge, RobotChallenge qualifier, qualifier for international robotics competitions, championship at ENU Astana, Eurasian National University, robotics Astana May {year}, SmartHub, AZ Group",
+    "ogAlt": "AstanaTechCup {year} — national robotics championship of Kazakhstan in Astana"
   },
   "common": {
     "tbd": "to be confirmed",
@@ -153,8 +153,9 @@
     "eyebrow": "Rulebook",
     "title": "Every category at the championship",
     "subtitle": "The full RobotChallenge catalogue: robot envelopes, arena dimensions, match formats and exactly how a judge counts the points. These are the same documents the referee crew works from.",
-    "metaTitle": "Categories and rules",
-    "metaDescription": "Every AstanaTechCup category: Robo Sumo, Line Follower, Robot Rugby, Drone Soccer, Ring Master Challenge, Robot Bowling and Leap. Robot limits, arena dimensions, match formats and scoring systems.",
+    "metaTitle": "Robotics competition categories and rules",
+    "metaDescription": "Rules for every AstanaTechCup category: Robo Sumo, Line Follower, Robot Rugby, Drone Soccer, Ring Master, Robot Bowling, Leap — robot limits, arenas, scoring.",
+    "metaKeywords": "robo sumo rules, robosumo regulations, Robo Sumo classes, Line Follower rules, Robot Rugby rules, drone soccer rules, Ring Master Challenge rules, Robot Bowling rules, Leap RobotChallenge, robotics competition rules, robotics championship categories, robot size limits competition, robo sumo ring dimensions, RobotChallenge rules, AstanaTechCup categories",
     "tocTitle": "On this page",
     "statCategories": "categories",
     "statClasses": "classes",
@@ -369,8 +370,10 @@
     "eyebrow": "Scoreboard",
     "title": "Competition results",
     "subtitle": "Tables and sheets are filed by the referee crew straight from the floor. A category stays empty until it starts playing.",
-    "metaTitle": "Results",
-    "metaDescription": "Live AstanaTechCup results: group tables, match sheets and attempt rankings across every category of the championship.",
+    "metaTitle": "Robotics championship results",
+    "metaDescription": "Live AstanaTechCup results: group tables, match sheets and attempt rankings across every category — robo sumo, Line Follower, Drone Soccer and more.",
+    "metaKeywords": "AstanaTechCup results, robotics championship results, robotics competition results Astana, robo sumo standings, Line Follower results, Robot Rugby results, Drone Soccer results, Ring Master Challenge results, Robot Bowling results, Leap results, robotics championship scoreboard, robot match sheets",
+    "classMetaKeywords": "{class} results, {class} {code} standings, {category} results AstanaTechCup, {category} playoff bracket, robotics championship results Astana",
     "empty": "The competition has not started yet. The first result a judge files will appear here.",
     "emptyCategory": "No results in this category yet.",
     "leaderboard": "Ranking",
@@ -758,6 +761,7 @@
   },
   "privacy": {
     "title": "Privacy policy",
+    "description": "AstanaTechCup privacy policy: what personal data of participants and parents is processed at registration, how it is protected and how to have it deleted.",
     "updated": "Last updated: {date}",
     "intro": "This policy explains what personal data is processed when you enter the AstanaTechCup championship, why, and how long it is kept.",
     "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel before publication, including for compliance with the Law of the Republic of Kazakhstan No. 94-V on personal data and its protection.",
@@ -782,6 +786,7 @@
   },
   "terms": {
     "title": "Terms of participation",
+    "description": "AstanaTechCup terms of participation: who can take part, how to apply, the entry fee and the competition rules.",
     "updated": "Last updated: {date}",
     "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel and aligned with the official competition regulations.",
     "s1Title": "1. General",

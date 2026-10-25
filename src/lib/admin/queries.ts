@@ -7,6 +7,7 @@ import { REGIONS } from "@/config/regions";
 import { logger } from "@/lib/log";
 import { blindIndex } from "@/lib/crypto/field";
 import { toApplication, toApplications, type Application } from "@/lib/db/application";
+import { applicationColumns, withAttribution } from "@/lib/db/attribution-columns";
 
 /**
  * Every query the admin panel makes, in one reviewable file.
@@ -137,7 +138,7 @@ export async function listApplications(
   const page = Math.min(filters.page, pageCount);
 
   const encrypted = await db
-    .select()
+    .select(await applicationColumns())
     .from(applications)
     .where(where)
     .orderBy(desc(applications.createdAt))
@@ -146,7 +147,7 @@ export async function listApplications(
 
   // Decryption happens here, at the edge of the data layer. One bad row must
   // not take the whole page down three days before the deadline.
-  const { applications: rows, failed } = toApplications(encrypted);
+  const { applications: rows, failed } = toApplications(encrypted.map(withAttribution));
 
   if (failed > 0) {
     logger.error("admin.decrypt_failures", { count: failed, page });
@@ -162,11 +163,15 @@ export async function getApplicationById(id: string): Promise<Application | null
   }
 
   const db = getDb();
-  const rows = await db.select().from(applications).where(eq(applications.id, id)).limit(1);
+  const rows = await db
+    .select(await applicationColumns())
+    .from(applications)
+    .where(eq(applications.id, id))
+    .limit(1);
   if (!rows[0]) return null;
 
   try {
-    return toApplication(rows[0]);
+    return toApplication(withAttribution(rows[0]));
   } catch (error) {
     logger.error("admin.decrypt_failed", { id, error });
     return null;
@@ -260,7 +265,7 @@ export async function updateStatus(
     .update(applications)
     .set({ status, updatedAt: new Date() })
     .where(eq(applications.id, id))
-    .returning();
+    .returning(await applicationColumns());
 
   if (!updated) return null;
 
@@ -280,7 +285,7 @@ export async function updateStatus(
     sessionId: context.sessionId,
   });
 
-  return toApplication(updated);
+  return toApplication(withAttribution(updated));
 }
 
 /** Audit trail for one application, newest first. */
@@ -340,7 +345,7 @@ export async function recordStartListEntry(
 export async function listAllForExport(filters: ParsedFilters): Promise<Application[]> {
   const db = getDb();
   const rows = await db
-    .select()
+    .select(await applicationColumns())
     .from(applications)
     .where(buildWhere(filters))
     .orderBy(desc(applications.createdAt))
@@ -348,7 +353,7 @@ export async function listAllForExport(filters: ParsedFilters): Promise<Applicat
     // is a way to turn the panel into a memory-exhaustion tool.
     .limit(5000);
 
-  const { applications: decrypted, failed } = toApplications(rows);
+  const { applications: decrypted, failed } = toApplications(rows.map(withAttribution));
   if (failed > 0) logger.error("admin.export_decrypt_failures", { count: failed });
 
   return decrypted;
