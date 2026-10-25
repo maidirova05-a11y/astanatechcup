@@ -125,15 +125,21 @@ export type AttributionField = (typeof ATTRIBUTION_FIELDS)[number];
 const stripControl = (value: string) =>
   value.replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/gu, "");
 
+/** Truncate by code points, so an emoji is never cut in half. */
+const truncate = (value: string, max: number) => Array.from(value).slice(0, max).join("");
+
+/**
+ * `z.unknown()` rather than `z.string()`: whatever arrives — a number from a
+ * hand-built request, an array — becomes null instead of a validation error.
+ */
 const attributionText = (max: number) =>
-  z
-    .string()
-    .nullish()
-    .transform((value) => {
-      if (typeof value !== "string") return null;
-      const clean = stripControl(value).replace(/\s+/g, " ").trim().slice(0, max);
-      return clean.length > 0 ? clean : null;
-    });
+  z.unknown().transform((value): string | null => {
+    if (typeof value !== "string") return null;
+    // Whitespace first, so "a\tb" becomes "a b" rather than "ab".
+    const collapsed = stripControl(value.replace(/\s+/g, " ")).replace(/ {2,}/g, " ").trim();
+    const clean = truncate(collapsed, max).trim();
+    return clean.length > 0 ? clean : null;
+  });
 
 /**
  * `document.referrer`, reduced to origin + path. The query string is dropped
@@ -142,9 +148,8 @@ const attributionText = (max: number) =>
  * is not an http(s) URL becomes null.
  */
 const referrerUrl = z
-  .string()
-  .nullish()
-  .transform((value) => {
+  .unknown()
+  .transform((value): string | null => {
     if (typeof value !== "string") return null;
     const clean = stripControl(value).trim();
     if (!clean) return null;
@@ -155,22 +160,21 @@ const referrerUrl = z
       return null;
     }
     if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-    const reduced = `${url.origin}${url.pathname}`.slice(0, ATTRIBUTION_LIMITS.referrer);
+    const reduced = truncate(`${url.origin}${url.pathname}`, ATTRIBUTION_LIMITS.referrer);
     return reduced.length > 0 ? reduced : null;
   });
 
 /** A site-relative path such as "/ru" or "/kk/categories" — nothing else. */
 const landingPath = z
-  .string()
-  .nullish()
-  .transform((value) => {
+  .unknown()
+  .transform((value): string | null => {
     if (typeof value !== "string") return null;
     // Path only: a query string would just repeat the utm_* fields, and a
     // fragment is never sent to a server anyway.
-    const clean = stripControl(value)
-      .trim()
-      .split(/[?#]/, 1)[0]
-      .slice(0, ATTRIBUTION_LIMITS.landingPath);
+    const clean = truncate(
+      stripControl(value).trim().split(/[?#]/, 1)[0],
+      ATTRIBUTION_LIMITS.landingPath,
+    );
     // One leading slash, no scheme, no "//host" protocol-relative form.
     return /^\/(?!\/)\S*$/.test(clean) ? clean : null;
   });

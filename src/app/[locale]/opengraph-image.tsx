@@ -90,7 +90,6 @@ export default function OpengraphImage() {
           >
             {/* Satori rasterises a plain <img>; next/image renders a client-side
                 component that does not exist inside an ImageResponse. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`data:image/png;base64,${logo}`}
               width={380}

@@ -10,6 +10,7 @@ import { fontVariables } from "@/app/fonts";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { AttributionCapture } from "@/components/layout/AttributionCapture";
 import "@/app/globals.css";
 
 /** Both locales are known ahead of time, so both can be statically rendered. */
@@ -151,6 +152,7 @@ export default async function LocaleLayout({
           </main>
           <Footer locale={locale} />
           <CookieConsent />
+          <AttributionCapture />
         </NextIntlClientProvider>
       </body>
     </html>

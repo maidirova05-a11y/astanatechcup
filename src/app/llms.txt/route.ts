@@ -95,7 +95,7 @@ function build(appUrl: string): string {
   );
   lines.push(`- Team registration closes: ${isoDate(REGISTRATION_DEADLINE)} (end of day, Astana time)`);
   lines.push(
-    `- Entry fee: ${ENTRY_FEE.amount} ${ENTRY_FEE.currency} per ${ENTRY_FEE.per}, paid once per team`,
+    `- Entry fee: ${ENTRY_FEE.amount} ${ENTRY_FEE.currency} per ${ENTRY_FEE.per}`,
   );
   lines.push(`- Participant ages: ${ageRange()} overall; the exact range and team size depend on the discipline (below)`);
   lines.push(`- Languages: ${routing.locales.map((l) => LOCALE_LABELS[l]).join(", ")}`);

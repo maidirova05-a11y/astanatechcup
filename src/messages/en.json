@@ -761,6 +761,7 @@
   },
   "privacy": {
     "title": "Privacy policy",
+    "description": "AstanaTechCup privacy policy: what personal data of participants and parents is processed at registration, how it is protected and how to have it deleted.",
     "updated": "Last updated: {date}",
     "intro": "This policy explains what personal data is processed when you enter the AstanaTechCup championship, why, and how long it is kept.",
     "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel before publication, including for compliance with the Law of the Republic of Kazakhstan No. 94-V on personal data and its protection.",
@@ -785,6 +786,7 @@
   },
   "terms": {
     "title": "Terms of participation",
+    "description": "AstanaTechCup terms of participation: who can take part, how to apply, the entry fee and the competition rules.",
     "updated": "Last updated: {date}",
     "draftNotice": "Draft. This document was prepared as a starting point and must be reviewed by the organiser's legal counsel and aligned with the official competition regulations.",
     "s1Title": "1. General",

@@ -34,7 +34,7 @@ const MAX_BODY_BYTES = 512 * 1024;
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const declared = Number(request.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
-    securityLog.webhookSignatureFailure({ reason: "body_too_large", bytes: declared });
+    securityLog.webhookBodyTooLarge({ bytes: declared });
     return NextResponse.json({ error: "too large" }, { status: 413 });
   }
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (rawBody === null) {
     // Chunked or lying Content-Length: the cap applies to what is received,
     // and reading stops at the cap rather than buffering the whole body first.
-    securityLog.webhookSignatureFailure({ reason: "body_too_large", bytes: MAX_BODY_BYTES + 1 });
+    securityLog.webhookBodyTooLarge({ overLimit: MAX_BODY_BYTES, streamed: true });
     return NextResponse.json({ error: "too large" }, { status: 413 });
   }
   const signature = request.headers.get("stripe-signature");
