@@ -25,7 +25,6 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
-    "motion": "^13.1.0",
     "next": "16.4.3",
     "next-intl": "^4.13.7",
     "postgres": "^3.4.9",

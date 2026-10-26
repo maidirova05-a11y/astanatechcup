@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useInViewOnce, usePrefersReducedMotion } from "./in-view";
 
 /**
  * Scroll-triggered entrance.
@@ -20,9 +20,21 @@ import type { ReactNode } from "react";
  * losing the disciplines grid is losing the event's entries.
  * ─────────────────────────────────────────────────────────────────────────
  *
- * `useReducedMotion` is checked in JS as well as via the global CSS rule,
- * because Framer Motion animates through inline styles that the CSS override
- * cannot reach.
+ * Reduced motion is checked in JS as well as via the global CSS rule, because
+ * the entrance runs on the Web Animations API, which the CSS override cannot
+ * reach.
+ *
+ * ── How it animates ──────────────────────────────────────────────────────
+ * The element is server-rendered at its start state — inline
+ * `opacity: 0; transform: translateY(24px)`, byte for byte what Motion's
+ * `initial` used to render — and, on entering the viewport, played to its end
+ * state with `element.animate()`: same 0.55s, same easing, same 60ms stagger.
+ * When the animation finishes the end state is committed as inline style and
+ * the animation is cancelled, which leaves exactly the `opacity: 1;
+ * transform: none` Motion left behind. WAAPI rather than a CSS transition so
+ * nothing is added to the element's own `transition`, which the tiles use for
+ * hover effects.
+ * ─────────────────────────────────────────────────────────────────────────
  */
 
 /** null = not yet determined, true = observer works, false = degrade to plain. */
@@ -85,38 +97,25 @@ function useObserverHealth(): boolean | null {
   return health;
 }
 
-/**
- * Components are resolved once, at module scope. Reading `motion[as]` inside
- * the render function hands React a new component identity on every render,
- * which remounts the subtree and tears down the observer before it can fire.
- */
-const MOTION = {
-  div: motion.div,
-  li: motion.li,
-  article: motion.article,
-  section: motion.section,
-} as const;
-
-const PLAIN = {
-  div: "div",
-  li: "li",
-  article: "article",
-  section: "section",
-} as const;
+type Tag = "div" | "li" | "article" | "section";
 
 const OFFSETS = {
-  up: { y: 24 },
-  left: { x: -24 },
-  right: { x: 24 },
-  none: {},
+  up: "translateY(24px)",
+  left: "translateX(-24px)",
+  right: "translateX(24px)",
+  none: null,
 } as const;
+
+const DURATION_MS = 550;
+const STAGGER_MS = 60;
+const EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 type RevealProps = {
   children: ReactNode;
   /** Stagger index — each step adds 60ms. Keep under ~6 or it feels slow. */
   index?: number;
   className?: string;
-  as?: keyof typeof MOTION;
+  as?: Tag;
   direction?: keyof typeof OFFSETS;
 };
 
@@ -127,32 +126,83 @@ export function Reveal({
   as = "div",
   direction = "up",
 }: RevealProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const health = useObserverHealth();
+  const plain = reduceMotion || health === false;
 
-  if (reduceMotion || health === false) {
-    const Plain = PLAIN[as];
-    return <Plain className={className}>{children}</Plain>;
+  const ref = useRef<HTMLElement>(null);
+  // `once`: re-animating on every scroll past is a nausea trigger and makes a
+  // long page feel unstable.
+  const inView = useInViewOnce(ref, { amount: 0.15, enabled: !plain });
+  const [done, setDone] = useState(false);
+  const animation = useRef<Animation | null>(null);
+
+  useEffect(() => {
+    if (plain || !inView || done) return;
+    // A real callback from a real observer: the probe can stand down.
+    setHealth(true);
+
+    const node = ref.current;
+    if (!node || typeof node.animate !== "function") {
+      setDone(true);
+      return;
+    }
+
+    const offset = OFFSETS[direction];
+    const running = node.animate(
+      offset
+        ? [
+            { opacity: 0, transform: offset },
+            { opacity: 1, transform: "none" },
+          ]
+        : [{ opacity: 0 }, { opacity: 1 }],
+      {
+        duration: DURATION_MS,
+        delay: Math.min(index, 6) * STAGGER_MS,
+        easing: EASING,
+        fill: "forwards",
+      },
+    );
+    animation.current = running;
+    running.onfinish = () => setDone(true);
+    return () => {
+      running.onfinish = null;
+    };
+  }, [plain, inView, done, direction, index]);
+
+  // Once the end state is in the inline style, the filled animation is
+  // redundant; cancelling it before paint means there is no frame without one
+  // or the other.
+  useLayoutEffect(() => {
+    if (done && animation.current) {
+      animation.current.cancel();
+      animation.current = null;
+    }
+  }, [done]);
+
+  const Tag = as;
+
+  if (plain) {
+    return <Tag className={className}>{children}</Tag>;
   }
 
-  const Component = MOTION[as];
+  const offset = OFFSETS[direction];
+  const style: CSSProperties = done
+    ? offset
+      ? { opacity: 1, transform: "none" }
+      : { opacity: 1 }
+    : offset
+      ? { opacity: 0, transform: offset }
+      : { opacity: 0 };
 
   return (
-    <Component
+    <Tag
+      // Each tag accepts an HTMLElement ref; TypeScript cannot narrow the union.
+      ref={ref as never}
       className={className}
-      initial={{ opacity: 0, ...OFFSETS[direction] }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      // `once` matters: re-animating on every scroll past is a nausea trigger
-      // and makes a long page feel unstable.
-      viewport={{ once: true, amount: 0.15 }}
-      onViewportEnter={() => setHealth(true)}
-      transition={{
-        duration: 0.55,
-        delay: Math.min(index, 6) * 0.06,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+      style={style}
     >
       {children}
-    </Component>
+    </Tag>
   );
 }

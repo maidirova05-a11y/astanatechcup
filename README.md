@@ -95,7 +95,7 @@ src/
 ### Stack
 
 Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict ·
-Tailwind CSS v4 · next-intl · Zod 4 · Drizzle ORM + Postgres · Motion ·
+Tailwind CSS v4 · next-intl · Zod 4 · Drizzle ORM + Postgres ·
 Stripe hosted Checkout.
 
 No UI component library and no icon package: the icon set is ~25 inline SVGs in

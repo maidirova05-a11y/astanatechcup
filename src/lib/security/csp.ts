@@ -82,7 +82,7 @@ export function buildCsp(nonce: string): string {
     "default-src": ["'self'"],
     "script-src": scriptSrc,
     // 'unsafe-inline' for styles only — a documented, deliberate trade-off.
-    // Framer Motion animates via the `style` attribute and Next injects
+    // The scroll reveals and the hero set `style` attributes and Next injects
     // critical CSS inline; neither can carry a nonce. Inline *style* is a far
     // weaker vector than inline script, and script-src stays strict.
     "style-src": ["'self'", "'unsafe-inline'"],
