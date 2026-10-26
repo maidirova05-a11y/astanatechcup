@@ -32,7 +32,7 @@ import {
 } from "@/lib/security/constants";
 import { DISCIPLINES, getDiscipline } from "@/config/event";
 import { REGIONS } from "@/config/regions";
-import { ATTRIBUTION_FIELDS, LIMITS } from "@/lib/validation/registration";
+import { ATTRIBUTION_FIELDS, LIMITS } from "@/lib/validation/registration-fields";
 import { readAttribution, type AttributionValues } from "@/lib/attribution";
 
 /**
