@@ -6,7 +6,8 @@ import { ClassBoard } from "@/components/sections/ClassBoard";
 import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { getCategory, getCatalogueEntry } from "@/config/categories";
-import { getCategorySnapshot, type CategorySnapshot } from "@/lib/scoring/store";
+import type { CategorySnapshot } from "@/lib/scoring/store";
+import { getPublicCategorySnapshot } from "@/lib/scoring/public";
 import { features } from "@/lib/env";
 import { logger } from "@/lib/log";
 
@@ -16,8 +17,9 @@ import { logger } from "@/lib/log";
  *
  * `force-dynamic` for the same reason the index is — a cached document cannot
  * carry the per-request CSP nonce, and a scoreboard that silently loses its
- * scripts is worse than one that costs a query. See the long note in
- * ../page.tsx; scripts/check-csp.mjs enforces it.
+ * scripts is worse than one that costs a query. The snapshot itself is cached
+ * across requests and expired by judge writes (src/lib/scoring/public.ts). See
+ * the long note in ../page.tsx; scripts/check-csp.mjs enforces it.
  */
 export const dynamic = "force-dynamic";
 
@@ -100,7 +102,7 @@ export default async function ClassResultsPage({
 
   if (features.scoring) {
     try {
-      snapshot = await getCategorySnapshot(category.id);
+      snapshot = await getPublicCategorySnapshot(category.id);
     } catch (error) {
       // Same reasoning as the index: a board that admits it cannot reach the
       // database is a page people refresh; a 500 in the middle of a final is a

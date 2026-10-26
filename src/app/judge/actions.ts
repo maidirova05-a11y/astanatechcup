@@ -47,6 +47,7 @@ import {
   teamUpdateSchema,
 } from "@/lib/validation/scoring";
 import { formatClock } from "@/lib/scoring/format";
+import { expireResults, markResultsChanged } from "@/lib/scoring/public";
 import { getScoringContext } from "./auth";
 import type { JudgeLoginState, ScoringFormState } from "./form-state";
 import type { SessionRole } from "@/lib/db/schema";
@@ -189,15 +190,19 @@ function fields(formData: FormData): Record<string, string> {
 /**
  * Push the change to the public scoreboard immediately.
  *
- * Both results routes: the index, which shows every class and the latest
- * results across all of them, and the per-category board a hall full of
- * people is actually watching. Each renders per request (a cached document
- * cannot carry the CSP nonce — see the note on the results page), so this is
- * belt and braces rather than the only thing keeping them fresh; it costs
- * nothing and it is the line that would matter if either page were ever
- * given a revalidate window again.
+ * The results pages render per request (a cached document cannot carry the
+ * CSP nonce — see the note on the results page), but the category snapshots
+ * they read ARE cached (src/lib/scoring/public.ts). Expiring the `results` tag
+ * is what makes the next board view read this write; without it the board
+ * would lag by up to RESULTS_REVALIDATE_SECONDS.
+ *
+ * For the actions that redirect or re-render anyway. The console's row saves,
+ * which deliberately return a state instead, call `markResultsChanged`.
+ *
+ * Every action that writes scoring data must call one of the two.
  */
 function publishResults(): void {
+  expireResults();
   revalidatePath("/[locale]/results", "page");
   revalidatePath("/[locale]/results/[category]", "page");
 }
@@ -256,6 +261,8 @@ export async function createTeamsBulkAction(formData: FormData): Promise<void> {
     );
   } catch (error) {
     logger.warn("judge.team.bulk_partial", { message: String(error) });
+    // The teams before the collision are saved.
+    publishResults();
     redirect(categoryPath(formData, "error=code"));
   }
 
@@ -288,6 +295,7 @@ export async function createMatchAction(formData: FormData): Promise<void> {
   }
 
   const match = await createMatch(parsed.data, context);
+  publishResults();
   redirect(`/judge/${match.categoryId}/match/${match.id}`);
 }
 
@@ -314,6 +322,7 @@ export async function generateRoundRobinAction(formData: FormData): Promise<void
     context,
   );
 
+  if (result.ok) publishResults();
   redirect(categoryPath(formData, result.ok ? "saved=bracket" : `error=${result.reason}`));
 }
 
@@ -338,6 +347,7 @@ export async function generateBracketAction(formData: FormData): Promise<void> {
     context,
   );
 
+  if (result.ok) publishResults();
   redirect(categoryPath(formData, result.ok ? "saved=bracket" : `error=${result.reason}`));
 }
 
@@ -348,6 +358,7 @@ export async function deleteMatchAction(formData: FormData): Promise<void> {
   const id = formData.get("id");
   if (typeof id === "string" && id.length > 0) {
     await deleteScheduledMatch(id, context);
+    publishResults();
   }
 
   redirect(categoryPath(formData));
@@ -442,6 +453,7 @@ export async function saveMatchRowAction(
     { ...match, redTeamId, blueTeamId },
   );
 
+  markResultsChanged();
   return { status: "saved", savedAt: Date.now() };
 }
 
@@ -483,6 +495,7 @@ export async function updateTeamAction(
     return { status: "error", message: "Этот номер уже занят в классе." };
   }
 
+  markResultsChanged();
   return { status: "saved", savedAt: Date.now() };
 }
 
@@ -563,6 +576,8 @@ export async function saveRunRowAction(
       null,
     );
     if (!result.ok) {
+      // Cells before this one may already be on their way to the database.
+      if (writes.length > 0) markResultsChanged();
       return { status: "error", message: `Попытка ${round}: ${result.error}` };
     }
 
@@ -572,6 +587,7 @@ export async function saveRunRowAction(
   }
 
   await Promise.all(writes);
+  if (writes.length > 0) markResultsChanged();
   return { status: "saved", savedAt: Date.now() };
 }
 
