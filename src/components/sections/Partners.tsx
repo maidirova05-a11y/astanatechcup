@@ -38,7 +38,7 @@ export async function Partners({ locale }: { locale: string }) {
               </p>
               {/* The mark carries the name, so the alt text is the name and no
                   duplicate text label is rendered beside it. */}
-              <OrganiserLogo asset={entry.asset} className="h-12 sm:h-14" />
+              <OrganiserLogo asset={entry.asset} className="h-12 sm:h-14" height={56} />
             </div>
           </Reveal>
         ))}

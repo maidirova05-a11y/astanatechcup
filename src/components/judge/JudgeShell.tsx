@@ -37,7 +37,7 @@ export function JudgeShell({
       <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
         <div className="container-wide flex h-16 items-center justify-between gap-3">
           <Link href="/judge" className="inline-flex min-h-11 items-center gap-3">
-            <Logo className="h-6" />
+            <Logo className="h-6" height={24} />
             <span className="hidden text-sm font-bold uppercase tracking-wider text-subtle sm:inline">
               Судейская
             </span>

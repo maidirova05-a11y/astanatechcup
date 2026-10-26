@@ -37,7 +37,7 @@ export function AdminShell({
         <div className="container-wide flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-8">
             <Link href="/admin" className="inline-flex min-h-11 items-center">
-              <Logo className="h-7" />
+              <Logo className="h-7" height={28} />
             </Link>
 
             <nav aria-label="Разделы админ-панели" className="flex items-center gap-1">
