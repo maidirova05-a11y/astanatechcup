@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, asc, count, eq, gt, lt, sql } from "drizzle-orm";
+import { and, count, eq, gt, lt, min, sql } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/lib/db/client";
 import { rateLimitHits } from "@/lib/db/schema";
 import { logger } from "@/lib/log";
@@ -154,17 +154,15 @@ class PostgresRateLimitStore implements RateLimitStore {
       await this.ensureTable();
       const db = getDb();
       const inWindow = and(eq(rateLimitHits.keyHash, keyHash), gt(rateLimitHits.hitAt, since));
-      const [[{ n }], oldestRows] = await Promise.all([
-        db.select({ n: count() }).from(rateLimitHits).where(inWindow),
-        db
-          .select({ hitAt: rateLimitHits.hitAt })
-          .from(rateLimitHits)
-          .where(inWindow)
-          .orderBy(asc(rateLimitHits.hitAt))
-          .limit(1),
-      ]);
+      // Count and oldest hit in one statement: one connection and one round
+      // trip per rule instead of two, both answered by the (key_hash, hit_at)
+      // index.
+      const [{ n, oldestAt }] = await db
+        .select({ n: count(), oldestAt: min(rateLimitHits.hitAt) })
+        .from(rateLimitHits)
+        .where(inWindow);
 
-      const oldest = oldestRows[0]?.hitAt.getTime() ?? now;
+      const oldest = oldestAt ? new Date(oldestAt).getTime() : now;
       if (n >= rule.limit) {
         return { allowed: false, remaining: 0, resetAt: oldest + rule.windowMs };
       }

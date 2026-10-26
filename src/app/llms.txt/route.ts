@@ -157,8 +157,10 @@ export async function GET(): Promise<Response> {
       "Content-Type": "text/plain; charset=utf-8",
       // Public, cacheable for an hour: the content changes with a deploy, not
       // with a request, and this is the one path on the site crawlers may hit
-      // in bursts.
-      "Cache-Control": "public, max-age=3600",
+      // in bursts. `s-maxage` lets a shared cache (Vercel's CDN, which purges
+      // on every deploy; Cloudflare in front of Docker) answer those bursts
+      // instead of the function — `max-age` alone only covers the browser.
+      "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
       "X-Content-Type-Options": "nosniff",
     },
   });

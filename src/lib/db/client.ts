@@ -31,6 +31,16 @@ export function getDb(): PostgresJsDatabase {
   client = postgres(env.DATABASE_URL, {
     // Serverless invocations are short-lived and numerous; a large per-instance
     // pool exhausts the server's connection limit rather than helping.
+    //
+    // Five is enough because the hot public path no longer queries per view:
+    // the scoreboard reads cached snapshots (src/lib/scoring/public.ts), the
+    // marketing pages read nothing, and the migration probes are memoised per
+    // instance. What is left — a registration (2 rate-limit rules + 1 insert),
+    // a webhook (2 statements), the operator consoles — holds a connection
+    // for a few milliseconds. Total connections = 5 × warm instances; with a
+    // pooled (PgBouncer/Neon "-pooler") URL that is the pooler's problem, with
+    // a direct URL keep it under the server's max_connections.
+    // `idle_timeout` lets a quiet instance hand its connections back.
     max: isProduction ? 5 : 10,
     idle_timeout: 20,
     connect_timeout: 10,
