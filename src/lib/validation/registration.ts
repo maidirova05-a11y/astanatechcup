@@ -6,31 +6,31 @@ import {
   getDiscipline,
 } from "@/config/event";
 import { REGIONS } from "@/config/regions";
+import { ATTRIBUTION_LIMITS, LIMITS } from "./registration-fields";
+
+// Re-exported so server code keeps one import site. Client components must
+// import these from `./registration-fields` directly — see that file.
+export {
+  ATTRIBUTION_FIELDS,
+  ATTRIBUTION_LIMITS,
+  LIMITS,
+  type AttributionField,
+} from "./registration-fields";
 
 /**
- * The single validation schema, shared by the browser and the server.
- *
- * The client copy exists only to show friendly errors as the user types. The
- * server re-runs the exact same schema on the raw submission and treats its
- * verdict as final — a hand-crafted POST that skips the React form hits
+ * The single validation schema. It runs on the server, on the raw submission,
+ * and its verdict is final — a hand-crafted POST that skips the React form hits
  * identical rules.
+ *
+ * The browser never loads this module: the form's own checks are HTML
+ * constraint validation built from the same `LIMITS`, which live in the
+ * zod-free `./registration-fields` so that zod stays out of the client bundle.
  *
  * Posture is reject-don't-sanitize: values are normalised only where it is
  * genuinely lossless (trimming, lower-casing an email), never "cleaned up" by
  * stripping characters, which tends to turn a malicious payload into a
  * different, still-malicious payload.
  */
-
-export const LIMITS = {
-  teamName: { min: 2, max: 80 },
-  organization: { min: 2, max: 140 },
-  city: { min: 2, max: 80 },
-  memberName: { min: 2, max: 80 },
-  contactName: { min: 2, max: 80 },
-  email: { max: 254 },
-  phone: { min: 10, max: 20 },
-  comment: { max: 1000 },
-} as const;
 
 /**
  * Control characters and Unicode direction overrides. The latter are how a
@@ -93,25 +93,6 @@ const email = z
   );
 
 /* ── Marketing attribution ──────────────────────────────────────────────── */
-
-export const ATTRIBUTION_LIMITS = {
-  utm: 120,
-  referrer: 500,
-  landingPath: 255,
-} as const;
-
-/** Form field names, shared by the client (hidden inputs) and the server parser. */
-export const ATTRIBUTION_FIELDS = [
-  "utm_source",
-  "utm_medium",
-  "utm_campaign",
-  "utm_content",
-  "utm_term",
-  "referrer",
-  "landing_path",
-] as const;
-
-export type AttributionField = (typeof ATTRIBUTION_FIELDS)[number];
 
 /**
  * Attribution values are the ONE place this schema sanitises instead of

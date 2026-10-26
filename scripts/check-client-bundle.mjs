@@ -112,6 +112,75 @@ const clientFiles = files.filter((f) =>
   /^\s*["']use client["']/m.test(sources.get(f) ?? ""),
 );
 
+/**
+ * Second rule: packages that must never reach the browser bundle.
+ *
+ * `zod` is server-side validation. The form validates with HTML constraints
+ * built from `@/lib/validation/registration-fields`; importing anything from
+ * `@/lib/validation/registration` instead evaluates the whole schema module
+ * and ships ~35 KB of gzipped zod on every page (it once did, through the
+ * attribution capture in the [locale] layout).
+ */
+const FORBIDDEN_PACKAGES = ["zod"];
+
+function externalImportsOf(file) {
+  const source = sources.get(file) ?? "";
+  const out = [];
+  for (const match of source.matchAll(IMPORT_RE)) {
+    const spec = match[1];
+    if (spec.startsWith("@/") || spec.startsWith(".")) continue;
+    if (/^\s*import\s+type\b/.test(match[0].trim())) continue;
+    out.push(spec);
+  }
+  return out;
+}
+
+function pathToPackage(entry) {
+  const seen = new Set([entry]);
+  const queue = [[entry]];
+  while (queue.length > 0) {
+    const chain = queue.shift();
+    const current = chain[chain.length - 1];
+    for (const spec of externalImportsOf(current)) {
+      const pkg = FORBIDDEN_PACKAGES.find((name) => spec === name || spec.startsWith(`${name}/`));
+      if (pkg) return [...chain, `${spec} (package)`];
+    }
+    for (const next of importsOf(current)) {
+      if (seen.has(next)) continue;
+      const source = sources.get(next) ?? "";
+      if (/^\s*["']use server["']/m.test(source)) continue;
+      seen.add(next);
+      queue.push([...chain, next]);
+    }
+  }
+  return null;
+}
+
+const packageOffenders = [];
+for (const file of clientFiles) {
+  const chain = pathToPackage(file);
+  if (chain) {
+    packageOffenders.push(
+      chain
+        .map((f) => (f.startsWith(process.cwd()) ? f.slice(process.cwd().length + 1) : f).replace(/\\/g, "/"))
+        .join("\n      → "),
+    );
+  }
+}
+
+if (packageOffenders.length > 0) {
+  console.error(
+    `\ncheck-client-bundle: ${packageOffenders.length} client component(s) pull a server-only package\n` +
+      `(${FORBIDDEN_PACKAGES.join(", ")}) into the browser bundle:\n`,
+  );
+  for (const chain of packageOffenders) console.error(`  · ${chain}\n`);
+  console.error(
+    "Import limits and field names from @/lib/validation/registration-fields,\n" +
+      "which has no imports by design.\n",
+  );
+  process.exit(1);
+}
+
 const offenders = [];
 for (const file of clientFiles) {
   const chain = pathToEnv(file);
@@ -137,5 +206,5 @@ if (offenders.length > 0) {
 }
 
 console.log(
-  `check-client-bundle: ${clientFiles.length} client components, none reach env.ts. OK`,
+  `check-client-bundle: ${clientFiles.length} client components, none reach env.ts or ${FORBIDDEN_PACKAGES.join(", ")}. OK`,
 );

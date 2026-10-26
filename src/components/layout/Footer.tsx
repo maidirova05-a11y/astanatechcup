@@ -46,13 +46,13 @@ export async function Footer({ locale }: { locale: string }) {
             they made a footer more than a screen tall of nothing but links. */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[1.5fr_1fr_1fr] md:gap-12">
           <div className="flex flex-col gap-4 col-span-2 md:col-span-1">
-            <Logo className="h-10 self-start" plate />
+            <Logo className="h-10 self-start" height={40} plate />
             <p className="max-w-sm text-sm leading-relaxed text-muted">{t("tagline")}</p>
             {/* Both marks are dark-on-transparent, so on this dark surface
                 they need the same white plate the championship mark uses. */}
             <div className="flex flex-wrap items-center gap-3">
-              <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-10" plate />
-              <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-10" plate />
+              <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-10" height={40} plate />
+              <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-10" height={40} plate />
             </div>
           </div>
 

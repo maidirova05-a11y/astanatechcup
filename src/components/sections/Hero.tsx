@@ -153,13 +153,13 @@ export async function Hero({ locale }: { locale: string }) {
                   <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
                     {t("organizedBy")}
                   </span>
-                  <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-9" />
+                  <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-9" height={36} />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
                     {t("coOrganizedBy")}
                   </span>
-                  <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-6" />
+                  <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-6" height={24} />
                 </div>
               </div>
             </Rise>

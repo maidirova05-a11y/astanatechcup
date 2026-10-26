@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
-import { useInView, useReducedMotion } from "motion/react";
 import type { Locale } from "@/i18n/routing";
+import { useInViewOnce, usePrefersReducedMotion } from "./in-view";
 
 /**
  * Stat counter that animates once, when scrolled into view.
@@ -54,8 +54,8 @@ export function CountUp({
   className,
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
+  const inView = useInViewOnce(ref, { amount: 0.5, enabled: !reduceMotion });
   const [display, setDisplay] = useState(value);
 
   const locale = useLocale();

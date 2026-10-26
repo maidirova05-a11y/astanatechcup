@@ -403,8 +403,10 @@ Scroll reveals run **once**. Re-animating on every scroll past is a nausea
 trigger and makes a long page feel unstable.
 
 Every animation is gated on `prefers-reduced-motion`, checked in **both** CSS
-and JS — Framer Motion animates through inline styles that a CSS override
-cannot reach.
+and JS — `Reveal` animates through the Web Animations API, which a CSS override
+cannot reach. (No animation library: `Reveal` and `CountUp` use
+IntersectionObserver, matchMedia and `element.animate()` directly — see
+`src/components/ui/in-view.ts`.)
 
 > ⚠ **Content must never depend on JavaScript to become visible.** Reveal
 > components start at `opacity: 0`; if the IntersectionObserver never fires,

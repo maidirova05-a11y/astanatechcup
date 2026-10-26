@@ -6,7 +6,8 @@ import { ResultsIndex, type ResultsData } from "@/components/sections/ResultsInd
 import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { CATEGORIES } from "@/config/categories";
-import { getCategorySnapshot, type CategorySnapshot } from "@/lib/scoring/store";
+import type { CategorySnapshot } from "@/lib/scoring/store";
+import { getPublicCategorySnapshot } from "@/lib/scoring/public";
 import { features } from "@/lib/env";
 import { logger } from "@/lib/log";
 
@@ -26,22 +27,18 @@ import { logger } from "@/lib/log";
  * precisely what stopped it refreshing, and on 15 May the hall would have
  * watched a frozen table while judges filed results into it.
  *
- * If database load ever becomes real, cache the QUERY, not the HTML. The
- * document has to stay per-request for as long as the CSP carries a nonce.
+ * So the QUERY is cached instead of the HTML: the snapshots come from
+ * `getPublicCategorySnapshot` (src/lib/scoring/public.ts), shared across
+ * requests and expired by every judge write, with a 30-second backstop. The
+ * document stays per-request for as long as the CSP carries a nonce.
  * scripts/check-csp.mjs enforces that.
  */
 export const dynamic = "force-dynamic";
 
 /**
- * No `generateStaticParams` of its own — the `[locale]` layout already supplies
- * the three locales, so this page is pre-rendered at build time like every
- * other one, then revalidated.
- *
- * That means `next build` queries Postgres. A build that cannot reach the
- * database must therefore NOT fail: the render below catches it and emits the
- * "not connected" state, which the first revalidation replaces with real
- * results. A database blip in CI taking down a deploy of the whole site would
- * be a much worse failure than a scoreboard that is thirty seconds stale.
+ * A database that cannot be reached must NOT fail the render: the page below
+ * catches it and emits the "not connected" state. A failed load is not cached
+ * (`unstable_cache` stores only resolved values), so the next view retries.
  */
 
 export async function generateMetadata({
@@ -86,7 +83,7 @@ export default async function ResultsPage({
       const loaded = await Promise.all(
         CATEGORIES.map(async (category) => [
           category.id,
-          await getCategorySnapshot(category.id),
+          await getPublicCategorySnapshot(category.id),
         ] as const),
       );
       for (const [id, snapshot] of loaded) snapshots.set(id, snapshot);

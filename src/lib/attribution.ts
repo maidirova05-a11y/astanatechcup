@@ -1,7 +1,7 @@
 import {
   ATTRIBUTION_FIELDS,
   type AttributionField,
-} from "@/lib/validation/registration";
+} from "@/lib/validation/registration-fields";
 
 /**
  * Browser-side marketing attribution: the visit's utm_* parameters, external

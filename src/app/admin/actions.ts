@@ -23,6 +23,7 @@ import {
   updateStatus,
 } from "@/lib/admin/queries";
 import { createTeam, suggestTeamCode } from "@/lib/scoring/store";
+import { markResultsChanged } from "@/lib/scoring/public";
 import { startListSchema } from "@/lib/validation/scoring";
 import { getActionContext } from "./auth";
 import type { LoginState } from "./login-state";
@@ -230,6 +231,8 @@ export async function addToStartList(formData: FormData): Promise<void> {
   }
 
   await recordStartListEntry(entry.id, { ...parsed.data, code }, context);
+  // A new team on a start list shows on the public board.
+  markResultsChanged();
 
   redirect(`/admin/applications/${entry.id}?startlist=added`);
 }

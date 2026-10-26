@@ -26,7 +26,7 @@ export function CoachShell({
       <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
         <div className="container-wide flex h-16 items-center justify-between gap-3">
           <Link href="/coach" className="inline-flex min-h-11 items-center gap-3">
-            <Logo className="h-6" />
+            <Logo className="h-6" height={24} />
             <span className="hidden text-sm font-bold uppercase tracking-wider text-subtle sm:inline">
               Кабинет тренера
             </span>
@@ -76,7 +76,7 @@ export function CoachGate({
     <div className="flex min-h-dvh items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <Logo className="h-8" />
+          <Logo className="h-8" height={32} />
         </div>
 
         <div className="rounded-xl border border-line bg-surface p-7 shadow-lg">

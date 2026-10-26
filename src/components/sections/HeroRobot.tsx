@@ -514,7 +514,11 @@ export function HeroRobot({
                 width={BRAND_ASSETS.championship.width}
                 height={BRAND_ASSETS.championship.height}
                 priority
-                sizes="(max-width: 1024px) 78vw, 400px"
+                // 78% (LOGO_BOX) of the robot, whose width Hero caps at 16rem,
+                // 20rem from `sm`, 28rem from `2xl`: at most 250px, 350px on
+                // a 2xl screen. It used to say 78vw, which on a phone asked
+                // for a third more pixels than the logo ever covers.
+                sizes="(min-width: 1536px) 350px, 250px"
                 className="relative size-full object-contain drop-shadow-[0_6px_0_rgba(0,36,60,0.14)]"
               />
             </div>

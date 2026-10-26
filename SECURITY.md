@@ -175,7 +175,7 @@ configured, its origin never appears in the policy at all.
 
 Two documented compromises:
 
-- `style-src 'unsafe-inline'` — Motion animates via the `style` attribute and
+- `style-src 'unsafe-inline'` — the scroll reveals set the `style` attribute and
   Next injects critical CSS inline; neither can carry a nonce. Inline *style*
   is a far weaker vector than inline script, and `script-src` stays strict.
 - `script-src https:` — ignored by any browser that honours `strict-dynamic`;
