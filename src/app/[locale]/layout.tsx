@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, isLocale, LOCALE_TAGS, type Locale } from "@/i18n/routing";
 import { EVENT_YEAR, EVENT } from "@/config/event";
 import { env } from "@/lib/env";
@@ -12,6 +12,39 @@ import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { AttributionCapture } from "@/components/layout/AttributionCapture";
 import "@/app/globals.css";
+
+/**
+ * The message namespaces a CLIENT component reads, and the only ones sent to
+ * the browser.
+ *
+ * Without an explicit `messages` prop, next-intl 4's provider forwards the
+ * whole catalogue — ~51k characters of Russian, Kazakh or English, legal pages
+ * included — inlined into the RSC payload of every HTML response and parsed on
+ * every page load, while server components (which are most of this site) read
+ * their strings on the server and never needed them in the browser.
+ *
+ * Add a namespace here when a "use client" component starts calling
+ * `useTranslations` with it; a missing one throws in the browser, which the
+ * Playwright pass (no console errors on every route) catches.
+ *
+ *   common, nav      — Header, LocaleSwitcher
+ *   countdown        — Countdown
+ *   consent          — CookieConsent
+ *   registration,
+ *   disciplines,
+ *   regions          — RegistrationForm
+ *   error            — app/[locale]/error.tsx
+ */
+const CLIENT_NAMESPACES = [
+  "common",
+  "nav",
+  "countdown",
+  "consent",
+  "registration",
+  "disciplines",
+  "regions",
+  "error",
+] as const;
 
 /** Both locales are known ahead of time, so both can be statically rendered. */
 export function generateStaticParams() {
@@ -132,6 +165,10 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "common" });
+  const messages = await getMessages({ locale });
+  const clientMessages = Object.fromEntries(
+    CLIENT_NAMESPACES.filter((key) => key in messages).map((key) => [key, messages[key]]),
+  );
 
   return (
     <html lang={LOCALE_TAGS[locale as Locale]} className={fontVariables}>
@@ -141,11 +178,11 @@ export default async function LocaleLayout({
         </a>
 
         {/*
-          Messages are passed to the client provider so client components
-          (the registration form, the countdown, the locale switcher) can
-          translate. next-intl ships only what the client tree actually uses.
+          Only the namespaces client components read — see CLIENT_NAMESPACES.
+          Locale, time zone and `now` are still inherited from the request
+          config.
         */}
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={clientMessages}>
           <Header locale={locale} />
           <main id="main" tabIndex={-1} className="focus:outline-none">
             {children}
