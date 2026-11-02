@@ -15,6 +15,13 @@ import {
   type SessionRole,
 } from "@/lib/db/schema";
 import { logger } from "@/lib/log";
+
+/**
+ * Ids arrive from form fields and URL segments. A malformed one would reach
+ * Postgres as `invalid input syntax for type uuid` and surface as a 500, so
+ * the lookups below treat it as "not found" instead.
+ */
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import { planElimination, roundRobinPairings } from "./bracket";
 
 /**
@@ -145,6 +152,7 @@ export async function listTeamsByApplicationIds(
 }
 
 export async function getTeam(id: string): Promise<ScoringTeamRow | null> {
+  if (!UUID_PATTERN.test(id)) return null;
   const db = getDb();
   const rows = await db.select().from(scoringTeams).where(eq(scoringTeams.id, id)).limit(1);
   return rows[0] ?? null;
@@ -332,6 +340,7 @@ export async function listMatches(
 }
 
 export async function getMatch(id: string): Promise<ScoringMatchRow | null> {
+  if (!UUID_PATTERN.test(id)) return null;
   const db = getDb();
   const rows = await db.select().from(scoringMatches).where(eq(scoringMatches.id, id)).limit(1);
   return rows[0] ?? null;
@@ -768,6 +777,7 @@ export async function deleteRun(
 
 /** Every attempt one team has, in one query — what a row save starts from. */
 export async function listRunsForTeam(teamId: string): Promise<ScoringRunRow[]> {
+  if (!UUID_PATTERN.test(teamId)) return [];
   const db = getDb();
   return db.select().from(scoringRuns).where(eq(scoringRuns.teamId, teamId));
 }
