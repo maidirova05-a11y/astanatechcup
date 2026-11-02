@@ -41,7 +41,23 @@ const SENSITIVE_KEYS = [
   "iin",
 ];
 
-const SENSITIVE_PATTERN = new RegExp(`(${SENSITIVE_KEYS.join("|")})`, "i");
+/**
+ * A key is sensitive when one of its WORDS is a sensitive key, or when the whole
+ * key (separators removed) is one. Matching substrings instead would redact
+ * `message` (contains "age"), `page`, `language` and `filename`, which blinds
+ * every error log line while protecting nothing.
+ */
+const SENSITIVE_SET = new Set(SENSITIVE_KEYS);
+
+function isSensitiveKey(key: string): boolean {
+  const words = key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  if (words.some((w) => SENSITIVE_SET.has(w))) return true;
+  return SENSITIVE_SET.has(words.join(""));
+}
 
 /** Catch PII that arrives inside a free-text string rather than a named field. */
 const EMAIL_IN_TEXT = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
@@ -79,7 +95,7 @@ function redact(value: unknown, depth = 0): unknown {
   if (typeof value === "object") {
     const out: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
-      if (SENSITIVE_PATTERN.test(key)) {
+      if (isSensitiveKey(key)) {
         out[key] = describeRedacted(item);
       } else {
         out[key] = redact(item, depth + 1);
