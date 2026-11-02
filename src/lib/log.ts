@@ -158,6 +158,7 @@ export const securityLog = {
   csrfFailure: (context: LogContext) => emit("warn", "security.csrf_failure", context),
   originMismatch: (context: LogContext) => emit("warn", "security.origin_mismatch", context),
   rateLimited: (context: LogContext) => emit("warn", "security.rate_limited", context),
+  loginFailure: (context: LogContext) => emit("warn", "security.login_failure", context),
   captchaFailure: (context: LogContext) => emit("warn", "security.captcha_failure", context),
   honeypotTripped: (context: LogContext) => emit("warn", "security.honeypot", context),
   webhookSignatureFailure: (context: LogContext) =>

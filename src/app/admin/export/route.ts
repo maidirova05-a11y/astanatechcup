@@ -82,6 +82,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
+  // A judge session is a valid session but must never reach personal data.
+  if (session.role !== "admin") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
 
   const params = request.nextUrl.searchParams;
   const filters = parseFilters({

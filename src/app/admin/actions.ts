@@ -88,7 +88,7 @@ export async function login(
   await recordLoginAttempt(ip, ok);
 
   if (!ok) {
-    securityLog.csrfFailure({ ip, endpoint: "admin.login", reason: "bad_password" });
+    securityLog.loginFailure({ ip, endpoint: "admin.login" });
     await delay(FAILURE_DELAY_MS);
     // Deliberately identical to every other failure message.
     return { status: "error", message: "Неверный пароль." };

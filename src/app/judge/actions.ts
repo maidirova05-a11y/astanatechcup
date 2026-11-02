@@ -139,7 +139,7 @@ export async function judgeLogin(
   await recordLoginAttempt(ip, role !== null);
 
   if (!role) {
-    securityLog.csrfFailure({ ip, endpoint: "judge.login", reason: "bad_password" });
+    securityLog.loginFailure({ ip, endpoint: "judge.login" });
     await delay(FAILURE_DELAY_MS);
     return { status: "error", message: "Неверный пароль." };
   }
