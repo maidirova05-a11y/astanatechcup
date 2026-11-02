@@ -309,8 +309,12 @@ function Champion({
           : "border-dashed border-line-strong bg-surface text-muted"
       }`}
     >
-      <span className="text-2xs font-bold uppercase tracking-wider text-muted">
-        🏆 {label}
+      <span className="flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-muted">
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" />
+          <path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6" />
+        </svg>
+        {label}
       </span>
       <span className="flex min-w-0 items-baseline gap-2">
         {code && <span className="tabular shrink-0 text-xs font-extrabold text-brand">{code}</span>}

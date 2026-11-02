@@ -72,7 +72,7 @@ export function Header({ locale }: { locale: string }) {
         // With the menu open the bar goes solid too, so the panel below reads
         // as one sheet with it rather than a card hanging under a glass strip.
         scrolled || menuOpen
-          ? "bg-surface/85 shadow-sm backdrop-blur-lg"
+          ? "bg-surface shadow-sm"
           : "bg-transparent",
       )}
     >
