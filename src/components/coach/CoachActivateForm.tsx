@@ -57,7 +57,7 @@ export function CoachActivateForm({ csrfToken }: { csrfToken: string }) {
           className={`${field} font-mono uppercase tracking-wider`}
         />
         <p className="text-xs text-subtle">
-          Из письма-подтверждения. Регистр и похожие символы (O/0, I/1) можно не
+          Он показан после отправки заявки. Регистр и похожие символы (O/0, I/1) можно не
           различать.
         </p>
       </div>

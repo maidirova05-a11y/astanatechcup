@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { env, features } from "@/lib/env";
 import { logger, securityLog } from "@/lib/log";
 import { getClientIp } from "@/lib/security/client-ip";
@@ -45,7 +45,7 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function login(
+async function loginAttempt(
   _prevState: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
@@ -140,6 +140,24 @@ export async function changeApplicationStatus(formData: FormData): Promise<void>
   await updateStatus(id, status as ApplicationStatus, context);
 
   redirect(`/admin/applications/${id}`);
+}
+
+/**
+ * The database being down is a 503-shaped event, not a crash: answer with the
+ * form's own error state instead of letting the throw replace the page with
+ * the framework's error screen. Redirects and notFound() must still escape.
+ */
+export async function login(
+  prevState: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
+  try {
+    return await loginAttempt(prevState, formData);
+  } catch (error) {
+    unstable_rethrow(error);
+    logger.error("admin.login_unavailable", { error });
+    return { status: "error", message: "Сервис временно недоступен. Повторите через минуту." };
+  }
 }
 
 /* ── Start list ─────────────────────────────────────────────────────────── */
