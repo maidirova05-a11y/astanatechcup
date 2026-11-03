@@ -35,7 +35,7 @@ export function AdminShell({
     <div className="min-h-dvh">
       <header className="border-b border-line bg-surface">
         <div className="container-wide flex h-16 items-center justify-between gap-4">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3 sm:gap-8">
             <Link href="/admin" className="inline-flex min-h-11 items-center">
               <Logo className="h-7" height={28} />
             </Link>
@@ -51,7 +51,7 @@ export function AdminShell({
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium transition-colors",
+                      "inline-flex min-h-11 items-center rounded-full px-3 text-sm font-medium transition-colors sm:px-4",
                       isActive
                         ? "bg-surface-muted text-content"
                         : "text-muted hover:bg-surface-muted hover:text-content",

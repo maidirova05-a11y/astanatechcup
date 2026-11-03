@@ -96,7 +96,7 @@ export async function Audiences({ locale }: { locale: string }) {
                     alt={tp("girlAssembling")}
                     fill
                     sizes="(min-width: 1024px) 20vw, 40vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover"
                   />
                 </span>
               )}

@@ -67,10 +67,7 @@ export async function Hero({ locale }: { locale: string }) {
           {/* ── Copy column ── */}
           <div className="flex flex-col items-start gap-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             <Rise step={0} as="p" className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-surface-raised px-4 py-2 text-2xs font-bold uppercase tracking-[0.14em] text-brand shadow-[0_3px_0_0_var(--ink)]">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                <span className="relative inline-flex size-2 rounded-full bg-accent" />
-              </span>
+              <span className="size-2 rounded-full bg-accent" />
               {t("badge", { year: EVENT_YEAR })}
             </Rise>
 

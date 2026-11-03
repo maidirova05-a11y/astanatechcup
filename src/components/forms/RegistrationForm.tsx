@@ -195,6 +195,11 @@ export function RegistrationForm({
         // Server-side validation is authoritative; this only stops the browser
         // duplicating error messages we render ourselves.
         noValidate={false}
+        // React 19 resets an uncontrolled form once its action settles, so a
+        // rejection (rate limit, duplicate, server-side validation) used to
+        // wipe every field the applicant had typed. The form is only ever
+        // replaced, never reused, after a success, so a reset is never wanted.
+        onReset={(event) => event.preventDefault()}
         className="flex flex-col gap-8"
       >
         {/* Security fields. Not user-visible, all verified server-side. */}

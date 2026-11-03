@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { env, features } from "@/lib/env";
 import { logger, securityLog } from "@/lib/log";
@@ -94,7 +94,7 @@ async function resolveRole(password: string): Promise<SessionRole | null> {
   return null;
 }
 
-export async function judgeLogin(
+async function judgeLoginAttempt(
   _prevState: JudgeLoginState,
   formData: FormData,
 ): Promise<JudgeLoginState> {
@@ -139,7 +139,7 @@ export async function judgeLogin(
   await recordLoginAttempt(ip, role !== null);
 
   if (!role) {
-    securityLog.csrfFailure({ ip, endpoint: "judge.login", reason: "bad_password" });
+    securityLog.loginFailure({ ip, endpoint: "judge.login" });
     await delay(FAILURE_DELAY_MS);
     return { status: "error", message: "Неверный пароль." };
   }
@@ -163,6 +163,24 @@ export async function judgeLogout(): Promise<void> {
 
   cookieStore.delete(ADMIN_SESSION_COOKIE);
   redirect("/judge/login");
+}
+
+/**
+ * The database being down is a 503-shaped event, not a crash: answer with the
+ * form's own error state instead of letting the throw replace the page with
+ * the framework's error screen. Redirects and notFound() must still escape.
+ */
+export async function judgeLogin(
+  prevState: JudgeLoginState,
+  formData: FormData,
+): Promise<JudgeLoginState> {
+  try {
+    return await judgeLoginAttempt(prevState, formData);
+  } catch (error) {
+    unstable_rethrow(error);
+    logger.error("judge.login_unavailable", { error });
+    return { status: "error", message: "Сервис временно недоступен. Повторите через минуту." };
+  }
 }
 
 /* ── Shared plumbing ────────────────────────────────────────────────────── */

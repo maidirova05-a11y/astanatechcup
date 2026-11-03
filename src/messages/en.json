@@ -599,7 +599,7 @@
     "closed": "Entries are closed",
     "closedBody": "Entries for the {year} championship are no longer being accepted. Watch out for the announcement of the next season.",
     "successTitle": "Entry received",
-    "successBody": "We've sent confirmation to {email}. Your reference is {reference}. Keep it — you'll need it when contacting the organising committee.",
+    "successBody": "Your entry is saved; the organising committee will write to {email}. Your reference is {reference}. Keep it — you'll need it when contacting the organising committee.",
     "successPayment": "All that's left is the entry fee. Payment is handled on the payment provider's secure page.",
     "successPaymentCta": "Continue to payment",
     "paymentDeferredBody": "Online payment of the entry fee isn't available yet. The organising committee will be in touch with a payment link.",
@@ -741,10 +741,10 @@
   },
   "payment": {
     "successTitle": "Payment received",
-    "successBody": "The entry fee has been received. Entry {reference} is confirmed and the details are on their way to your inbox.",
+    "successBody": "The entry fee has been received. Entry {reference} is confirmed.",
     "successCta": "Back to the home page",
     "cancelTitle": "Payment not completed",
-    "cancelBody": "The payment was cancelled and nothing was charged. Entry {reference} has been saved — you can complete payment later using the link in your email.",
+    "cancelBody": "The payment was cancelled and nothing was charged. Entry {reference} has been saved — the organising committee will send you a payment link.",
     "cancelCta": "Back to your entry",
     "unavailableTitle": "Payment temporarily unavailable",
     "unavailableBody": "Your entry has been saved. The organising committee will be in touch with a link to pay the entry fee."

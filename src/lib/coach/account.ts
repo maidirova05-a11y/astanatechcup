@@ -70,16 +70,20 @@ export async function activateCoachAccount(input: {
 
   if (rows.length === 0) return { ok: false, reason: "not_found" };
 
+  const existing = await findAccountByEmailHash(emailHash);
+
+  // An account the organisers revoked stays revoked. Activating again must not
+  // be a way to undo that: it is indistinguishable from "not found" on purpose.
+  if (existing?.revokedAt) return { ok: false, reason: "not_found" };
+
   // Hashing is ~150 ms of deliberate work; it happens only after ownership is
   // established, so an attacker cannot use activation as a CPU amplifier.
   const passwordHash = await hashPassword(input.password);
 
-  const existing = await findAccountByEmailHash(emailHash);
-
   if (existing) {
     await db
       .update(coachAccounts)
-      .set({ passwordHash, revokedAt: null })
+      .set({ passwordHash })
       .where(eq(coachAccounts.id, existing.id));
 
     // Whoever just proved ownership gets the only live session. A cookie

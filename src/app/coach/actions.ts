@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
 import { features } from "@/lib/env";
 import { logger, securityLog } from "@/lib/log";
@@ -111,7 +111,7 @@ async function guard(
 
 /* ── Sign in ────────────────────────────────────────────────────────────── */
 
-export async function coachLogin(
+async function coachLoginAttempt(
   _prevState: CoachFormState,
   formData: FormData,
 ): Promise<CoachFormState> {
@@ -188,6 +188,24 @@ export async function coachLogin(
   redirect("/coach");
 }
 
+/**
+ * The database being down is a 503-shaped event, not a crash: answer with the
+ * form's own error state instead of letting the throw replace the page with
+ * the framework's error screen. Redirects and notFound() must still escape.
+ */
+export async function coachLogin(
+  prevState: CoachFormState,
+  formData: FormData,
+): Promise<CoachFormState> {
+  try {
+    return await coachLoginAttempt(prevState, formData);
+  } catch (error) {
+    unstable_rethrow(error);
+    logger.error("coach.login_unavailable", { error });
+    return { status: "error", message: "Сервис временно недоступен. Повторите через минуту." };
+  }
+}
+
 /* ── Activation ─────────────────────────────────────────────────────────── */
 
 /**
@@ -198,7 +216,7 @@ export async function coachLogin(
  * deployment, so "forgot my password" is "activate again with the same two
  * values" — see the note on activateCoachAccount for what that trades away.
  */
-export async function coachActivate(
+async function coachActivateAttempt(
   _prevState: CoachFormState,
   formData: FormData,
 ): Promise<CoachFormState> {
@@ -263,6 +281,24 @@ export async function coachActivate(
   });
 
   redirect("/coach");
+}
+
+/**
+ * The database being down is a 503-shaped event, not a crash: answer with the
+ * form's own error state instead of letting the throw replace the page with
+ * the framework's error screen. Redirects and notFound() must still escape.
+ */
+export async function coachActivate(
+  prevState: CoachFormState,
+  formData: FormData,
+): Promise<CoachFormState> {
+  try {
+    return await coachActivateAttempt(prevState, formData);
+  } catch (error) {
+    unstable_rethrow(error);
+    logger.error("coach.activate_unavailable", { error });
+    return { status: "error", message: "Сервис временно недоступен. Повторите через минуту." };
+  }
 }
 
 /* ── Sign out ───────────────────────────────────────────────────────────── */

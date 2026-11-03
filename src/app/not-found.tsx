@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import { buttonClasses } from "@/components/ui/Button";
 import { fontVariables } from "@/app/fonts";
@@ -11,7 +12,12 @@ import "@/app/globals.css";
  * rather than translated: there is no locale context this far up, and guessing
  * one to render a 404 is not worth a request-time lookup.
  */
-export default function RootNotFound() {
+export default async function RootNotFound() {
+  // Reading a request header makes this render per request instead of being
+  // prerendered. A prerendered page cannot carry the CSP nonce the proxy mints,
+  // so under `strict-dynamic` the browser refused every framework script on it.
+  await headers();
+
   return (
     <html lang="ru-KZ" className={fontVariables}>
       <body className="min-h-dvh bg-surface text-content antialiased">

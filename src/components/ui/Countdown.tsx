@@ -95,7 +95,7 @@ export function Countdown({ targetMs, className, tone = "light" }: CountdownProp
           className={cn(
             "flex min-w-[4.25rem] flex-1 flex-col items-center justify-center rounded-lg px-2 py-3 sm:min-w-[5rem] sm:px-3",
             tone === "dark"
-              ? "bg-white/10 ring-1 ring-white/15 backdrop-blur-sm"
+              ? "bg-white/10 ring-1 ring-white/15"
               : "bg-surface-raised shadow-sm ring-1 ring-line",
           )}
         >
