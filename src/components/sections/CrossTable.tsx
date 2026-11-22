@@ -84,7 +84,7 @@ export function CrossTable({
             {table.rows.map((row) => (
               <tr key={row.team.id}>
                 <th scope="row" className="sticky left-0 z-10 bg-surface-raised p-0 text-left">
-                  <span className="flex h-14 items-center gap-2 rounded-md bg-(--d-accent-soft) px-3">
+                  <span className="flex h-14 items-center gap-2 rounded-md bg-(--d-accent-tint) px-3">
                     <span className="tabular shrink-0 font-display text-xs font-extrabold text-(--d-accent-ink)">
                       {row.team.code}
                     </span>

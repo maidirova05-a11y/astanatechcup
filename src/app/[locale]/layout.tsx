@@ -6,7 +6,7 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import { routing, isLocale, LOCALE_TAGS, type Locale } from "@/i18n/routing";
 import { EVENT_YEAR, EVENT } from "@/config/event";
 import { env } from "@/lib/env";
-import { fontVariables } from "@/app/fonts";
+import { arenaFontVariables } from "@/app/fonts";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
@@ -58,8 +58,8 @@ export const viewport: Viewport = {
   // audience includes parents reading small print on a phone.
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#060e22" },
+    { media: "(prefers-color-scheme: light)", color: "#050b18" },
+    { media: "(prefers-color-scheme: dark)", color: "#050b18" },
   ],
 };
 
@@ -171,8 +171,8 @@ export default async function LocaleLayout({
   );
 
   return (
-    <html lang={LOCALE_TAGS[locale as Locale]} className={fontVariables}>
-      <body className="min-h-dvh bg-surface text-content antialiased">
+    <html lang={LOCALE_TAGS[locale as Locale]} className={arenaFontVariables}>
+      <body className="theme-arena min-h-dvh bg-surface text-content antialiased">
         <a href="#main" className="skip-link">
           {t("skipToContent")}
         </a>

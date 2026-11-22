@@ -201,7 +201,7 @@ export async function CategoryCatalogue({ locale }: { locale: string }) {
             <dt className="text-sm font-semibold text-muted">{t("statCategories")}</dt>
           </div>
           <div className="flex flex-col gap-1">
-            <dd className="tabular font-display text-3xl font-extrabold leading-none text-accent md:text-4xl">
+            <dd className="tabular font-display text-3xl font-extrabold leading-none text-accent-ink md:text-4xl">
               {TOTAL_CLASSES}
             </dd>
             <dt className="text-sm font-semibold text-muted">{t("statClasses")}</dt>
@@ -307,7 +307,7 @@ async function CategoryBlock({
                 was meant to sit beside. */}
             <div className="flex items-center gap-4">
               <span
-                className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-3xl sm:size-16 sm:text-4xl"
+                className="mascot-chip flex size-14 shrink-0 items-center justify-center rounded-lg text-3xl sm:size-16 sm:text-4xl"
                 aria-hidden="true"
               >
                 <Mascot />

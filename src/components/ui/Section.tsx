@@ -40,7 +40,7 @@ export function Section({
       className={cn(
         tight ? "section-tight" : "section",
         dark && "on-dark",
-        !dark && tone === "muted" && "bg-surface-muted",
+        !dark && tone === "muted" && "border-y border-line bg-surface-muted",
         "relative",
         className,
       )}
@@ -94,7 +94,7 @@ export function SectionHeader({
           text-4xl at `md`. The step jumped ~10px at a single breakpoint and
           topped out at 44px, which on a page with a dozen sections read as
           every heading shouting. 40px still out-ranks every card title. */}
-      <Heading id={id} className="text-[clamp(1.625rem,1.3rem+1.4vw,2.5rem)]">
+      <Heading id={id} className="text-[clamp(1.5rem,1.1rem+1.6vw,2.5rem)]">
         {title}
       </Heading>
       {subtitle && (
@@ -123,15 +123,20 @@ export function Eyebrow({
   return (
     <p
       className={cn(
-        "inline-flex items-center gap-2.5 text-2xs font-bold uppercase tracking-[0.18em] text-brand",
+        "mono-label inline-flex items-center gap-2.5 text-brand",
         className,
       )}
     >
+      {/* A lit pixel and a hairline: the arena's section marker. */}
       <span
         aria-hidden="true"
-        className="inline-block h-px w-6 bg-current opacity-60"
+        className="inline-block size-1.5 rounded-[1px] bg-current shadow-[0_0_10px_currentColor]"
       />
       {children}
+      <span
+        aria-hidden="true"
+        className="inline-block h-px w-10 bg-gradient-to-r from-current to-transparent opacity-50"
+      />
     </p>
   );
 }
@@ -148,16 +153,16 @@ export function Pill({
 }) {
   const tones = {
     neutral: "bg-surface-muted text-muted border-line",
-    accent: "bg-accent text-on-accent border-transparent",
+    accent: "bg-accent text-on-accent border-transparent shadow-[0_0_18px_-4px_var(--glow-accent,transparent)]",
     brand: "bg-brand text-on-brand border-transparent",
-    warning: "bg-warning-surface text-warning border-transparent",
+    warning: "bg-warning-surface text-warning border-warning/30",
   } as const;
 
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1",
-        "text-2xs font-semibold uppercase tracking-wider",
+        "font-mono text-2xs font-semibold uppercase tracking-wider",
         tones[tone],
         className,
       )}

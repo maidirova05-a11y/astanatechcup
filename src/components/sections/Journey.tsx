@@ -38,7 +38,7 @@ export async function Journey({ locale }: { locale: string }) {
           alt={tp("lineFollower")}
           quiet
           sizes="24rem"
-          className="hidden aspect-[4/3] rotate-2 lg:block"
+          className="hidden aspect-[4/3] lg:block"
         />
       </div>
 
@@ -60,21 +60,21 @@ export async function Journey({ locale }: { locale: string }) {
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "absolute left-[calc(1.375rem-1.5px)] top-12 h-[calc(100%+2.25rem)] w-[3px] rounded-full bg-line-strong lg:left-12 lg:top-[calc(1.375rem-1.5px)] lg:h-[3px] lg:w-[calc(100%-3rem)]",
+                    "absolute left-[calc(1.375rem-0.5px)] top-12 h-[calc(100%+2.25rem)] w-px bg-gradient-to-b from-brand/60 to-line lg:left-12 lg:top-[calc(1.375rem-0.5px)] lg:h-px lg:w-[calc(100%-3rem)] lg:bg-gradient-to-r",
                     endsRow && "lg:hidden",
                   )}
                 />
               )}
 
               <span
-                className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface font-display text-lg font-extrabold text-brand shadow-[0_3px_0_0_var(--ink)]"
+                className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border border-brand/50 bg-surface font-mono text-base font-bold text-brand shadow-[0_0_0_4px_var(--surface),0_0_24px_-4px_var(--glow-brand)]"
                 aria-hidden="true"
               >
-                {number}
+                {String(number).padStart(2, "0")}
               </span>
 
               <div className="flex flex-col gap-1.5 pb-2">
-                <p className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                <p className="font-mono text-2xs font-semibold uppercase tracking-wider text-subtle">
                   {t("stepLabel", { number })}
                 </p>
                 <h3 className="text-lg">{t(`steps.${step}.title`)}</h3>

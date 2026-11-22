@@ -72,7 +72,7 @@ export function Header({ locale }: { locale: string }) {
         // With the menu open the bar goes solid too, so the panel below reads
         // as one sheet with it rather than a card hanging under a glass strip.
         scrolled || menuOpen
-          ? "bg-surface shadow-sm"
+          ? "header-glass"
           : "bg-transparent",
       )}
     >
@@ -82,7 +82,9 @@ export function Header({ locale }: { locale: string }) {
           className="inline-flex min-h-11 shrink-0 items-center rounded-sm"
           aria-label={t("home")}
         >
-          <Logo className="h-9" height={36} priority />
+          {/* On a plate: the mark's own panel is transparent, and its navy
+              lettering would vanish into the night canvas. */}
+          <Logo className="h-10 px-1.5 py-1" height={40} plate priority />
         </a>
 
         <nav aria-label={tc("menu")} className="hidden items-center gap-1 xl:flex">
@@ -93,7 +95,7 @@ export function Header({ locale }: { locale: string }) {
               // `whitespace-nowrap` here, unlike on Button: this bar is a
               // fixed 72px tall, and a Kazakh label wrapping to two lines
               // ("Қалай қатысу керек") pushes the nav to 80px and breaks it.
-              className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:bg-surface-muted hover:text-content"
+              className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:bg-white/5 hover:text-content"
             >
               {t(item.key)}
             </a>
@@ -115,7 +117,7 @@ export function Header({ locale }: { locale: string }) {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={tc("menu")}
-            className="inline-flex size-11 items-center justify-center rounded-full border border-line-strong bg-surface-raised text-xl transition-colors duration-200 hover:bg-surface-muted xl:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-full border border-line-strong bg-white/5 text-xl transition-colors duration-200 hover:bg-white/10 xl:hidden"
           >
             {menuOpen ? <Close /> : <Menu />}
           </button>
@@ -129,7 +131,7 @@ export function Header({ locale }: { locale: string }) {
           id="mobile-menu"
           // Scrolls on its own when a landscape phone is shorter than the
           // menu: the page behind it is locked, so nothing else could.
-          className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-line bg-surface shadow-lg xl:hidden"
+          className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-line bg-surface xl:hidden"
         >
           <nav aria-label={tc("menu")} className="container-page flex flex-col py-3">
             {NAV.map((item) => (

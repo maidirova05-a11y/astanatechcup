@@ -47,7 +47,7 @@ export default async function PaymentSuccessPage({
   return (
     <div className="section">
       <div className="container-prose flex flex-col items-start gap-5">
-        <span className="flex size-14 items-center justify-center rounded-full border-2 border-ink bg-success text-2xl text-white">
+        <span className="flex size-14 items-center justify-center rounded-full bg-success text-2xl text-surface shadow-[0_0_32px_-6px_var(--success)]">
           <Check />
         </span>
 

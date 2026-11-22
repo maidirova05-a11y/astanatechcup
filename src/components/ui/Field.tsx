@@ -67,7 +67,7 @@ function FieldShell({
       <label htmlFor={id} className="text-sm font-semibold">
         {label}
         {required ? (
-          <span className="ml-1 text-accent" aria-hidden="true">
+          <span className="ml-1 text-accent-ink" aria-hidden="true">
             *
           </span>
         ) : optionalLabel ? (
@@ -259,7 +259,7 @@ export function CheckboxField({
         <label htmlFor={id} className="cursor-pointer text-sm leading-relaxed">
           {children ?? label}
           {required && (
-            <span className="ml-1 text-accent" aria-hidden="true">
+            <span className="ml-1 text-accent-ink" aria-hidden="true">
               *
             </span>
           )}
@@ -297,7 +297,7 @@ export function FieldGroup({
 }) {
   return (
     <fieldset className={cn("flex flex-col gap-5", className)}>
-      <legend className="mb-1 text-2xs font-bold uppercase tracking-[0.16em] text-brand">
+      <legend className="mb-1 font-mono text-2xs font-semibold uppercase tracking-[0.16em] text-brand">
         {legend}
       </legend>
       {children}

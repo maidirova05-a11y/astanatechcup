@@ -52,10 +52,10 @@ export async function Prizes({ locale }: { locale: string }) {
 
       {/* The international slot, given the visual weight the brief gives it. */}
       <Reveal>
-        <div className="tile mt-10 overflow-hidden rounded-xl sm:mt-12">
+        <div className="tile neon-frame mt-10 overflow-hidden rounded-xl sm:mt-12">
           <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8 sm:p-8 lg:grid-cols-[auto_1fr_minmax(0,22rem)] lg:gap-10 lg:p-10">
             <span
-              className="flex size-16 items-center justify-center rounded-xl border-2 border-accent-edge bg-accent text-3xl text-on-accent shadow-signal sm:size-20 sm:text-4xl"
+              className="flex size-16 items-center justify-center rounded-xl bg-gradient-to-br from-(--gold-300) to-(--gold-500) text-3xl text-[#1a1300] shadow-[0_0_40px_-6px_var(--glow-gold)] sm:size-20 sm:text-4xl"
               aria-hidden="true"
             >
               <Trophy />
@@ -63,7 +63,7 @@ export async function Prizes({ locale }: { locale: string }) {
 
             <div className="flex flex-col gap-2.5">
               <h3 className="text-xl sm:text-2xl">{t("internationalTitle", { city })}</h3>
-              <p className="text-2xs font-bold uppercase tracking-[0.16em] text-brand">
+              <p className="mono-label text-brand">
                 {t("internationalMonth", {
                   month: monthName(locale, FINAL_MONTH.month),
                   year: FINAL_MONTH.year,
@@ -92,7 +92,7 @@ export async function Prizes({ locale }: { locale: string }) {
           <Reveal as="li" key={item} index={index}>
             <div className="tile tile-quiet flex h-full items-start gap-4 p-5 sm:flex-col sm:p-6">
               <span
-                className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-brand/40 bg-brand/15 text-lg text-brand sm:size-12 sm:text-xl"
+                className="icon-chip size-11 text-lg sm:size-12 sm:text-xl"
                 aria-hidden="true"
               >
                 {ICONS[item]}

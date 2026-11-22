@@ -40,14 +40,19 @@ export async function Disciplines({ locale }: { locale: string }) {
           return (
           <Reveal as="li" key={discipline.id} index={index}>
             <article
-              className="discipline-accent tile tile-interactive group flex h-full flex-col gap-4 p-5 sm:p-6"
+              className="discipline-accent tile tile-interactive group relative flex h-full flex-col gap-4 p-5 sm:p-6"
               style={{ "--discipline-hue": String(discipline.hue) } as React.CSSProperties}
             >
+              {/* A lit strip in the discipline's hue along the top edge. */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-(--d-accent) to-transparent opacity-80"
+              />
               <div className="flex items-start justify-between gap-3">
                 {/* The mascot reads its body colour from --r-accent, which
                     `.discipline-accent` points at this card's hue. */}
                 <span
-                  className="flex size-16 items-center justify-center rounded-lg bg-(--d-accent-soft) text-4xl"
+                  className="mascot-chip flex size-16 items-center justify-center rounded-lg text-4xl"
                   aria-hidden="true"
                 >
                   <Mascot className="transition-transform duration-300 ease-spring group-hover:scale-110 group-hover:-rotate-3" />
@@ -73,7 +78,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                   regardless of how long the description is. */}
               <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-4 text-sm">
                 <div className="flex flex-col gap-0.5">
-                  <dt className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                  <dt className="font-mono text-2xs font-semibold uppercase tracking-wider text-subtle">
                     {t("labelAge")}
                   </dt>
                   <dd className="font-semibold">
@@ -82,7 +87,7 @@ export async function Disciplines({ locale }: { locale: string }) {
                 </div>
 
                 <div className="flex flex-col gap-0.5">
-                  <dt className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                  <dt className="font-mono text-2xs font-semibold uppercase tracking-wider text-subtle">
                     {t("labelTeam")}
                   </dt>
                   <dd className="flex items-center gap-1.5 font-semibold">

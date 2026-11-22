@@ -12,13 +12,15 @@ export async function Stats({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "stats" });
 
   return (
-    <section className="border-y border-line bg-surface" aria-labelledby="stats-title">
-      <div className="container-page py-12 sm:py-14">
+    <section className="relative bg-surface" aria-labelledby="stats-title">
+      <div className="container-page py-10 sm:py-14">
         <h2 id="stats-title" className="sr-only">
           {t("title")}
         </h2>
 
-        <dl className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        {/* One scoreboard rather than four cards: a single glass panel split
+            by hairlines, figures lit from within. */}
+        <dl className="tile grid grid-cols-2 overflow-hidden lg:grid-cols-4">
           {STATS.map((stat, index) => (
             <Reveal key={stat.key} index={index}>
               {/* dt before dd in the DOM so the pair is announced in the right
@@ -29,9 +31,19 @@ export async function Stats({ locale }: { locale: string }) {
                   four-column row, whatever the viewport. Capped at 56px (the
                   5xl step) so the figures lead without dwarfing the hero's
                   headline right above them. */}
-              <div className="tile tile-quiet @container flex h-full flex-col-reverse gap-1.5 p-5 sm:p-6">
-                <dt className="text-sm font-medium text-muted">{t(stat.key)}</dt>
-                <dd className="tabular font-display text-[clamp(1.875rem,20cqi,3.5rem)] font-extrabold leading-none text-brand">
+              <div
+                className={
+                  "@container flex h-full flex-col-reverse gap-2 border-line p-5 sm:p-7 " +
+                  // Hairlines between cells: right edge on the first of each
+                  // pair (phone) or every cell but the last (desktop), and a
+                  // bottom edge on the first row of the 2×2 phone grid.
+                  (index % 2 === 0 ? "border-r " : "") +
+                  (index < 2 ? "border-b lg:border-b-0 " : "") +
+                  (index === 1 ? "lg:border-r " : "")
+                }
+              >
+                <dt className="font-mono text-2xs font-semibold uppercase tracking-[0.14em] text-muted">{t(stat.key)}</dt>
+                <dd className="score-figure tabular text-[clamp(1.5rem,16cqi,3rem)] font-bold leading-none text-content">
                   <CountUp value={stat.value} prefix={stat.prefix} />
                 </dd>
               </div>
@@ -39,7 +51,7 @@ export async function Stats({ locale }: { locale: string }) {
           ))}
         </dl>
 
-        <p className="mt-8 max-w-2xl text-sm text-subtle">{t("note")}</p>
+        <p className="mt-5 max-w-2xl text-sm text-subtle">{t("note")}</p>
       </div>
     </section>
   );

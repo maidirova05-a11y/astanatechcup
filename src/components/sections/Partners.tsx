@@ -33,19 +33,19 @@ export async function Partners({ locale }: { locale: string }) {
         ].map((entry, index) => (
           <Reveal key={entry.name} index={index}>
             <div className="tile flex h-full flex-col gap-4 p-5 sm:p-6">
-              <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
+              <p className="mono-label text-subtle">
                 {entry.label}
               </p>
               {/* The mark carries the name, so the alt text is the name and no
                   duplicate text label is rendered beside it. */}
-              <OrganiserLogo asset={entry.asset} className="h-12 sm:h-14" height={56} />
+              <OrganiserLogo asset={entry.asset} className="logo-on-night h-12 sm:h-14" height={56} />
             </div>
           </Reveal>
         ))}
       </div>
 
       <div className="mt-12">
-        <h3 className="text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+        <h3 className="mono-label text-subtle">
           {t("partnersTitle")}
         </h3>
 
@@ -61,7 +61,7 @@ export async function Partners({ locale }: { locale: string }) {
                   // Grayscale until hover keeps a mixed-quality logo wall
                   // visually coherent — a standard trick, and it stops one
                   // bright logo dominating the row.
-                  className="h-12 w-auto object-contain opacity-70 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
+                  className="h-12 w-auto object-contain opacity-70 brightness-0 invert transition duration-300 hover:opacity-100"
                 />
               );
 
@@ -84,7 +84,7 @@ export async function Partners({ locale }: { locale: string }) {
       </div>
 
       <Reveal>
-        <div className="mt-12 flex flex-col gap-6 rounded-xl border border-line bg-surface-raised p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10">
+        <div className="tile neon-frame mt-12 flex flex-col gap-6 rounded-xl p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10">
           <div className="flex max-w-2xl flex-col gap-2">
             <h3 className="text-xl sm:text-2xl">{t("sponsorTitle")}</h3>
             <p className="leading-relaxed text-muted">{t("sponsorBody")}</p>

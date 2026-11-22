@@ -59,7 +59,7 @@ export function LocaleSwitcher({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full border border-line bg-surface-raised p-0.5",
+        "inline-flex items-center gap-0.5 rounded-full border border-line bg-white/5 p-0.5",
         isPending && "opacity-60",
         className,
       )}
@@ -82,11 +82,11 @@ export function LocaleSwitcher({
             aria-label={LOCALE_LABELS[locale]}
             lang={locale}
             className={cn(
-              "inline-flex items-center justify-center rounded-full px-3 text-2xs font-bold uppercase tracking-wider transition-colors duration-200",
+              "inline-flex items-center justify-center rounded-full px-3 font-mono text-2xs font-bold uppercase tracking-wider transition-colors duration-200",
               size === "md" ? "min-h-11 min-w-12" : "min-h-9 min-w-10",
               active
                 ? "bg-brand text-on-brand"
-                : "text-muted hover:bg-surface-muted hover:text-content",
+                : "text-muted hover:bg-white/10 hover:text-content",
             )}
           >
             {LOCALE_SHORT[locale]}

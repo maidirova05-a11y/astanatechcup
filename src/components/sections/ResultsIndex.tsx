@@ -163,20 +163,20 @@ function ClassCard({
           purely an aid to saying "number 14" out loud across a hall. */}
       <span
         aria-hidden="true"
-        className="tabular pointer-events-none absolute right-4 top-2 font-display text-4xl font-extrabold text-subtle/25"
+        className="tabular pointer-events-none absolute right-4 top-3 font-display text-3xl font-bold text-subtle/20"
       >
         {entry.index}
       </span>
 
-      <span className="flex items-center gap-3 pr-10">
+      <span className="flex items-center gap-3 pr-14">
         <span
-          className="flex size-11 shrink-0 items-center justify-center rounded-md bg-(--d-accent-soft) text-2xl"
+          className="mascot-chip flex size-11 shrink-0 items-center justify-center rounded-md text-2xl"
           aria-hidden="true"
         >
           <Mascot />
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="font-display text-base font-extrabold leading-snug">
+          <span className="font-display text-sm font-bold leading-snug sm:text-base">
             {entry.cls.label}
           </span>
           <span className="text-xs text-muted">{label}</span>

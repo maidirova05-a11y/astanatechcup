@@ -90,7 +90,7 @@ export async function Audiences({ locale }: { locale: string }) {
               {/* The primary route gets a photo in its spare half, from `sm`
                   up where the card spans two columns. */}
               {index === 0 && (
-                <span className="absolute inset-y-0 right-0 hidden w-[42%] border-l-2 border-ink sm:block">
+                <span className="absolute inset-y-0 right-0 hidden w-[42%] border-l border-line sm:block">
                   <Image
                     src={photoSrc(PHOTOS.girlAssembling)}
                     alt={tp("girlAssembling")}
@@ -103,7 +103,7 @@ export async function Audiences({ locale }: { locale: string }) {
               {/* Icon beside the title on a phone, above it from `sm` up. */}
               <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-4">
                 <span
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-lg text-brand sm:size-12 sm:text-xl"
+                  className="icon-chip size-11 text-lg sm:size-12 sm:text-xl"
                   aria-hidden="true"
                 >
                   {ICONS[role]}

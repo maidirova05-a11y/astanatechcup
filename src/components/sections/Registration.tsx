@@ -59,8 +59,8 @@ export async function Registration({ locale }: { locale: string }) {
               turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             />
           ) : (
-            <div className="tile flex items-start gap-4 bg-surface-muted p-6 sm:p-8">
-              <Warning className="mt-0.5 shrink-0 text-xl text-accent" />
+            <div className="tile flex items-start gap-4 p-6 sm:p-8">
+              <Warning className="mt-0.5 shrink-0 text-xl text-accent-ink" />
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg sm:text-xl">{t("closed")}</h3>
                 <p className="text-muted">{t("closedBody", { year: EVENT_YEAR })}</p>
@@ -83,12 +83,12 @@ export async function Registration({ locale }: { locale: string }) {
             className="hidden aspect-[16/10] lg:block"
             imageClassName="object-[50%_35%]"
           />
-          <div className="tile flex flex-col gap-5 bg-surface-muted p-6">
+          <div className="tile neon-frame flex flex-col gap-5 p-6">
             <div className="flex flex-col gap-1">
-              <p className="text-2xs font-bold uppercase tracking-[0.16em] text-subtle">
+              <p className="mono-label text-subtle">
                 {t("feeLabel")}
               </p>
-              <p className="font-display text-3xl font-extrabold leading-tight text-brand">
+              <p className="score-figure text-3xl font-bold leading-tight text-content">
                 {t("feeValue", { amount: ENTRY_FEE.amount, currency: ENTRY_FEE.currency })}
               </p>
               <p className="text-sm text-muted">{t("feePer")}</p>
@@ -108,7 +108,7 @@ export async function Registration({ locale }: { locale: string }) {
               </ul>
             </div>
 
-            <p className="rounded-md border-2 border-ink bg-surface-raised px-4 py-3 text-sm font-medium">
+            <p className="rounded-md border border-accent/40 bg-accent/10 px-4 py-3 text-sm font-medium">
               {t("deadlineNote", { date: deadline })}
             </p>
           </div>

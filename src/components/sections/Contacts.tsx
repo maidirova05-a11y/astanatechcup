@@ -88,13 +88,13 @@ export async function Contacts({ locale }: { locale: string }) {
                 className="group tile tile-quiet tile-interactive flex h-full items-center gap-4 p-5 sm:p-6"
               >
                 <span
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-lg text-brand sm:size-12 sm:text-xl"
+                  className="icon-chip size-11 text-lg sm:size-12 sm:text-xl"
                   aria-hidden="true"
                 >
                   {channel.icon}
                 </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                  <span className="font-mono text-2xs font-semibold uppercase tracking-wider text-subtle">
                     {t(channel.key)}
                   </span>
                   <span className="font-semibold break-words">{channel.value}</span>
@@ -108,13 +108,13 @@ export async function Contacts({ locale }: { locale: string }) {
               <div className="tile tile-quiet flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6">
                 <div className="flex items-center gap-4">
                   <span
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface-muted text-lg text-brand sm:size-12 sm:text-xl"
+                    className="icon-chip size-11 text-lg sm:size-12 sm:text-xl"
                     aria-hidden="true"
                   >
                     <MapPin />
                   </span>
                   <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                    <span className="font-mono text-2xs font-semibold uppercase tracking-wider text-subtle">
                       {t("address")}
                     </span>
                     <span className="font-semibold">{CONTACTS.address}</span>
@@ -136,7 +136,7 @@ export async function Contacts({ locale }: { locale: string }) {
           )}
         </div>
       ) : (
-        <p className="mt-8 max-w-3xl rounded-lg border-2 border-dashed border-line-strong bg-surface-raised p-5 text-sm leading-relaxed text-muted sm:mt-10 sm:p-6 sm:text-base">
+        <p className="mt-8 max-w-3xl rounded-lg border border-dashed border-line-strong bg-white/[0.03] p-5 text-sm leading-relaxed text-muted sm:mt-10 sm:p-6 sm:text-base">
           {t("empty")}
         </p>
       )}

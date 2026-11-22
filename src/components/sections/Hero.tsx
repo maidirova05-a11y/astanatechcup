@@ -50,13 +50,18 @@ export async function Hero({ locale }: { locale: string }) {
   });
 
   return (
-    <section className="relative overflow-hidden bg-surface-muted">
-      {/* Decorative background. aria-hidden and pointer-events-none so it can
-          never intercept a tap or be announced. */}
+    <section className="relative isolate overflow-hidden">
+      {/* Decorative background: blueprint grid, two glows in the logo's
+          colours, and the arena floor receding under the fold. aria-hidden
+          and pointer-events-none so it can never intercept a tap. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <div className="aurora absolute inset-x-0 -top-32 h-[46rem] opacity-50" />
-        <div className="blueprint-grid absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-surface" />
+        <div className="arena-grid absolute inset-0" />
+        <div className="glow-orb absolute -left-48 -top-48 size-[32rem] bg-[#3d68ff] opacity-30" />
+        <div className="glow-orb absolute -right-40 top-32 size-[28rem] bg-[#c118cf] opacity-30" />
+        <div className="absolute inset-x-[-20%] bottom-0 h-56 overflow-hidden opacity-60">
+          <div className="arena-floor absolute inset-x-0 top-0 h-[28rem]" />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-surface" />
       </div>
 
       {/* Vertical padding is budgeted for a 1366×768 laptop: header + hero
@@ -66,8 +71,12 @@ export async function Hero({ locale }: { locale: string }) {
         <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-x-14 lg:gap-y-6">
           {/* ── Copy column ── */}
           <div className="flex flex-col items-start gap-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
-            <Rise step={0} as="p" className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-surface-raised px-4 py-2 text-2xs font-bold uppercase tracking-[0.14em] text-brand shadow-[0_3px_0_0_var(--ink)]">
-              <span className="size-2 rounded-full bg-accent" />
+            <Rise step={0} as="p" className="mono-label inline-flex items-center gap-2.5 rounded-full border border-line-strong bg-white/5 px-4 py-2 text-brand">
+              {/* Live dot: magenta, the "act now" colour, because entries are open. */}
+              <span className="relative flex size-2">
+                <span className="absolute inset-0 animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative size-2 rounded-full bg-accent" />
+              </span>
               {t("badge", { year: EVENT_YEAR })}
             </Rise>
 
@@ -77,14 +86,14 @@ export async function Hero({ locale }: { locale: string }) {
                 column tops out near 590px, and at 5xl the third line wraps,
                 so the headline grows to four lines and shouts over the mascot
                 it is meant to sit beside. */}
-            <h1 className="text-4xl">
+            <h1 className="text-[clamp(1.75rem,1.2rem+2.4vw,3.25rem)] leading-[1.08]">
               <Rise step={1} as="span" className="block">
                 {t("titleLine1")}
               </Rise>
               <Rise step={2} as="span" className="block">
                 {t("titleLine2")}
               </Rise>
-              <Rise step={3} as="span" className="block text-brand">
+              <Rise step={3} as="span" className="text-gradient-arena block pb-1">
                 {t("titleLine3")}
               </Rise>
             </h1>
@@ -94,8 +103,8 @@ export async function Hero({ locale }: { locale: string }) {
             </Rise>
 
             <Rise step={5}>
-              <dl className="flex flex-wrap items-center gap-x-7 gap-y-3 text-sm font-semibold">
-                <div className="flex items-center gap-2.5">
+              <dl className="flex flex-wrap items-center gap-x-3 gap-y-3 text-sm font-semibold">
+                <div className="flex items-center gap-2.5 rounded-full border border-line bg-white/5 px-3.5 py-2">
                   {/* The icon is decorative, so each term carries the real,
                       screen-reader-only label. A <dd> without a <dt> would be
                       invalid markup and read as an orphan value. */}
@@ -103,7 +112,7 @@ export async function Hero({ locale }: { locale: string }) {
                   <Calendar className="text-lg text-brand" aria-hidden="true" />
                   <dd>{dates}</dd>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5 rounded-full border border-line bg-white/5 px-3.5 py-2">
                   <dt className="sr-only">{t("venueLabel")}</dt>
                   <MapPin className="text-lg text-brand" aria-hidden="true" />
                   <dd>{t("venue")}</dd>
@@ -145,18 +154,18 @@ export async function Hero({ locale }: { locale: string }) {
                 the organisation's name and the visible label says which role it
                 plays, so nothing is lost with images off. */}
             <Rise step={7}>
-              <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-line pt-5">
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
+                  <span className="mono-label text-subtle">
                     {t("organizedBy")}
                   </span>
-                  <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-9" height={36} />
+                  <OrganiserLogo asset={BRAND_ASSETS.organizer} className="logo-on-night h-9" height={36} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-2xs font-bold uppercase tracking-[0.14em] text-subtle">
+                  <span className="mono-label text-subtle">
                     {t("coOrganizedBy")}
                   </span>
-                  <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-6" height={24} />
+                  <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="logo-on-night h-6" height={24} />
                 </div>
               </div>
             </Rise>
@@ -187,13 +196,14 @@ export async function Hero({ locale }: { locale: string }) {
           {/* Capped at the robot's own footprint, so card and mascot read as
               one column instead of a narrow figure over a wide slab. */}
           <Rise step={8} distance={26} className="mx-auto w-full max-w-md lg:col-start-2 lg:row-start-2">
-            <aside className="tile w-full bg-surface-raised p-5 sm:p-6">
+            <aside className="tile neon-frame w-full p-5 sm:p-6">
               {open ? (
                 <>
-                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                  <p className="mono-label flex items-center gap-2 text-accent-ink">
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-current shadow-[0_0_10px_currentColor]" />
                     {t("deadlineLabel")}
                   </p>
-                  <Countdown targetMs={COUNTDOWN_TARGET.getTime()} className="mt-4" />
+                  <Countdown targetMs={COUNTDOWN_TARGET.getTime()} tone="dark" className="mt-4" />
                   <p className="mt-4 border-t border-line pt-4 text-sm text-muted">
                     {t("deadlineDate", {
                       date: formatEventDate(REGISTRATION_DEADLINE, locale),
@@ -202,7 +212,7 @@ export async function Hero({ locale }: { locale: string }) {
                 </>
               ) : (
                 <>
-                  <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+                  <p className="mono-label text-accent-ink">
                     {t("closed")}
                   </p>
                   <p className="mt-4 text-muted">{t("closedNote", { year: EVENT_YEAR })}</p>

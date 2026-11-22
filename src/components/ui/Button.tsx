@@ -37,26 +37,12 @@ const BASE = [
 ].join(" ");
 
 const VARIANTS: Record<Variant, string> = {
-  // The one primary action. The solid edge is a darker shade of the button's
-  // own hue, so it looks moulded rather than shadowed.
-  accent: [
-    "bg-accent text-on-accent border-2 border-accent-edge",
-    "shadow-[0_5px_0_0_var(--accent-edge)]",
-    "hover:bg-accent-hover hover:shadow-[0_7px_0_0_var(--accent-edge)]",
-    "active:translate-y-[4px] active:shadow-[0_1px_0_0_var(--accent-edge)]",
-  ].join(" "),
-  solid: [
-    "bg-brand-strong text-on-brand border-2 border-ink",
-    "shadow-[0_5px_0_0_var(--ink)]",
-    "hover:shadow-[0_7px_0_0_var(--ink)]",
-    "active:translate-y-[4px] active:shadow-[0_1px_0_0_var(--ink)]",
-  ].join(" "),
-  outline: [
-    "bg-surface-raised text-content border-2 border-ink",
-    "shadow-[0_4px_0_0_var(--ink)]",
-    "hover:shadow-[0_6px_0_0_var(--ink)]",
-    "active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--ink)]",
-  ].join(" "),
+  // Skins (fill, edge, shadow) live in globals.css as `.btn-*`, so the public
+  // site's arena theme can restyle them while the admin panels keep the
+  // moulded-key look. Only the press movement is set here.
+  accent: "btn-accent active:translate-y-[4px]",
+  solid: "btn-solid active:translate-y-[4px]",
+  outline: "btn-outline active:translate-y-[3px]",
   ghost: "text-content hover:bg-surface-muted",
 };
 

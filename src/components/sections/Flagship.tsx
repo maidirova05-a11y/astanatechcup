@@ -57,7 +57,7 @@ export async function Flagship({ locale }: { locale: string }) {
           <SectionHeader
             eyebrow={t("eyebrow")}
             id="flagship-title"
-            title={<span className="text-gradient-brand">{t("title")}</span>}
+            title={<span className="text-gradient-arena text-[1.4em]">{t("title")}</span>}
           />
 
           <p className="max-w-xl text-lg font-semibold leading-snug text-content">
@@ -71,7 +71,7 @@ export async function Flagship({ locale }: { locale: string }) {
           </a>
 
           {discipline?.provisional && (
-            <p className="flex items-start gap-2.5 rounded-md border-2 border-dashed border-line bg-white/5 p-4 text-sm text-muted">
+            <p className="flex items-start gap-2.5 rounded-md border border-dashed border-line-strong bg-white/[0.03] p-4 text-sm text-muted">
               <Info className="mt-0.5 shrink-0 text-base" />
               {t("provisionalNote")}
             </p>
@@ -93,8 +93,14 @@ export async function Flagship({ locale }: { locale: string }) {
             <Reveal as="li" key={point.title} index={index} direction="right">
               <div className="tile tile-quiet flex gap-4 p-5 sm:gap-5 sm:p-6">
                 <span
-                  className="flex size-12 shrink-0 items-center justify-center rounded-lg border-2 border-brand/40 bg-brand/15 text-3xl"
-                  style={{ "--r-accent": "var(--gold-400)" } as React.CSSProperties}
+                  className="mascot-chip flex size-12 shrink-0 items-center justify-center rounded-lg text-3xl"
+                  style={
+                    {
+                      "--r-accent": "var(--gold-400)",
+                      "--d-accent-soft": "var(--gold-100)",
+                      "--d-accent-ring": "rgb(252 216 0 / 0.35)",
+                    } as React.CSSProperties
+                  }
                 >
                   <RobotSumo />
                 </span>

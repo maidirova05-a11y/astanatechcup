@@ -114,6 +114,44 @@ motion:
 
 # AstanaTechCup — DESIGN.md
 
+> ## ⚡ Current public theme: "Tech Arena" (dark)
+>
+> The public site (`app/[locale]/*` and the root 404) now renders with
+> `.theme-arena` on `<body>`. The **admin, judge and coach panels** render
+> their own `<html>` without it and keep the light "Playful Arena" system
+> described below, unchanged.
+>
+> **What the arena theme changes** (all in `src/app/globals.css`, under the
+> "TECH ARENA" blocks — components consume the same semantic tokens):
+>
+> - **Canvas** — near-black navy `#050b18` (the logo's `#00243c` pushed toward
+>   night), muted bands `#081227`, glass panels `#0b1730`.
+> - **Brand** — the logo's electric blue lifted to `#7b96ff` (~7:1 on the
+>   canvas). **Accent** — magenta `#c118cf` with a glow, still reserved for the
+>   primary action; text uses `--accent-ink` `#e070ee` (`text-accent-ink`),
+>   because the fill colour does not clear 4.5:1 on near-black. **Gold** stays
+>   the trophy and is the brand colour inside `.on-dark` "spotlight" sections.
+> - **Type** — Unbounded (display, headings, scoreboard figures) and JetBrains
+>   Mono (eyebrows, labels, timers, `.mono-label`) over Inter body copy. Both
+>   new faces ship `cyrillic-ext`. Headings hyphenate (`hyphens: auto`),
+>   because Unbounded is wide enough that a long Russian word can outrun a
+>   360px phone.
+> - **Cards** — `.tile` becomes a glass panel: 1px hairline, faint top-lit
+>   fill, inner highlight, brand glow on hover. `.neon-frame` adds the logo's
+>   gradient as a hairline for the one or two panels per screen that lead.
+> - **Buttons** — skins moved from Button.tsx utilities into `.btn-accent`,
+>   `.btn-solid`, `.btn-outline` so the theme can restyle them; the panels get
+>   byte-identical moulded keys.
+> - **Mascots** keep their navy outline and sit on lit chips (`.mascot-chip`,
+>   `.hero-portal`) so the outline still reads. Organiser marks are drawn white
+>   (`.logo-on-night`); the championship mark keeps its white plate.
+> - Backgrounds: `.arena-grid` (blueprint), `.arena-floor` (perspective grid in
+>   the hero), `.glow-orb`.
+>
+> The "Playful Arena" rules below still hold wherever they do not conflict —
+> notably the signal-colour rule: one magenta action per screen.
+
+
 ## Overview
 
 AstanaTechCup is the national technology championship of Kazakhstan. The

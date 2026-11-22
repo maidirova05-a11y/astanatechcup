@@ -1,4 +1,4 @@
-import { Manrope, Inter } from "next/font/google";
+import { Manrope, Inter, Unbounded, JetBrains_Mono } from "next/font/google";
 
 /**
  * Typefaces.
@@ -33,4 +33,28 @@ export const inter = Inter({
   adjustFontFallback: true,
 });
 
+/**
+ * "Tech Arena" faces for the public site. Unbounded is the wide display face
+ * for headings and scoreboard figures; JetBrains Mono sets eyebrows, labels
+ * and timers. Both ship `cyrillic-ext`, so Kazakh letters render.
+ */
+export const unbounded = Unbounded({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-unbounded",
+  display: "swap",
+  adjustFontFallback: true,
+});
+
+export const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  weight: ["500", "600", "700"],
+  variable: "--font-jetbrains",
+  display: "swap",
+  adjustFontFallback: true,
+});
+
 export const fontVariables = `${manrope.variable} ${inter.variable}`;
+
+/** The public site's set: the admin panels keep `fontVariables`. */
+export const arenaFontVariables = `${fontVariables} ${unbounded.variable} ${jetbrainsMono.variable}`;

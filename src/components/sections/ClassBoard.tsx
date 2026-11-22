@@ -105,7 +105,7 @@ export async function ClassBoard({
           <header className="tile flex flex-wrap items-center justify-between gap-x-6 gap-y-3 p-4 sm:p-5">
             <div className="flex min-w-0 items-center gap-4">
               <span
-                className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-(--d-accent-soft) text-2xl sm:size-14 sm:text-3xl"
+                className="mascot-chip flex size-12 shrink-0 items-center justify-center rounded-lg text-2xl sm:size-14 sm:text-3xl"
                 aria-hidden="true"
               >
                 <Mascot />

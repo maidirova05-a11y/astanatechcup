@@ -46,18 +46,18 @@ export async function Footer({ locale }: { locale: string }) {
             they made a footer more than a screen tall of nothing but links. */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[1.5fr_1fr_1fr] md:gap-12">
           <div className="flex flex-col gap-4 col-span-2 md:col-span-1">
-            <Logo className="h-10 self-start" height={40} plate />
+            <Logo className="h-14 self-start px-2 py-1.5" height={56} plate />
             <p className="max-w-sm text-sm leading-relaxed text-muted">{t("tagline")}</p>
             {/* Both marks are dark-on-transparent, so on this dark surface
                 they need the same white plate the championship mark uses. */}
-            <div className="flex flex-wrap items-center gap-3">
-              <OrganiserLogo asset={BRAND_ASSETS.organizer} className="h-10" height={40} plate />
-              <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="h-10" height={40} plate />
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <OrganiserLogo asset={BRAND_ASSETS.organizer} className="logo-on-night h-10" height={40} />
+              <OrganiserLogo asset={BRAND_ASSETS.coOrganizer} className="logo-on-night h-6" height={24} />
             </div>
           </div>
 
           <nav aria-label={t("sections")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mono-label mb-2 text-subtle">
               {t("sections")}
             </h2>
             {NAV.map((item) => (
@@ -72,7 +72,7 @@ export async function Footer({ locale }: { locale: string }) {
           </nav>
 
           <nav aria-label={t("legal")} className="flex flex-col">
-            <h2 className="mb-2 text-2xs font-bold uppercase tracking-[0.18em] text-subtle">
+            <h2 className="mono-label mb-2 text-subtle">
               {t("legal")}
             </h2>
             <Link

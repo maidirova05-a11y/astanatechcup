@@ -43,7 +43,7 @@ export default async function PaymentCancelledPage({
   return (
     <div className="section">
       <div className="container-prose flex flex-col items-start gap-5">
-        <span className="flex size-14 items-center justify-center rounded-full border-2 border-ink bg-warning-surface text-2xl text-warning">
+        <span className="flex size-14 items-center justify-center rounded-full border border-warning/40 bg-warning-surface text-2xl text-warning">
           <Info />
         </span>
 

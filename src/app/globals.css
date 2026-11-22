@@ -136,6 +136,10 @@
     --accent-hover: var(--magenta-800);
     --accent-edge: var(--magenta-900);
     --on-accent: var(--ink-0);
+    /* The accent as TEXT. On white the fill colour already reads; the arena
+       theme points this at a lighter step, because #a800b4 on near-black
+       does not clear 4.5:1. */
+    --accent-ink: var(--accent);
 
     --border: var(--ink-200);
     --border-strong: var(--ink-300);
@@ -189,6 +193,98 @@
     background-color: var(--surface);
     color: var(--text);
   }
+
+  /* ══ TECH ARENA — the public site's theme ═══════════════════════════════
+     Applied as `.theme-arena` on <body> by app/[locale]/layout.tsx; the admin,
+     judge and coach panels render their own <html> and keep the light theme.
+
+     The whole site now IS the arena: a near-black navy canvas (the logo's
+     #00243c pushed toward night), the logo's electric blue lifted until it
+     reads as light, and magenta still reserved for "act now" — now with a
+     glow. Gold stays the trophy. Cards are glass-edged panels with a 1px
+     hairline instead of the toy outline, and the mascots sit on lit chips so
+     their dark outlines still read.
+     ══════════════════════════════════════════════════════════════════════ */
+  .theme-arena {
+    --night-990: #02060f;
+    --night-950: #050b18;
+    --night-900: #081227;
+    --night-850: #0b1730;
+    --night-800: #0f1e3d;
+
+    --surface: var(--night-950);
+    --surface-muted: var(--night-900);
+    --surface-raised: var(--night-850);
+    --surface-sunken: var(--night-990);
+
+    --text: #f1f4ff;
+    --text-muted: #a8b4d4;
+    --text-subtle: #7d8bb0;
+
+    /* Mascot outlines stay the logo navy; they sit on lit chips. */
+    --ink: var(--deep-900);
+
+    /* Electric blue, lifted to ~7:1 on the canvas. */
+    --brand: #7b96ff;
+    --brand-strong: #ffffff;
+    --on-brand: var(--night-950);
+
+    --accent: var(--magenta-600);
+    --accent-hover: #cc22d9;
+    --accent-edge: var(--magenta-800);
+    --accent-ink: #e070ee;
+    --on-accent: #ffffff;
+
+    --border: rgb(143 168 255 / 0.14);
+    --border-strong: rgb(143 168 255 / 0.28);
+
+    --focus-ring: var(--gold-300);
+
+    --success: #34d399;
+    --success-surface: rgb(52 211 153 / 0.12);
+    --danger: #ff7a6e;
+    --danger-surface: rgb(255 122 110 / 0.12);
+    --warning: var(--gold-300);
+    --warning-surface: rgb(255 229 77 / 0.1);
+
+    /* Glows, tinted from the logo. */
+    --glow-brand: rgb(92 123 255 / 0.45);
+    --glow-accent: rgb(193 24 207 / 0.55);
+    --glow-gold: rgb(252 216 0 / 0.35);
+
+    --font-display: var(--font-unbounded, var(--font-manrope)), var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+
+    color-scheme: dark;
+  }
+
+  /* Inside the arena, `.on-dark` is the spotlight: a deeper floor, lit from
+     above in the logo's colours, with gold as the brand. */
+  .theme-arena .on-dark {
+    --surface: var(--night-990);
+    --surface-muted: #060d1d;
+    --surface-raised: #0a1428;
+    --surface-sunken: #010409;
+
+    --text: #f6f8ff;
+    --text-muted: #b2bddb;
+    --text-subtle: #8290b5;
+
+    --brand: var(--gold-400);
+    --brand-strong: #ffffff;
+    --on-brand: var(--night-990);
+
+    --border: rgb(255 229 77 / 0.14);
+    --border-strong: rgb(255 229 77 / 0.28);
+
+    --focus-ring: var(--gold-300);
+    --warning: var(--gold-300);
+
+    background-color: var(--surface);
+    background-image:
+      radial-gradient(60rem 28rem at 15% -10%, rgb(193 24 207 / 0.16), transparent 60%),
+      radial-gradient(50rem 26rem at 95% 0%, rgb(61 104 255 / 0.18), transparent 60%);
+  }
+
 }
 
 /* ── 3a. Emitted theme values ────────────────────────────────────────────
@@ -224,6 +320,7 @@
      which keeps the CSP tight and leaks nothing. */
   --font-display: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
   --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains, ui-monospace), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Fluid modular scale — 1.2 at mobile widening to 1.25 at desktop. Capped
      deliberately: at the old 80px top end the display type shouted, and on a
@@ -262,6 +359,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-edge: var(--accent-edge);
   --color-on-accent: var(--on-accent);
+  --color-accent-ink: var(--accent-ink);
 
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
@@ -530,6 +628,8 @@
     --d-accent-ink: hsl(var(--discipline-hue) 85% 30%);
     /* Mascots read their body colour from this. */
     --r-accent: var(--d-accent);
+    /* A background that carries TEXT (team names in the cross table). */
+    --d-accent-tint: var(--d-accent-soft);
   }
 
   .on-dark .discipline-accent {
@@ -926,5 +1026,333 @@
     background-size: 32px 32px;
     -webkit-mask-image: radial-gradient(ellipse 75% 70% at 70% 45%, #000 25%, transparent 80%);
     mask-image: radial-gradient(ellipse 75% 70% at 70% 45%, #000 25%, transparent 80%);
+  }
+}
+
+/* ══ Buttons ════════════════════════════════════════════════════════════
+   The variant skins live here rather than as utilities in Button.tsx so the
+   arena theme can restyle them without the admin panels changing. Movement
+   (translate on hover/press) stays in Button.tsx: it is theme-agnostic. */
+@layer components {
+  .btn-accent {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: 2px solid var(--accent-edge);
+    box-shadow: 0 5px 0 0 var(--accent-edge);
+  }
+  .btn-accent:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 7px 0 0 var(--accent-edge);
+  }
+  .btn-accent:active {
+    box-shadow: 0 1px 0 0 var(--accent-edge);
+  }
+
+  .btn-solid {
+    background: var(--brand-strong);
+    color: var(--on-brand);
+    border: 2px solid var(--ink);
+    box-shadow: 0 5px 0 0 var(--ink);
+  }
+  .btn-solid:hover {
+    box-shadow: 0 7px 0 0 var(--ink);
+  }
+  .btn-solid:active {
+    box-shadow: 0 1px 0 0 var(--ink);
+  }
+
+  .btn-outline {
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 2px solid var(--ink);
+    box-shadow: 0 4px 0 0 var(--ink);
+  }
+  .btn-outline:hover {
+    box-shadow: 0 6px 0 0 var(--ink);
+  }
+  .btn-outline:active {
+    box-shadow: 0 1px 0 0 var(--ink);
+  }
+
+  /* ── Arena skins ───────────────────────────────────────────────────── */
+  .theme-arena .btn-accent {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 55%),
+      var(--accent);
+    border: 1px solid color-mix(in oklab, var(--accent) 60%, white);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      0 10px 30px -10px var(--glow-accent),
+      0 0 0 1px rgb(0 0 0 / 0.25);
+  }
+  .theme-arena .btn-accent:hover {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 55%),
+      var(--accent-hover);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.32),
+      0 14px 40px -8px var(--glow-accent),
+      0 0 0 1px rgb(0 0 0 / 0.25);
+  }
+  .theme-arena .btn-accent:active {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 4px 16px -6px var(--glow-accent);
+  }
+
+  .theme-arena .btn-solid {
+    background: var(--brand-strong);
+    color: var(--on-brand);
+    border: 1px solid transparent;
+    box-shadow: 0 10px 30px -14px rgb(255 255 255 / 0.45);
+  }
+  .theme-arena .btn-solid:hover {
+    box-shadow: 0 14px 36px -12px rgb(255 255 255 / 0.55);
+  }
+  .theme-arena .btn-solid:active {
+    box-shadow: none;
+  }
+
+  .theme-arena .btn-outline {
+    background: rgb(255 255 255 / 0.03);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  }
+  .theme-arena .btn-outline:hover {
+    background: rgb(255 255 255 / 0.07);
+    border-color: color-mix(in oklab, var(--brand) 70%, transparent);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 10px 30px -14px var(--glow-brand);
+  }
+  .theme-arena .btn-outline:active {
+    box-shadow: none;
+  }
+}
+
+/* ══ Arena components ═══════════════════════════════════════════════════ */
+@layer components {
+  /* Headings: Unbounded is wide, so it runs a weight lighter and a touch
+     looser than Manrope did, with a taller line for Cyrillic ascenders. */
+  .theme-arena :is(h1, h2, h3, h4) {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    /* Unbounded is wide: "конфиденциальности" at 30px is wider than a 360px
+       phone. Hyphenate by the page language, and break as a last resort. */
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+  .theme-arena :is(h3, h4) {
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+
+  .theme-arena ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /**
+   * Glass panel — the arena's card. A 1px hairline, a faint top-lit fill and
+   * an inner highlight on the top edge; it lifts and picks up a brand-coloured
+   * glow on hover. `body.` raises specificity over the light `.tile` rules.
+   */
+  body.theme-arena .tile {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.012) 40%),
+      var(--surface-raised);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 28px 56px -32px rgb(0 0 0 / 0.9);
+  }
+
+  body.theme-arena .tile.tile-interactive:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--brand) 50%, transparent);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 0 0 1px color-mix(in oklab, var(--brand) 18%, transparent),
+      0 28px 60px -28px var(--glow-brand);
+  }
+
+  body.theme-arena .tile.tile-interactive:active {
+    transform: translateY(-1px);
+  }
+
+  .theme-arena .on-dark .tile.tile-interactive:hover {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 0 0 1px color-mix(in oklab, var(--brand) 18%, transparent),
+      0 28px 60px -28px var(--glow-gold);
+  }
+
+  /* Neon frame: a gradient hairline in the logo's run, for the one or two
+     panels per screen that should out-rank their neighbours. */
+  .neon-frame {
+    position: relative;
+    isolation: isolate;
+  }
+  .neon-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(130deg, var(--electric-500), var(--magenta-500) 50%, var(--gold-400));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  body.theme-arena .tile.neon-frame {
+    border-color: transparent;
+  }
+
+  /* Icon chip: the round badge beside a card title. */
+  .icon-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--brand) 32%, transparent);
+    background: radial-gradient(circle at 30% 25%, color-mix(in oklab, var(--brand) 26%, transparent), color-mix(in oklab, var(--brand) 8%, transparent));
+    color: var(--brand);
+    box-shadow: 0 0 24px -8px color-mix(in oklab, var(--brand) 60%, transparent);
+  }
+
+  /* Monospaced label — eyebrows, units, the build log. */
+  .mono-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Blueprint grid for the arena: hairline electric lines, faded out. */
+  .arena-grid {
+    background-image:
+      linear-gradient(rgb(123 150 255 / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(123 150 255 / 0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 20%, transparent 75%);
+  }
+
+  /* The arena floor: the same grid laid flat and receding to a horizon. */
+  .arena-floor {
+    background-image:
+      linear-gradient(rgb(193 24 207 / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(123 150 255 / 0.28) 1px, transparent 1px);
+    background-size: 56px 56px;
+    transform: perspective(520px) rotateX(62deg);
+    transform-origin: 50% 0%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
+  }
+
+  /* Big soft glows, positioned by the caller. */
+  .glow-orb {
+    border-radius: 9999px;
+    filter: blur(60px);
+    opacity: 0.55;
+  }
+
+  .text-gradient-arena {
+    background: linear-gradient(95deg, #9fb3ff 0%, var(--magenta-500) 55%, var(--gold-300) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hero stage: a lit portal the mascot stands in, so its navy outline reads
+     against light rather than vanishing into the night canvas. */
+  .hero-portal {
+    position: absolute;
+    inset: 4%;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle at 50% 38%, #ffffff 0%, var(--electric-100) 38%, var(--electric-300) 72%, var(--electric-500) 100%);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.4),
+      0 0 0 10px rgb(123 150 255 / 0.08),
+      0 0 0 22px rgb(123 150 255 / 0.04),
+      0 0 120px 10px rgb(92 123 255 / 0.45),
+      0 0 220px 40px rgb(193 24 207 / 0.22);
+  }
+
+  @keyframes portal-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .hero-portal-ring {
+    position: absolute;
+    inset: -1%;
+    border-radius: 9999px;
+    padding: 2px;
+    background: conic-gradient(from 0deg, var(--electric-500), var(--magenta-500), var(--gold-400), transparent 70%, var(--electric-500));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: portal-spin 14s linear infinite;
+  }
+
+  .mascot-chip {
+    background:
+      radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
+      var(--d-accent-soft);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.25),
+      0 12px 32px -10px var(--d-accent-ring);
+  }
+
+  /* The scoreboard number: tabular, display face, lit from within. */
+  .score-figure {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 28px color-mix(in oklab, var(--brand) 55%, transparent);
+  }
+
+  /* Organiser marks are supplied dark-on-transparent; on the night canvas
+     they are drawn white instead of on a plate. */
+  .logo-on-night img {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+
+  /* Header glass once the page scrolls under it. */
+  .header-glass {
+    background: color-mix(in oklab, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    backdrop-filter: saturate(140%) blur(14px);
+    box-shadow: 0 1px 0 0 var(--border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-portal-ring {
+      animation: none;
+    }
+  }
+}
+
+/* Arena discipline hues. In the utilities layer, after `.discipline-accent`,
+   because a components-layer rule can never override a utility. The chip is a
+   lit pastel tile so the mascot's navy outline reads; the ink is lifted to
+   clear 4.5:1 on the night canvas for every hue in use. */
+@layer utilities {
+  .theme-arena .discipline-accent {
+    --d-accent: hsl(var(--discipline-hue) 92% 64%);
+    --d-accent-soft: hsl(var(--discipline-hue) 88% 84%);
+    --d-accent-ring: hsl(var(--discipline-hue) 92% 64% / 0.4);
+    --d-accent-ink: hsl(var(--discipline-hue) 92% 74%);
+    --d-accent-tint: hsl(var(--discipline-hue) 80% 60% / 0.14);
   }
 }

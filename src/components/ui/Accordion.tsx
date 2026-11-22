@@ -52,7 +52,7 @@ export function AccordionItem({
           className={cn(
             "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full",
             "border border-line-strong text-muted",
-            "transition-transform duration-300 ease-out-expo group-open:rotate-45",
+            "transition-[transform,color,border-color] duration-300 ease-out-expo group-open:rotate-45 group-open:border-brand/60 group-open:text-brand",
           )}
         >
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth={2.25} strokeLinecap="round">

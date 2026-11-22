@@ -61,7 +61,7 @@ export function Countdown({ targetMs, className, tone = "light" }: CountdownProp
   }, [targetMs]);
 
   if (remaining?.done) {
-    return <p className={cn("text-lg font-semibold text-accent", className)}>{t("expired")}</p>;
+    return <p className={cn("text-lg font-semibold text-accent-ink", className)}>{t("expired")}</p>;
   }
 
   const units = [
@@ -95,14 +95,21 @@ export function Countdown({ targetMs, className, tone = "light" }: CountdownProp
           className={cn(
             "flex min-w-[4.25rem] flex-1 flex-col items-center justify-center rounded-lg px-2 py-3 sm:min-w-[5rem] sm:px-3",
             tone === "dark"
-              ? "bg-white/10 ring-1 ring-white/15"
+              ? "bg-gradient-to-b from-white/[0.07] to-white/[0.02] ring-1 ring-line"
               : "bg-surface-raised shadow-sm ring-1 ring-line",
           )}
         >
-          <span className="tabular text-2xl font-extrabold leading-none sm:text-3xl">
+          <span
+            className={cn(
+              "tabular leading-none",
+              tone === "dark"
+                ? "score-figure text-2xl font-semibold text-content sm:text-[1.75rem]"
+                : "text-2xl font-extrabold sm:text-3xl",
+            )}
+          >
             {unit.value === undefined ? PLACEHOLDER : String(unit.value).padStart(2, "0")}
           </span>
-          <span className="mt-1.5 text-2xs font-medium uppercase tracking-wide text-muted">
+          <span className="mt-1.5 font-mono text-2xs font-medium uppercase tracking-wide text-muted">
             {unit.label}
           </span>
         </div>

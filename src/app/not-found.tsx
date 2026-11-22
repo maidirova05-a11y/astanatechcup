@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import { buttonClasses } from "@/components/ui/Button";
-import { fontVariables } from "@/app/fonts";
+import { arenaFontVariables } from "@/app/fonts";
 import "@/app/globals.css";
 
 /**
@@ -19,8 +19,8 @@ export default async function RootNotFound() {
   await headers();
 
   return (
-    <html lang="ru-KZ" className={fontVariables}>
-      <body className="min-h-dvh bg-surface text-content antialiased">
+    <html lang="ru-KZ" className={arenaFontVariables}>
+      <body className="theme-arena min-h-dvh bg-surface text-content antialiased">
         <div className="section">
           <div className="container-prose flex flex-col items-start gap-5">
             <p className="font-display text-5xl font-extrabold leading-none text-brand">404</p>

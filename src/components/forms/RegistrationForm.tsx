@@ -18,7 +18,7 @@ import {
   TextAreaField,
   TextField,
 } from "@/components/ui/Field";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClasses } from "@/components/ui/Button";
 import { ArrowRight, Check, Close, Warning } from "@/components/ui/icons";
 import { registerTeam } from "@/app/actions/register";
 import { initialRegisterState } from "@/app/actions/register-state";
@@ -149,7 +149,7 @@ export function RegistrationForm({
         tabIndex={-1}
         className="flex flex-col gap-5 rounded-xl border border-success/30 bg-success-surface p-6 focus:outline-none sm:p-8"
       >
-        <span className="flex size-12 items-center justify-center rounded-full bg-success text-xl text-white">
+        <span className="flex size-12 items-center justify-center rounded-full bg-success text-xl text-surface">
           <Check />
         </span>
 
@@ -167,7 +167,7 @@ export function RegistrationForm({
           {state.checkoutUrl && (
             <a
               href={state.checkoutUrl}
-              className="inline-flex h-12 items-center justify-center gap-2.5 rounded-full bg-accent px-6 font-semibold text-on-accent shadow-signal transition-colors hover:bg-accent-hover"
+              className={buttonClasses({ variant: "accent", size: "md" })}
             >
               {t("successPaymentCta")}
               <ArrowRight className="text-lg" />

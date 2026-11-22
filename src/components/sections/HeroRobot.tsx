@@ -420,7 +420,7 @@ function BuildLog({ labels }: { labels: AssemblyLabels }) {
           positioned, so a label that wraps on a narrow phone (the Kazakh
           "ready" line does at 256px) grows the row instead of running into
           the progress bar below it. */}
-      <div className="grid min-h-6 place-items-center text-center text-2xs font-bold uppercase leading-snug tracking-[0.14em]">
+      <div className="grid min-h-6 place-items-center text-center font-mono text-2xs font-semibold uppercase leading-snug tracking-[0.14em]">
         {LOG.map((step, i) => {
           const end = i + 1 < LOG.length ? LOG[i + 1].at : T.logo;
           return (
@@ -434,14 +434,14 @@ function BuildLog({ labels }: { labels: AssemblyLabels }) {
           );
         })}
         <span
-          className="log-ready col-start-1 row-start-1 inline-flex items-center justify-center gap-2 text-accent"
+          className="log-ready col-start-1 row-start-1 inline-flex items-center justify-center gap-2 text-accent-ink"
           style={{ "--d": ms(T.logo) } as CSSProperties}
         >
           <span className="size-2 shrink-0 rounded-full bg-accent" />
           {labels.ready}
         </span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
+      <div className="mt-2 h-1 overflow-hidden rounded-full bg-line">
         <div
           className="build-progress h-full rounded-full"
           style={{ "--d": ms(T.feet), "--len": ms(T.logo - T.feet) } as CSSProperties}
@@ -464,6 +464,12 @@ export function HeroRobot({
   return (
     <div className={className} style={style}>
       <div className="assembly-stage relative mx-auto aspect-square w-full max-w-lg">
+        {/* Arena theme: the robot is assembled inside a lit portal. Its navy
+            outline needs light behind it; on the night canvas it would vanish. */}
+        <div aria-hidden="true" className="hero-portal">
+          <span className="hero-portal-ring" />
+        </div>
+
         {/* Blueprint frame: corner brackets and a scan line that sweeps the
             stage while the robot is being built. */}
         <div aria-hidden="true" className="pointer-events-none absolute -inset-3 sm:-inset-5">

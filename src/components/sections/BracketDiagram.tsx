@@ -215,7 +215,7 @@ function TeamCard({
           corner === "red" ? "border-l-danger" : "border-l-brand-strong"
         }`
       : corner === "red"
-        ? "bg-danger text-white"
+        ? "bg-danger text-surface"
         : "bg-brand-strong text-on-brand";
 
   const detail = [code, source].filter(Boolean).join(" · ");
@@ -280,7 +280,7 @@ function Brace({ y1, y2, label }: { y1: number; y2: number; label: string }) {
         />
       </svg>
       <span
-        className="tabular absolute left-6 -translate-y-1/2 rounded-md bg-success px-1.5 py-0.5 text-xs font-extrabold text-white shadow-sm"
+        className="tabular absolute left-6 -translate-y-1/2 rounded-md bg-success px-1.5 py-0.5 text-xs font-extrabold text-surface shadow-sm"
         style={{ top: `${ym}%` }}
       >
         {label}
