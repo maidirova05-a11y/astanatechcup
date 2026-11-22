@@ -1271,56 +1271,6 @@
     color: transparent;
   }
 
-  /* Hero stage: a lit portal the mascot stands in, so its navy outline reads
-     against light rather than vanishing into the night canvas. */
-  .hero-portal {
-    position: absolute;
-    inset: 4%;
-    border-radius: 9999px;
-    background:
-      radial-gradient(circle at 50% 38%, #ffffff 0%, var(--electric-100) 38%, var(--electric-300) 72%, var(--electric-500) 100%);
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.4),
-      0 0 0 10px rgb(123 150 255 / 0.08),
-      0 0 0 22px rgb(123 150 255 / 0.04),
-      0 0 120px 10px rgb(92 123 255 / 0.45),
-      0 0 220px 40px rgb(193 24 207 / 0.22);
-  }
-
-  @keyframes portal-spin {
-    to {
-      transform: rotate(1turn);
-    }
-  }
-
-  .hero-portal-ring {
-    position: absolute;
-    inset: -1%;
-    border-radius: 9999px;
-    padding: 2px;
-    background: conic-gradient(from 0deg, var(--electric-500), var(--magenta-500), var(--gold-400), transparent 70%, var(--electric-500));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-    animation: portal-spin 14s linear infinite;
-  }
-
-  .mascot-chip {
-    background:
-      radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
-      var(--d-accent-soft);
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.25),
-      0 12px 32px -10px var(--d-accent-ring);
-  }
-
-  /* The scoreboard number: tabular, display face, lit from within. */
-  .score-figure {
-    font-family: var(--font-display);
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 28px color-mix(in oklab, var(--brand) 55%, transparent);
-  }
-
   /* Organiser marks are supplied dark-on-transparent; on the night canvas
      they are drawn white instead of on a plate. */
   .logo-on-night img {
@@ -1336,11 +1286,6 @@
     box-shadow: 0 1px 0 0 var(--border);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .hero-portal-ring {
-      animation: none;
-    }
-  }
 }
 
 /* Arena discipline hues. In the utilities layer, after `.discipline-accent`,
@@ -1354,5 +1299,80 @@
     --d-accent-ring: hsl(var(--discipline-hue) 92% 64% / 0.4);
     --d-accent-ink: hsl(var(--discipline-hue) 92% 74%);
     --d-accent-tint: hsl(var(--discipline-hue) 80% 60% / 0.14);
+  }
+}
+
+/* ══ Nova — the hero mascot (src/components/sections/HeroRobot.tsx) ══════
+   Idle loops all start and end on the rest pose, so the global
+   reduced-motion rule (one near-zero iteration) leaves the robot still. */
+@layer utilities {
+  .nova-halo {
+    background: radial-gradient(
+      circle at 50% 45%,
+      rgb(92 123 255 / 0.38),
+      rgb(193 24 207 / 0.14) 45%,
+      transparent 70%
+    );
+    filter: blur(12px);
+    animation: fade-in 900ms ease-out both;
+  }
+
+  @keyframes nova-hover {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+  }
+  .nova-hover {
+    animation: nova-hover 4.2s ease-in-out infinite both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  @keyframes nova-wave {
+    0%, 52%, 100% { transform: rotate(0deg); }
+    62% { transform: rotate(-16deg); }
+    72% { transform: rotate(7deg); }
+    82% { transform: rotate(-12deg); }
+    91% { transform: rotate(3deg); }
+  }
+  .nova-wave {
+    transform-box: view-box;
+    animation: nova-wave 3.8s ease-in-out infinite both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  @keyframes nova-blink {
+    0%, 93%, 100% { transform: scaleY(1); }
+    96.5% { transform: scaleY(0.1); }
+  }
+  .nova-blink {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: nova-blink 4.6s ease-in-out infinite both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  @keyframes nova-flame {
+    0%, 100% { transform: scale(1, 1); opacity: 1; }
+    50% { transform: scale(0.86, 1.14); opacity: 0.82; }
+  }
+  .nova-flame {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+    animation: nova-flame 0.32s ease-in-out infinite both;
+  }
+
+  @keyframes nova-core {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.88); opacity: 0.78; }
+  }
+  .nova-core {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: nova-core 2.4s ease-in-out infinite both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  .nova-beam {
+    animation: fade-in 700ms ease-out both;
+    animation-delay: var(--d, 0ms);
   }
 }

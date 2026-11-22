@@ -25,9 +25,9 @@ import { eventDay, eventMonth, formatEventDate, monthGenitive } from "@/lib/util
  * when and where, what to do next, and how long they have to do it.
  *
  * ── Composition ─────────────────────────────────────────────────────────
- * The mascot is the anchor: it is built on screen part by part, powers on,
- * and only then presents the championship logo — the brand and the tone in
- * one short story, before a word is read (see HeroRobot). The headline sits beside
+ * The mascot is the anchor: it is built on screen part by part, powers on and
+ * waves — the tone of the event in one short story, before a word is read
+ * (see HeroRobot). The headline sits beside
  * it, and the deadline card sits beneath the robot rather than opposite it, so
  * the eye travels: robot → headline → CTA → deadline.
  *
